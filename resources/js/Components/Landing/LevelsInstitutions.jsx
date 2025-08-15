@@ -29,16 +29,6 @@ export default function LevelsInstitutions() {
     return (
         <section id="alcance" className="bg-white">
             <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
-                {user && dashboardHref && (
-                    <div className="mb-6 flex justify-end">
-                        <Link
-                            href={dashboardHref}
-                            className="inline-flex items-center rounded-md bg-orange-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-500"
-                        >
-                            Ir al panel
-                        </Link>
-                    </div>
-                )}
                 <div className="mx-auto max-w-3xl text-center">
                     <h2 className="text-2xl font-semibold text-gray-900">Niveles e instituciones</h2>
                     <p className="mt-3 text-base text-gray-600">

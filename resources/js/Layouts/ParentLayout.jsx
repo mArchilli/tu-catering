@@ -134,6 +134,8 @@ export default function ParentLayout({ header, children }) {
                         (showingNavigationDropdown ? 'block' : 'hidden') + ' sm:hidden'
                     }
                 >
+                    
+
                     <div className="space-y-1 pb-3 pt-2">
                         <ResponsiveNavLink
                             href={route('dashboard.padre')}
@@ -146,6 +148,18 @@ export default function ParentLayout({ header, children }) {
                             active={route().current('children.*')}
                         >
                             Alumnos
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            href={route('menus.padre')}
+                            active={route().current('menus.padre')}
+                        >
+                            Menu
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            href={route('precios.padre')}
+                            active={route().current('precios.padre')}
+                        >
+                            Precios
                         </ResponsiveNavLink>
                     </div>
 
@@ -171,6 +185,15 @@ export default function ParentLayout({ header, children }) {
                                 Cerrar sesión
                             </ResponsiveNavLink>
                         </div>
+
+                        <div className="px-4 py-2">
+                        <Link
+                            href="/"
+                            className="block w-full rounded-md border border-orange-200 bg-white px-4 py-2 text-center text-sm font-semibold text-orange-600 hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        >
+                            Volver al sitio
+                        </Link>
+                    </div>
                     </div>
                 </div>
             </nav>
