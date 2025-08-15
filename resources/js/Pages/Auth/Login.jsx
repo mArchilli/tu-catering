@@ -31,17 +31,11 @@ export default function Login({ status, canResetPassword }) {
                 </div>
             )}
 
-            <div className="mx-auto w-full max-w-md rounded-xl bg-white p-6 shadow-sm ring-1 ring-orange-100">
-                <div className="mb-6 flex items-center justify-between">
-                    <h1 className="text-lg font-semibold text-gray-900">
+            <div className="mx-auto w-full max-w-md rounded-xl bg-white p-6 shadow-sm">
+                <div className="mb-6 flex items-center justify-center">
+                    <h1 className="text-lg  font-semibold text-orange-500">
                         Iniciar sesión
-                    </h1>
-                    <Link
-                        href="/"
-                        className="inline-flex items-center rounded-md bg-white px-3 py-1.5 text-sm font-semibold text-orange-600 shadow-sm ring-1 ring-orange-200 transition hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    >
-                        Volver
-                    </Link>
+                    </h1>  
                 </div>
 
                 <form onSubmit={submit} className="space-y-4">
@@ -99,11 +93,17 @@ export default function Login({ status, canResetPassword }) {
                     </div>
 
                     <PrimaryButton
-                        className="w-full bg-orange-600 hover:bg-orange-500 focus:ring-orange-500"
+                        className="w-full justify-center bg-orange-600 hover:bg-orange-500 focus:ring-orange-500"
                         disabled={processing}
                     >
                         Ingresar
                     </PrimaryButton>
+                    <Link
+                        href="/"
+                        className="mt-3 inline-flex w-full items-center justify-center rounded-md border border-orange-600 bg-white px-4 py-2 text-sm font-semibold text-orange-600 transition hover:bg-orange-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    >
+                        Volver
+                    </Link>
                 </form>
 
                 <p className="mt-6 text-center text-sm text-gray-600">
