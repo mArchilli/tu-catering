@@ -14,6 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
+            // Redirección por rol (se asegura de ejecutarse tras auth en rutas protegidas)
+            \App\Http\Middleware\RoleRedirect::class,
         ]);
 
         //
