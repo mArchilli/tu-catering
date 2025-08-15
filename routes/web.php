@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ChildrenController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +27,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::resource('children', ChildrenController::class);
+    Route::delete('children/{child}', [ChildrenController::class, 'destroy'])->name('children.destroy');
+    Route::get('children/{child}/view', [ChildrenController::class, 'show'])->name('children.view');
 });
 
 require __DIR__.'/auth.php';

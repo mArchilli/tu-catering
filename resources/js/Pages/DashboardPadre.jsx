@@ -1,9 +1,9 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import ParentLayout from '@/Layouts/ParentLayout';
 import { Head } from '@inertiajs/react';
 
 export default function DashboardPadre() {
     return (
-        <AuthenticatedLayout
+        <ParentLayout
             header={<h2 className="text-xl font-semibold leading-tight text-gray-800">Dashboard Padre</h2>}
         >
             <Head title="Dashboard Padre" />
@@ -16,6 +16,6 @@ export default function DashboardPadre() {
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </ParentLayout>
     );
 }
