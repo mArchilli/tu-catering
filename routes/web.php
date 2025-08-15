@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ChildrenController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\MenuController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -30,6 +31,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('children', ChildrenController::class);
     Route::delete('children/{child}', [ChildrenController::class, 'destroy'])->name('children.destroy');
     Route::get('children/{child}/view', [ChildrenController::class, 'show'])->name('children.view');
+    Route::get('/menu', [MenuController::class, 'edit'])->name('menu.edit');
+    Route::post('/menu', [MenuController::class, 'update'])->name('menu.update');
 });
 
 require __DIR__.'/auth.php';
