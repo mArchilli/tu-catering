@@ -3,6 +3,7 @@
 use App\Http\Controllers\ChildrenController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MenuController;
+use App\Http\Controllers\PriceController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -33,6 +34,8 @@ Route::middleware('auth')->group(function () {
     Route::get('children/{child}/view', [ChildrenController::class, 'show'])->name('children.view');
     Route::get('/menu', [MenuController::class, 'edit'])->name('menu.edit');
     Route::post('/menu', [MenuController::class, 'update'])->name('menu.update');
+    Route::get('/prices', [PriceController::class, 'edit'])->name('prices.edit');
+    Route::post('/prices', [PriceController::class, 'update'])->name('prices.update');
 });
 
 require __DIR__.'/auth.php';

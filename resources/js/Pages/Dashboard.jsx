@@ -30,7 +30,7 @@ export default function Dashboard() {
                             </div>
                             <h4 className="text-base font-semibold text-gray-900">Menu</h4>
                             <p className="mt-1 text-sm text-gray-600">
-                                Consultá el menu, editá los archivos.
+                                Consultá el menu, carga o editá los archivos.
                             </p>
                             <div className="mt-4">
                                 <Link
@@ -42,8 +42,23 @@ export default function Dashboard() {
                             </div>
                         </div>
                         <div className="rounded-xl border border-orange-100 bg-white p-6 shadow-sm">
-                            <h4 className="text-base font-semibold text-gray-900">Novedades</h4>
-                            <p className="mt-1 text-sm text-gray-600">Próximas mejoras de interfaz.</p>
+                            <div className="mb-2 inline-flex rounded-full bg-orange-100 p-2 text-orange-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                                    <path d="M4 7h16M4 12h16M4 17h10" />
+                                </svg>
+                            </div>
+                            <h4 className="text-base font-semibold text-gray-900">Precios</h4>
+                            <p className="mt-1 text-sm text-gray-600">
+                                Consultá los precios, carga o editá los archivos.
+                            </p>
+                            <div className="mt-4">
+                                <Link
+                                    href={route().has('prices.edit') ? route('prices.edit') : '#'}
+                                    className="text-sm font-semibold text-orange-600 hover:text-orange-700"
+                                >
+                                    Ver precios →
+                                </Link>
+                            </div>
                         </div>
                         <div className="rounded-xl border border-orange-100 bg-white p-6 shadow-sm">
                             <h4 className="text-base font-semibold text-gray-900">Soporte</h4>

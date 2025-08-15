@@ -36,6 +36,12 @@ export default function AuthenticatedLayout({ header, children }) {
                                 >
                                     Menu
                                 </NavLink>
+                                <NavLink
+                                    href={route('prices.edit')}
+                                    active={route().current('prices.edit')}
+                                >
+                                    Precios
+                                </NavLink>
                             </div>
                         </div>
 
