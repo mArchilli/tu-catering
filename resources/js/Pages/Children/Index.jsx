@@ -8,7 +8,17 @@ export default function ChildrenIndex({ children: items = [] }) {
         <ParentLayout
             
         >
+            
             <div className="mx-auto max-w-7xl p-6">
+                <div className="overflow-hidden rounded-2xl bg-gradient-to-tr from-orange-600 to-orange-500 shadow-sm my-6">
+                        <div className="p-6 text-white sm:p-8">
+                            <h3 className="text-lg font-semibold">Alumnos registrados</h3>
+                            <p className="mt-1 text-sm text-orange-50">
+                                Consultá los alumnos registrados y gestiona su información.
+                            </p>
+                        </div>
+                    </div>
+                
                 <div className="mb-4 flex items-center justify-between">
                     <p className="text-sm text-gray-600">
                         {items.length

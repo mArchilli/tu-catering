@@ -37,6 +37,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/prices', [PriceController::class, 'edit'])->name('prices.edit');
     Route::post('/prices', [PriceController::class, 'update'])->name('prices.update');
     Route::get('/padre/menu', [MenuController::class, 'padre'])->name('menus.padre');
+    Route::get('/padre/precios', [MenuController::class, 'preciosPadre'])->name('precios.padre');
 });
 
 require __DIR__.'/auth.php';

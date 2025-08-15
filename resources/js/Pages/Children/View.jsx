@@ -21,7 +21,7 @@ export default function View({ child }) {
                 </div>
             }
         >
-            <div className="mx-auto max-w-5xl p-6">
+            <div className="mx-auto max-w-7xl p-6">
                 <div className="relative rounded-xl border border-orange-100 bg-white p-6 shadow-sm">
                     {/* Acciones dentro de la card: Editar (lápiz) + Eliminar (papelera) */}
                     <div className="absolute right-4 top-4 flex items-center gap-2">

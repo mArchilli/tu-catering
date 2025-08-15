@@ -29,6 +29,18 @@ export default function ParentLayout({ header, children }) {
                                 >
                                     Alumnos
                                 </NavLink>
+                                <NavLink
+                                    href={route('menus.padre')}
+                                    active={route().current('menus.padre')}
+                                >
+                                    Menu
+                                </NavLink>
+                                <NavLink
+                                    href={route('precios.padre')}
+                                    active={route().current('precios.padre')}
+                                >
+                                    Precios
+                                </NavLink>
                                 {/* Agrega otros links específicos del padre aquí */}
                             </div>
                         </div>

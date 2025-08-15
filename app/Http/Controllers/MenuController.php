@@ -24,9 +24,18 @@ class MenuController extends Controller
         return Inertia::render('Menu', self::urls());
     }
 
+    // Vista de menús (perfil padre)
     public function padre()
     {
         return Inertia::render('MenuPadre');
+    }
+
+    // Vista de precios (perfil padre)
+    public function preciosPadre()
+    {
+        // Podés pasar props si necesitás URLs personalizadas para PDFs:
+        // return Inertia::render('PreciosPadre', ['precios' => [/* ... */]]);
+        return Inertia::render('PreciosPadre');
     }
 
     public function update(Request $request)

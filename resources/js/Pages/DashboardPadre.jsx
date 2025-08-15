@@ -97,7 +97,7 @@ export default function DashboardPadre() {
                             </p>
                             <div className="mt-4">
                                 <Link
-                                    href={route('profile.edit')}
+                                    href={route('precios.padre')}
                                     className="text-sm font-semibold text-orange-600 hover:text-orange-700"
                                 >
                                     Ver precios →
