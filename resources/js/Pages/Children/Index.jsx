@@ -6,7 +6,7 @@ export default function ChildrenIndex({ children: items = [] }) {
 
     return (
         <ParentLayout
-            header={<h2 className="text-xl font-semibold text-gray-800">Alumnos</h2>}
+            
         >
             <div className="mx-auto max-w-7xl p-6">
                 <div className="mb-4 flex items-center justify-between">
