@@ -8,15 +8,25 @@ use Inertia\Inertia;
 
 class MenuController extends Controller
 {
-    public function edit()
+    public static function urls(): array
     {
         $economicoPath = 'menus/menu_economico.pdf';
         $generalPath = 'menus/menu_general.pdf';
 
-        return Inertia::render('Menu', [
+        return [
             'economicoUrl' => Storage::disk('public')->exists($economicoPath) ? Storage::url($economicoPath) : null,
             'generalUrl'   => Storage::disk('public')->exists($generalPath) ? Storage::url($generalPath) : null,
-        ]);
+        ];
+    }
+
+    public function edit()
+    {
+        return Inertia::render('Menu', self::urls());
+    }
+
+    public function padre()
+    {
+        return Inertia::render('MenuPadre');
     }
 
     public function update(Request $request)

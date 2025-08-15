@@ -8,10 +8,9 @@ use Inertia\Inertia;
 
 class PriceController extends Controller
 {
-    public function edit()
+    public static function urls(): array
     {
-        // Opcional: exponer URLs existentes (no obligatorio para tu vista actual)
-        $map = [
+        $keys = [
             'juan_xxiii_inicial',
             'juan_xxiii_primario',
             'juan_xxiii_secundario',
@@ -24,13 +23,17 @@ class PriceController extends Controller
         ];
 
         $existing = [];
-        foreach ($map as $key) {
+        foreach ($keys as $key) {
             $path = "precios/{$key}.pdf";
             $existing[$key] = Storage::disk('public')->exists($path) ? Storage::url($path) : null;
         }
+        return $existing;
+    }
 
+    public function edit()
+    {
         return Inertia::render('Price', [
-            'existing' => $existing, // tu Price.jsx no lo usa, pero queda disponible
+            'existing' => self::urls(),
         ]);
     }
 

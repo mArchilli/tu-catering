@@ -15,14 +15,7 @@ export default function DashboardPadre() {
                             <p className="mt-1 text-sm text-orange-50">
                                 Gestioná tus alumnos y mantené actualizada su información.
                             </p>
-                            <div className="mt-4">
-                                <Link
-                                    href={route().has('children.index') ? route('children.index') : '#'}
-                                    className="inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-orange-600 shadow-sm transition hover:bg-orange-50"
-                                >
-                                    Ir a mis alumnos
-                                </Link>
-                            </div>
+                            
                         </div>
                     </div>
 
@@ -65,6 +58,49 @@ export default function DashboardPadre() {
                                     className="text-sm font-semibold text-orange-600 hover:text-orange-700"
                                 >
                                     Editar perfil →
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div className="rounded-xl border border-orange-100 bg-white p-6 shadow-sm">
+                            <div className="mb-2 inline-flex rounded-full bg-orange-100 p-2 text-orange-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                                    <path d="M4 7h16M4 12h16M4 17h10" />
+                                </svg>
+                            </div>
+                            <h4 className="text-base font-semibold text-gray-900">Menu</h4>
+                            <p className="mt-1 text-sm text-gray-600">
+                                Consultá el menú, conoce nuestro menú general y nuestro menú económico.
+                            </p>
+                            <div className="mt-4">
+                                <Link
+                                    href={route('menus.padre')}
+                                    className="text-sm font-semibold text-orange-600 hover:text-orange-700"
+                                >
+                                    Ver menu →
+                                </Link>
+                            </div>
+                        </div>
+
+                        <div className="rounded-xl border border-orange-100 bg-white p-6 shadow-sm">
+                            <div className="mb-2 inline-flex rounded-full bg-orange-100 p-2 text-orange-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                                    <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5z" />
+                                    <path d="M2 22a9.94 9.94 0 0 1 10-6 9.94 9.94 0 0 1 10 6" />
+                                </svg>
+                            </div>
+                            <h4 className="text-base font-semibold text-gray-900">Precios</h4>
+                            <p className="mt-1 text-sm text-gray-600">
+                                Consultá nuestros precios, de nuestro menú general y nuestro menú económico.
+                            </p>
+                            <div className="mt-4">
+                                <Link
+                                    href={route('profile.edit')}
+                                    className="text-sm font-semibold text-orange-600 hover:text-orange-700"
+                                >
+                                    Ver precios →
                                 </Link>
                             </div>
                         </div>
