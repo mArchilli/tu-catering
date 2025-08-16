@@ -3,14 +3,26 @@ import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Toaster, toast } from 'react-hot-toast';
 
 export default function ParentLayout({ header, children }) {
     const user = usePage().props.auth.user;
+    const flash = usePage().props.flash;
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+
+    useEffect(() => {
+        if (flash?.success) {
+            toast.success(flash.success);
+        }
+        if (flash?.error) {
+            toast.error(flash.error);
+        }
+    }, [flash]);
 
     return (
         <div className="min-h-screen bg-orange-50">
+            <Toaster position="top-right" />
             <nav className="border-b border-orange-100 bg-orange-600">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 justify-between">

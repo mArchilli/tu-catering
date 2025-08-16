@@ -8,7 +8,28 @@ export default function OrderSummary({ child, summary = [], totalsByService = []
   const handleConfirm = () => {
     // Confirmación final: reusar payload a store
     const items = summary.map(({ date, service_type_id }) => ({ date, service_type_id }));
-    router.post(route('children.orders.store', child.id), { items }, { preserveScroll: true });
+    // Intentar inferir mes/año del primer ítem del resumen
+    const firstDate = summary[0]?.date;
+    let query = '';
+    if (firstDate) {
+      const d = new Date(firstDate);
+      if (!isNaN(d)) {
+        const month = d.getMonth() + 1;
+        const year = d.getFullYear();
+        query = `?month=${month}&year=${year}`;
+      }
+    }
+
+    router.post(
+      route('children.orders.store', child.id),
+      { items },
+      {
+        preserveScroll: true,
+        onSuccess: () => {
+          router.visit(route('children.payment', child.id) + query);
+        },
+      },
+    );
   };
 
   const handleBack = () => {
@@ -73,7 +94,7 @@ export default function OrderSummary({ child, summary = [], totalsByService = []
           </div>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <button onClick={handleConfirm} className="w-full sm:w-auto rounded-md bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-500 text-center">Confirmar pedido</button>
+            <button onClick={handleConfirm} className="w-full sm:w-auto rounded-md bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-500 text-center">Ir a pago</button>
             <SecondaryButton className="w-full sm:w-auto sm:hidden justify-center text-center" onClick={handleBack}>Volver</SecondaryButton>
           </div>
         </section>

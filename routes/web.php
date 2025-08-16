@@ -41,8 +41,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/padre/precios', [MenuController::class, 'preciosPadre'])->name('precios.padre');
     // Calendario de pedidos por hijo
     Route::get('children/{child}/orders', [OrderController::class, 'create'])->name('children.orders.create');
+    Route::get('children/{child}/orders/summary', [OrderController::class, 'summaryExisting'])->name('children.orders.summary.get');
     Route::post('children/{child}/orders/summary', [OrderController::class, 'summary'])->name('children.orders.summary');
     Route::post('children/{child}/orders', [OrderController::class, 'store'])->name('children.orders.store');
+    Route::get('children/{child}/payment', [OrderController::class, 'payment'])->name('children.payment');
+    Route::post('children/{child}/payment/confirm', [OrderController::class, 'paymentConfirm'])->name('children.payment.confirm');
 });
 
 require __DIR__.'/auth.php';
