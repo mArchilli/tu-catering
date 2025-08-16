@@ -93,17 +93,8 @@ export default function OrderCalendar({ serviceTypes = [], initialSelections = {
 
   const footer = (
     <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-      <div className="flex items-baseline gap-3">
-        <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">
-          <div className="font-medium text-gray-900">Resumen</div>
-          <div>
-            Días: <span className="font-semibold">{totalDays}</span> · Total: <span className="font-bold">{money(totalCents)}</span>
-          </div>
-        </div>
-      </div>
-      <div className="flex items-center gap-2">
-  <button onClick={askClearAll} type="button" className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Vaciar todo</button>
-        <button onClick={() => onSubmit(selections)} className="rounded-md bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-500">Confirmar</button>
+      <div className="flex flex-col items-stretch gap-2 md:flex-row md:items-center w-full md:w-auto">
+        <button onClick={askClearAll} type="button" className=" rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 text-center">Vaciar todo</button>
       </div>
     </div>
   );
@@ -147,13 +138,79 @@ export default function OrderCalendar({ serviceTypes = [], initialSelections = {
     );
   };
 
+  // Ocultar navegación (flechas prev/next)
+  const EmptyIcon = () => null;
+  const EmptyNav = () => null;
+
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-[280px_1fr]">
-      <aside className="rounded-xl border border-orange-100 bg-white p-4">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-[1fr_280px]">
+  <section className="rounded-xl border border-orange-100 bg-white p-4">
+        <DayPicker
+          mode="single"
+          month={monthDate}
+          onDayClick={handleDayClick}
+          captionLayout="buttons"
+          fromMonth={new Date(year, month - 1, 1)}
+          toMonth={new Date(year, month - 1, 1)}
+          modifiers={dayModifiers}
+          modifiersClassNames={dayModifiersClassNames}
+          showOutsideDays={false}
+          disabled={[
+            { before: new Date(today.getFullYear(), today.getMonth(), today.getDate()) },
+            { dayOfWeek: [0, 6] }, // Domingo(0) y Sábado(6)
+          ]}
+          components={{ DayContent, HeadRow: WeekdaysHeadRow, IconLeft: EmptyIcon, IconRight: EmptyIcon, Nav: EmptyNav }}
+          locale={es}
+          className="w-full only-weekdays"
+          classNames={{
+            months: 'w-full',
+            month: 'w-full',
+            table: 'w-full table-fixed',
+            month_grid: 'w-full',
+            caption: 'w-full flex justify-center',
+            month_caption: 'flex justify-center',
+            caption_label: 'text-center capitalize font-semibold',
+            day_button: 'w-full h-full flex items-center justify-center p-0',
+          }}
+          styles={{
+            root: { width: '100%' },
+            months: { width: '100%', maxWidth: 'none' },
+            month: { width: '100%' },
+            table: { width: '100%', tableLayout: 'fixed' },
+            month_grid: { width: '100%' },
+            month_caption: { display: 'flex', justifyContent: 'center' },
+          }}
+        />
+
+        {/* Referencia de colores por servicio */}
+        <div className="mt-4">
+          <div className="mb-2 text-xs font-medium text-gray-600">Referencia de colores</div>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+            {serviceTypes.map((s) => {
+              const col = colorForService(s);
+              return (
+                <div key={s.id} className="flex items-center gap-2 text-xs text-gray-700">
+                  <span aria-hidden="true" className={[
+                    'inline-block h-3 w-3 rounded-full border',
+                    col?.border,
+                    col?.pillBg,
+                  ].filter(Boolean).join(' ')} />
+                  <span className="font-medium">{s.name}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {footer}
+      </section>
+
+      <aside className="rounded-xl border border-orange-100 bg-white p-4 flex flex-col justify-between">
         <h4 className="text-sm font-semibold text-gray-900">Elegí el servicio</h4>
         <div className="mt-3 grid grid-cols-1 gap-2">
           {serviceTypes.map((s) => {
             const active = selectedService === s.id;
+            const col = colorForService(s);
             return (
               <button
                 key={s.id}
@@ -167,7 +224,10 @@ export default function OrderCalendar({ serviceTypes = [], initialSelections = {
                 ].join(' ')}
               >
                 <div className="flex items-center justify-between">
-                  <div className="font-medium text-gray-900">{s.name}</div>
+                  <div className="flex items-center gap-2">
+                    <span aria-hidden="true" className={['inline-block h-3 w-3 rounded-full border', col?.border, col?.pillBg].filter(Boolean).join(' ')} />
+                    <div className="font-medium text-gray-900">{s.name}</div>
+                  </div>
                   <div className="text-orange-700 font-semibold">{money(s.price_cents)}</div>
                 </div>
               </button>
@@ -195,52 +255,16 @@ export default function OrderCalendar({ serviceTypes = [], initialSelections = {
           <div className="text-lg font-bold text-gray-900">{money(totalCents)}</div>
           <div className="text-xs text-gray-600">{totalDays} día(s) seleccionado(s)</div>
         </div>
+
+          <div className="mt-4">
+            <button
+              onClick={() => onSubmit(selections)}
+              className="w-full rounded-md bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-500 text-center"
+            >
+              Confirmar
+            </button>
+          </div>
       </aside>
-
-  <section className="rounded-xl border border-orange-100 bg-white p-4">
-        <DayPicker
-          mode="single"
-          month={monthDate}
-          onDayClick={handleDayClick}
-          captionLayout="buttons"
-          fromMonth={new Date(year, month - 1, 1)}
-          toMonth={new Date(year, month - 1, 1)}
-          modifiers={dayModifiers}
-          modifiersClassNames={dayModifiersClassNames}
-          showOutsideDays
-          disabled={[
-            { before: new Date(today.getFullYear(), today.getMonth(), today.getDate()) },
-            { dayOfWeek: [0, 6] }, // Domingo(0) y Sábado(6)
-          ]}
-          components={{ DayContent, HeadRow: WeekdaysHeadRow }}
-          locale={es}
-          className="w-full only-weekdays"
-          classNames={{
-            months: 'w-full',
-            month: 'w-full',
-            table: 'w-full table-fixed',
-            month_grid: 'w-full',
-            caption: 'w-full',
-            day_button: 'w-full h-full flex items-center justify-center p-0',
-          }}
-          styles={{
-            root: { width: '100%' },
-            months: { width: '100%', maxWidth: 'none' },
-            month: { width: '100%' },
-            table: { width: '100%', tableLayout: 'fixed' },
-            month_grid: { width: '100%' },
-          }}
-        />
-
-        {/* Leyenda colores */}
-        <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
-          {Object.entries(selections).map(([date, sid]) => (
-            <div key={date} className="text-xs text-gray-700">{date}: <span className="font-medium">{serviceById[sid]?.name}</span></div>
-          ))}
-        </div>
-
-        {footer}
-      </section>
 
       {/* Modal confirmar vaciado */}
       <Modal show={confirmingClear} onClose={closeClearModal} maxWidth="sm">
