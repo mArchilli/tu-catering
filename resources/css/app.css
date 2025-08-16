@@ -1,3 +1,36 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Ocultar sábados y domingos en react-day-picker (v9) cuando el wrapper tiene only-weekdays */
+.only-weekdays .rdp-table thead .rdp-head_row > .rdp-head_cell:nth-child(6),
+.only-weekdays .rdp-table thead .rdp-head_row > .rdp-head_cell:nth-child(7),
+.only-weekdays .rdp-table tbody .rdp-row > .rdp-cell:nth-child(6),
+.only-weekdays .rdp-table tbody .rdp-row > .rdp-cell:nth-child(7) {
+	display: none !important;
+}
+
+/* Asegurar que la tabla use todo el ancho */
+.only-weekdays .rdp-table {
+	width: 100% !important;
+}
+
+/* Forzar 5 columnas con CSS Grid en head y body */
+.only-weekdays .rdp-table thead,
+.only-weekdays .rdp-table tbody {
+	display: block;
+	width: 100%;
+}
+
+.only-weekdays .rdp-head_row,
+.only-weekdays .rdp-row {
+	display: grid;
+	grid-template-columns: repeat(5, minmax(0, 1fr));
+	width: 100%;
+}
+
+/* Asegurar que celdas se comporten como bloques dentro del grid */
+.only-weekdays .rdp-head_cell,
+.only-weekdays .rdp-cell {
+	display: block;
+}

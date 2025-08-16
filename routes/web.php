@@ -4,6 +4,7 @@ use App\Http\Controllers\ChildrenController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\PriceController;
+use App\Http\Controllers\OrderController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -38,6 +39,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/prices', [PriceController::class, 'update'])->name('prices.update');
     Route::get('/padre/menu', [MenuController::class, 'padre'])->name('menus.padre');
     Route::get('/padre/precios', [MenuController::class, 'preciosPadre'])->name('precios.padre');
+    // Calendario de pedidos por hijo
+    Route::get('children/{child}/orders', [OrderController::class, 'create'])->name('children.orders.create');
+    Route::post('children/{child}/orders/summary', [OrderController::class, 'summary'])->name('children.orders.summary');
+    Route::post('children/{child}/orders', [OrderController::class, 'store'])->name('children.orders.store');
 });
 
 require __DIR__.'/auth.php';
