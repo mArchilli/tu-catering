@@ -1,5 +1,6 @@
 import ParentLayout from '@/Layouts/ParentLayout';
 import { Head, router } from '@inertiajs/react';
+import SecondaryButton from '@/Components/SecondaryButton';
 
 const money = (cents) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format((cents || 0) / 100);
 
@@ -8,6 +9,10 @@ export default function OrderSummary({ child, summary = [], totalsByService = []
     // Confirmación final: reusar payload a store
     const items = summary.map(({ date, service_type_id }) => ({ date, service_type_id }));
     router.post(route('children.orders.store', child.id), { items }, { preserveScroll: true });
+  };
+
+  const handleBack = () => {
+    router.visit(route('children.orders.create', child.id));
   };
 
   return (
@@ -51,8 +56,10 @@ export default function OrderSummary({ child, summary = [], totalsByService = []
             )}
           </div>
 
-          <div className="mt-6 flex justify-end">
-            <button onClick={handleConfirm} className="rounded-md bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-500">Confirmar pedido</button>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            
+            <button onClick={handleConfirm} className="w-full sm:w-auto rounded-md bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-500 text-center">Confirmar pedido</button>
+              <SecondaryButton className="w-full sm:w-auto justify-center text-center" onClick={handleBack}>Volver</SecondaryButton>
           </div>
         </section>
       </div>

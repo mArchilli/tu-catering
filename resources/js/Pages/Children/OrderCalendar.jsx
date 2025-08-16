@@ -1,5 +1,6 @@
 import ParentLayout from '@/Layouts/ParentLayout';
 import { Head, router } from '@inertiajs/react';
+import SecondaryButton from '@/Components/SecondaryButton';
 import OrderCalendar from '@/Components/OrderCalendar';
 
 export default function OrderCalendarPage({ child, serviceTypes, existing, year, month }) {
@@ -15,7 +16,12 @@ export default function OrderCalendarPage({ child, serviceTypes, existing, year,
       header={<h2 className="text-xl font-semibold text-gray-800">Calendario de servicios - {child.name} {child.lastname}</h2>}
     >
       <Head title="Calendario" />
-      <div className="mx-auto max-w-7xl p-6">
+      <div className="mx-auto max-w-7xl p-6 space-y-4">
+        <div>
+          <SecondaryButton className="w-full sm:w-auto justify-center text-center" onClick={() => router.visit(route('children.view', child.id))}>
+            Volver
+          </SecondaryButton>
+        </div>
         <OrderCalendar
           serviceTypes={serviceTypes}
           initialSelections={initialSelections}
