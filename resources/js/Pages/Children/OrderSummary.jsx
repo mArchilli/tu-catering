@@ -20,20 +20,36 @@ export default function OrderSummary({ child, summary = [], totalsByService = []
       header={<h2 className="text-xl font-semibold text-gray-800">Resumen del pedido - {child.name} {child.lastname}</h2>}
     >
       <Head title="Resumen del pedido" />
-      <div className="mx-auto max-w-4xl p-6 space-y-8">
+      <div className="mx-auto max-w-7xl p-6 space-y-8">
+        <SecondaryButton className="hidden md:block w-full sm:w-auto justify-center text-center" onClick={handleBack}>Volver</SecondaryButton>
         <section className="rounded-xl border border-gray-200 bg-white p-4">
-          <h3 className="text-base font-semibold text-gray-900">Por servicio</h3>
-          <div className="mt-3 divide-y divide-gray-100">
-            {totalsByService.map((t) => (
-              <div key={t.service_type_id} className="flex items-center justify-between py-2 text-sm">
-                <div className="font-medium text-gray-800">{t.service}</div>
-                <div className="text-gray-600">{t.days} día(s)</div>
-                <div className="font-semibold text-gray-900">{money(t.subtotal_cents)}</div>
-              </div>
-            ))}
-            {totalsByService.length === 0 && (
-              <div className="py-4 text-sm text-gray-600">No hay selecciones.</div>
-            )}
+          <h3 className="text-base font-semibold text-gray-900">Resumen por servicio</h3>
+          <div className="mt-3 overflow-x-auto">
+            <table className="min-w-full table-auto text-sm">
+              <thead>
+                <tr className="text-left text-gray-600">
+                  <th className="px-3 py-2 font-medium">Servicio</th>
+                  <th className="px-3 py-2 font-medium">Días</th>
+                  <th className="px-3 py-2 font-medium">Precio unitario</th>
+                  <th className="px-3 py-2 font-medium">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {totalsByService.map((t) => (
+                  <tr key={t.service_type_id} className="text-gray-800">
+                    <td className="px-3 py-2 font-medium">{t.service}</td>
+                    <td className="px-3 py-2">{t.days}</td>
+                    <td className="px-3 py-2">{/* precio unitario = subtotal / días */}{money((t.subtotal_cents || 0) / (t.days || 1))}</td>
+                    <td className="px-3 py-2 font-semibold text-gray-900">{money(t.subtotal_cents)}</td>
+                  </tr>
+                ))}
+                {totalsByService.length === 0 && (
+                  <tr>
+                    <td colSpan="4" className="px-3 py-4 text-gray-600">No hay selecciones.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
           <div className="mt-4 flex items-center justify-end gap-4 border-t pt-4">
             <div className="text-sm text-gray-600">Total</div>
@@ -57,9 +73,8 @@ export default function OrderSummary({ child, summary = [], totalsByService = []
           </div>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            
             <button onClick={handleConfirm} className="w-full sm:w-auto rounded-md bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-500 text-center">Confirmar pedido</button>
-              <SecondaryButton className="w-full sm:w-auto justify-center text-center" onClick={handleBack}>Volver</SecondaryButton>
+            <SecondaryButton className="w-full sm:w-auto sm:hidden justify-center text-center" onClick={handleBack}>Volver</SecondaryButton>
           </div>
         </section>
       </div>
