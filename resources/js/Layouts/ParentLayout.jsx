@@ -10,6 +10,7 @@ export default function ParentLayout({ header, children }) {
     const user = usePage().props.auth.user;
     const flash = usePage().props.flash;
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+    const autoNotice = usePage().props.autoNotice;
 
     useEffect(() => {
         if (flash?.success) {
@@ -18,7 +19,10 @@ export default function ParentLayout({ header, children }) {
         if (flash?.error) {
             toast.error(flash.error);
         }
-    }, [flash]);
+        if (autoNotice) {
+            toast.success(autoNotice);
+        }
+    }, [flash, autoNotice]);
 
     return (
         <div className="min-h-screen bg-orange-50">

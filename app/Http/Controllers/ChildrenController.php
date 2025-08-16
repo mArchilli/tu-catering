@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Children;
+use App\Models\MonthlyOrder;
 
 class ChildrenController extends Controller
 {
@@ -15,6 +16,23 @@ class ChildrenController extends Controller
             ->orderBy('lastname')
             ->orderBy('name')
             ->get(['id','name','lastname','dni','school','grado','condition']);
+
+        // Traer estado de pago mensual actual por alumno
+        $month = now()->month;
+        $year = now()->year;
+        $ids = $children->pluck('id');
+        $monthly = MonthlyOrder::whereIn('child_id', $ids)
+            ->where('month', $month)
+            ->where('year', $year)
+            ->get(['child_id','status','total_cents'])
+            ->keyBy('child_id');
+
+        $children = $children->map(function ($c) use ($monthly) {
+            $m = $monthly->get($c->id);
+            $c->payment_status = $m->status ?? null; // pending | paid | null
+            $c->payment_total_cents = $m->total_cents ?? 0;
+            return $c;
+        });
 
         return Inertia::render('Children/Index', [
             'children' => $children,

@@ -25,6 +25,25 @@ export default function Dashboard() {
                         <div className="rounded-xl border border-orange-100 bg-white p-6 shadow-sm">
                             <div className="mb-2 inline-flex rounded-full bg-orange-100 p-2 text-orange-600">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                                    <path d="M3 7h18M3 12h18M3 17h12" />
+                                </svg>
+                            </div>
+                            <h4 className="text-base font-semibold text-gray-900">Órdenes mensuales</h4>
+                            <p className="mt-1 text-sm text-gray-600">
+                                Revisá y confirmá los pagos enviados por los padres.
+                            </p>
+                            <div className="mt-4">
+                                <Link
+                                    href={route().has('admin.monthly-orders.index') ? route('admin.monthly-orders.index') : '#'}
+                                    className="text-sm font-semibold text-orange-600 hover:text-orange-700"
+                                >
+                                    Ver órdenes →
+                                </Link>
+                            </div>
+                        </div>
+                        <div className="rounded-xl border border-orange-100 bg-white p-6 shadow-sm">
+                            <div className="mb-2 inline-flex rounded-full bg-orange-100 p-2 text-orange-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                                     <path d="M4 7h16M4 12h16M4 17h10" />
                                 </svg>
                             </div>

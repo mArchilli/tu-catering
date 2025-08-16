@@ -46,6 +46,13 @@ Route::middleware('auth')->group(function () {
     Route::post('children/{child}/orders', [OrderController::class, 'store'])->name('children.orders.store');
     Route::get('children/{child}/payment', [OrderController::class, 'payment'])->name('children.payment');
     Route::post('children/{child}/payment/confirm', [OrderController::class, 'paymentConfirm'])->name('children.payment.confirm');
+    // Admin: órdenes mensuales (protegidas por middleware de admin)
+    Route::middleware([\App\Http\Middleware\AdminOnly::class])->group(function () {
+        Route::get('/admin/monthly-orders', [OrderController::class, 'adminMonthlyIndex'])->name('admin.monthly-orders.index');
+        Route::post('/admin/monthly-orders/{order}/confirm', [OrderController::class, 'adminMonthlyConfirm'])->name('admin.monthly-orders.confirm');
+    Route::post('/admin/monthly-orders/{order}/reject', [OrderController::class, 'adminMonthlyReject'])->name('admin.monthly-orders.reject');
+    Route::delete('/admin/monthly-orders/{order}', [OrderController::class, 'adminMonthlyDestroy'])->name('admin.monthly-orders.destroy');
+    });
 });
 
 require __DIR__.'/auth.php';

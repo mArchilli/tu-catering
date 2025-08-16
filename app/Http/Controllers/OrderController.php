@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Children;
 use App\Models\DailyOrder;
 use App\Models\ServiceType;
+use App\Models\MonthlyOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 
 class OrderController extends Controller
@@ -19,6 +21,14 @@ class OrderController extends Controller
         // Pedimos órdenes existentes para el mes consultado (si viene), por defecto mes actual
         $month = (int)($request->get('month', now()->month));
         $year = (int)($request->get('year', now()->year));
+
+        // Bloqueo de edición si hay una orden mensual pendiente o pagada vigente
+        [$allowed, $reason] = $this->canEditPeriod($child, $month, $year);
+        if (!$allowed) {
+            return redirect()
+                ->route('children.view', $child->id)
+                ->with('error', $reason);
+        }
         $start = now()->setDate($year, $month, 1)->startOfMonth()->toDateString();
         $end = now()->setDate($year, $month, 1)->endOfMonth()->toDateString();
 
@@ -57,6 +67,17 @@ class OrderController extends Controller
         ]);
 
         $items = collect($validated['items']);
+
+        // Determinar período de los ítems (asumimos un solo mes)
+        $firstDate = Carbon::parse($items->first()['date']);
+        $month = (int)$firstDate->month;
+        $year = (int)$firstDate->year;
+
+        // Bloqueo de edición si hay una orden mensual pendiente o pagada vigente
+        [$allowed, $reason] = $this->canEditPeriod($child, $month, $year);
+        if (!$allowed) {
+            return back()->with('error', $reason);
+        }
 
         // Usamos upsert por child+date para actualizar o crear
         $payload = $items->map(fn($i) => [
@@ -246,10 +267,112 @@ class OrderController extends Controller
     public function paymentConfirm(Request $request, Children $child)
     {
         $this->authorizeChild($child);
+        // Determinar mes/año (por query o actual)
+        $month = (int)($request->get('month', now()->month));
+        $year = (int)($request->get('year', now()->year));
+
+        // Calcular total del período
+        $start = now()->setDate($year, $month, 1)->startOfMonth()->toDateString();
+        $end = now()->setDate($year, $month, 1)->endOfMonth()->toDateString();
+        $orders = DailyOrder::where('child_id', $child->id)
+            ->whereBetween('date', [$start, $end])
+            ->with('serviceType:id,price_cents')
+            ->get();
+        $totalCents = $orders->sum(fn($o) => optional($o->serviceType)->price_cents ?? 0);
+
+        // Crear o actualizar orden mensual con estado pendiente
+        MonthlyOrder::updateOrCreate(
+            [
+                'child_id' => $child->id,
+                'month' => $month,
+                'year' => $year,
+            ],
+            [
+                'status' => 'pending',
+                'total_cents' => $totalCents,
+            ]
+        );
 
         return redirect()
             ->route('dashboard.padre')
             ->with('success', 'Se informó a la administración su pedido. No verá cambios hasta que el administrador confirme la recepción del pago.');
+    }
+
+    // ADMIN: listar órdenes mensuales pendientes
+    public function adminMonthlyIndex(Request $request)
+    {
+    $statusParam = $request->get('status'); // all|pending|paid
+    $status = in_array($statusParam, ['pending','paid','all'], true) ? $statusParam : 'all';
+    $search = trim((string) $request->get('q', ''));
+
+        $base = MonthlyOrder::query()
+            ->with(['child:id,name,lastname'])
+            ->when(in_array($status, ['pending','paid'], true), fn($q) => $q->where('status', $status))
+            ->when($search !== '', function ($q) use ($search) {
+                $q->whereHas('child', function ($qc) use ($search) {
+                    $qc->where('name', 'like', "%$search%")
+                       ->orWhere('lastname', 'like', "%$search%");
+                });
+            })
+            ->orderByDesc('year')
+            ->orderByDesc('month')
+            ->select(['id','child_id','month','year','status','total_cents']);
+
+        // Paginamos por separado para cada listado usando distintos nombres de página
+        $ordersPending = (clone $base)
+            ->where('status','pending')
+            ->paginate(10, ['*'], 'page_pending')
+            ->appends(['status' => $status, 'q' => $search]);
+
+        $ordersPaid = (clone $base)
+            ->where('status','paid')
+            ->paginate(10, ['*'], 'page_paid')
+            ->appends(['status' => $status, 'q' => $search]);
+
+        return Inertia::render('Admin/MonthlyOrders', [
+            'filters' => [
+                'status' => $status,
+                'q' => $search,
+            ],
+            'ordersPending' => $ordersPending,
+            'ordersPaid' => $ordersPaid,
+        ]);
+    }
+
+    // ADMIN: confirmar pago de una orden mensual
+    public function adminMonthlyConfirm(Request $request, MonthlyOrder $order)
+    {
+        $order->update([
+            'status' => 'paid',
+            'decision_at' => now(),
+            'notified' => false,
+        ]);
+
+        return back()->with('success', 'Orden confirmada como pagada.');
+    }
+
+    // ADMIN: eliminar una orden mensual (solo si está pagada)
+    public function adminMonthlyDestroy(Request $request, MonthlyOrder $order)
+    {
+        if ($order->status !== 'paid') {
+            return back()->with('error', 'Solo se pueden eliminar órdenes marcadas como pagadas.');
+        }
+
+        $order->delete();
+
+        return back()->with('success', 'Orden eliminada correctamente.');
+    }
+
+    // ADMIN: rechazar pago de una orden mensual
+    public function adminMonthlyReject(Request $request, MonthlyOrder $order)
+    {
+        $order->update([
+            'status' => 'rejected',
+            'decision_at' => now(),
+            'notified' => false,
+        ]);
+
+        return back()->with('success', 'Orden rechazada.');
     }
 
     private function authorizeChild(Children $child): void
@@ -257,5 +380,44 @@ class OrderController extends Controller
         if ($child->user_id !== Auth::id()) {
             abort(403);
         }
+    }
+
+    /**
+     * Reglas de edición del período:
+     * - Si existe MonthlyOrder 'pending' para (child, month, year): bloquear.
+     * - Si existe 'paid': bloquear mientras el mes/año no haya finalizado (vigente). Una vez vencido, permitir.
+     * - Si existe 'rejected': permitir.
+     */
+    private function canEditPeriod(Children $child, int $month, int $year): array
+    {
+        $existing = MonthlyOrder::where('child_id', $child->id)
+            ->where('month', $month)
+            ->where('year', $year)
+            ->first();
+
+        if (!$existing) {
+            return [true, ''];
+        }
+
+        $status = $existing->status;
+        if ($status === 'rejected') {
+            return [true, ''];
+        }
+
+        if ($status === 'pending') {
+            return [false, 'Este período ya fue informado y está pendiente de aprobación. Esperá la confirmación o un posible rechazo para volver a editar.'];
+        }
+
+        if ($status === 'paid') {
+            $periodEnd = Carbon::create($year, $month, 1)->endOfMonth();
+            if (now()->lessThanOrEqualTo($periodEnd)) {
+                return [false, 'Este período ya fue aprobado y continúa vigente. Podrás editar nuevamente cuando finalice el mes.'];
+            }
+            // Si el período está vencido, permitimos nueva edición (por ejemplo, programar un nuevo mes)
+            return [true, ''];
+        }
+
+        // Estado desconocido: por seguridad, bloquear
+        return [false, 'No es posible editar este período en este momento.'];
     }
 }

@@ -50,6 +50,12 @@ export default function AuthenticatedLayout({ header, children }) {
                                 >
                                     Precios
                                 </NavLink>
+                                <NavLink
+                                    href={route().has('admin.monthly-orders.index') ? route('admin.monthly-orders.index') : '#'}
+                                    active={route().current('admin.monthly-orders.*')}
+                                >
+                                    Órdenes mensuales
+                                </NavLink>
                             </div>
                         </div>
 
