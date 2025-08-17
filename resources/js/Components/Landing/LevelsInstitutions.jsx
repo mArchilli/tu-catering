@@ -24,6 +24,13 @@ export default function LevelsInstitutions() {
         { title: 'Educación Secundaria', desc: 'Energía y variedad para jornadas escolares demandantes.' },
     ];
 
+    // Imágenes por nivel: inicial, primario, secundario
+    const levelImages = [
+        '/images/nivel-inicial.png',
+        '/images/nivel-primario.png', // Nueva imagen de Primario
+        '/images/nivel-secundario.png', // Nueva imagen de Secundario (colocar la adjunta en public/images/nivel-secundario.jpg)
+    ];
+
     const institutions = ['Juan XXIII', 'Colegio Buenos Aires', 'Santísimo Redentor'];
 
     return (
@@ -36,32 +43,81 @@ export default function LevelsInstitutions() {
                     </p>
                 </div>
 
-                <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {levels.map((l) => (
-                        <div key={l.title} className="rounded-xl border border-orange-100 bg-white p-6 shadow-sm">
-                            <div className="mb-3 inline-flex rounded-full bg-orange-100 p-2 text-orange-600">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                                    <path d="M4 7l8-4 8 4-8 4-8-4z" />
-                                    <path d="M12 11l8-4v6c0 3.866-3.582 7-8 7s-8-3.134-8-7V7l8 4z" />
-                                </svg>
+                {/* Cards con imagen arriba y descripción abajo.
+                    Mobile: una debajo de la otra (inicial, primario, secundario).
+                    Desktop: lado a lado de izquierda a derecha (inicial, primario, secundario). */}
+                <div className="mt-10 flex flex-col gap-6 lg:flex-row lg:gap-8">
+                    {levels.map((l, idx) => (
+                        <article
+                            key={l.title}
+                            className="flex-1 overflow-hidden rounded-xl border-2 border-orange-300 bg-gradient-to-b from-orange-50 to-white shadow-md transition-transform duration-300 ease-out hover:scale-[1.02] hover:shadow-lg hover:border-orange-400"
+                        >
+                            <img
+                                src={levelImages[idx]}
+                                alt={`${l.title} - ilustración`}
+                                className="h-56 w-full object-cover sm:h-64 lg:h-72"
+                                loading="lazy"
+                            />
+                            <div className="p-5">
+                                <h3 className="text-base font-semibold text-orange-800">{l.title}</h3>
+                                <p className="mt-2 text-sm text-gray-700">{l.desc}</p>
                             </div>
-                            <h3 className="text-base font-semibold text-gray-900">{l.title}</h3>
-                            <p className="mt-2 text-sm text-gray-600">{l.desc}</p>
-                        </div>
+                        </article>
                     ))}
                 </div>
 
                 <div className="mt-12">
-                    <h3 className="text-center text-base font-semibold text-gray-900">Instituciones con las que trabajamos</h3>
-                    <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-                        {institutions.map((name) => (
-                            <div
-                                key={name}
-                                className="flex items-center justify-center rounded-lg border border-orange-100 bg-orange-50 px-4 py-6 text-sm font-medium text-orange-700"
-                            >
-                                {name}
+                    {/* Animación para marquee y pausa al hover */}
+                    <style>
+                        {`
+                        @keyframes scrollX {
+                            0% { transform: translateX(0); }
+                            100% { transform: translateX(-50%); }
+                        }
+                        .marquee-wrap:hover .marquee-track {
+                            animation-play-state: paused;
+                        }
+                        `}
+                    </style>
+
+                    <div className="rounded-2xl border-2 border-orange-300 bg-gradient-to-r from-orange-50 via-white to-orange-50 p-6 sm:p-8 shadow-md">
+                        <h3 className="text-center text-base font-semibold text-orange-800">
+                            Instituciones con las que trabajamos
+                        </h3>
+
+                        {/* Mobile: marquee infinito con pausa al hover */}
+                        <div className="mt-5 md:hidden marquee-wrap overflow-hidden">
+                            <div className="marquee-track flex items-center gap-3 whitespace-nowrap animate-[scrollX_20s_linear_infinite]">
+                                {[...institutions, ...institutions].map((name, i) => (
+                                    <div
+                                        key={`${name}-${i}`}
+                                        className="flex-shrink-0 inline-flex items-center rounded-full border-2 border-orange-300 bg-gradient-to-b from-orange-50 to-white px-4 py-2 text-sm font-semibold text-orange-800 shadow-sm transition-transform duration-300 ease-out hover:scale-[1.04] hover:shadow-md hover:border-orange-400"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="mr-2 h-4 w-4 text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                                            <path d="M3 10l9-5 9 5-9 5-9-5z" />
+                                            <path d="M5 12v6a2 2 0 002 2h10a2 2 0 002-2v-6" />
+                                        </svg>
+                                        {name}
+                                    </div>
+                                ))}
                             </div>
-                        ))}
+                        </div>
+
+                        {/* Desktop: grilla con hover tipo botón */}
+                        <div className="mt-6 hidden md:grid grid-cols-3 gap-4">
+                            {institutions.map((name) => (
+                                <div
+                                    key={name}
+                                    className="flex items-center justify-center rounded-full border-2 border-orange-300 bg-gradient-to-b from-orange-50 to-white px-5 py-3 text-sm font-semibold text-orange-800 shadow-sm transition-transform duration-300 ease-out hover:scale-[1.04] hover:shadow-md hover:border-orange-400"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="mr-2 h-4 w-4 text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                                        <path d="M3 10l9-5 9 5-9 5-9-5z" />
+                                        <path d="M5 12v6a2 2 0 002 2h10a2 2 0 002-2v-6" />
+                                    </svg>
+                                    {name}
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
