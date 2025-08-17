@@ -37,7 +37,7 @@ export default function LevelsInstitutions() {
         <section id="alcance" className="bg-white">
             <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
                 <div className="mx-auto max-w-3xl text-center">
-                    <h2 className="text-2xl font-semibold text-gray-900">Niveles e instituciones</h2>
+                    <h2 className="text-3xl sm:text-4xl font-semibold text-gray-900">Niveles e instituciones</h2>
                     <p className="mt-3 text-base text-gray-600">
                         Trabajamos junto a instituciones educativas ofreciendo menús adaptados a cada nivel.
                     </p>

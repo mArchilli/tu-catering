@@ -165,6 +165,24 @@ export default function AuthenticatedLayout({ header, children }) {
                         >
                             Dashboard
                         </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            href={route('menu.edit')}
+                            active={route().current('menu.edit')}
+                        >
+                            Menu
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            href={route('prices.edit')}
+                            active={route().current('prices.edit')}
+                        >
+                            Precios
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            href={route().has('admin.monthly-orders.index') ? route('admin.monthly-orders.index') : '#'}
+                            active={route().current('admin.monthly-orders.*')}
+                        >
+                            Órdenes mensuales
+                        </ResponsiveNavLink>
                     </div>
 
                     <div className="border-t border-gray-200 pb-1 pt-4">

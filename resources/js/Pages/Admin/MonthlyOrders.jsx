@@ -21,8 +21,9 @@ export default function MonthlyOrders({ ordersPending = { data: [] }, ordersPaid
     router.post(route('admin.monthly-orders.reject', id), {}, { preserveState: true });
   };
 
-  const applyFilters = () => {
-    router.get(route('admin.monthly-orders.index'), { q, status }, { preserveState: true, replace: true });
+  const applyFilters = (overrides = {}) => {
+    const params = { q, status, ...overrides };
+    router.get(route('admin.monthly-orders.index'), params, { preserveState: true, replace: true });
   };
 
   const clearFilters = () => {
@@ -59,11 +60,13 @@ export default function MonthlyOrders({ ordersPending = { data: [] }, ordersPaid
     );
   };
 
-  const Table = ({ page, title, emptyText, showConfirm, showDelete, showReject }) => (
+  const Table = ({ page, title, emptyText, showConfirm, showDelete, showReject }) => {
+    const total = page?.meta?.total ?? (Array.isArray(page?.data) ? page.data.length : 0);
+    return (
     <div className="mb-8">
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-base font-semibold text-gray-800">{title}</h3>
-        <span className="text-xs text-gray-500">{page?.meta?.total ?? 0} resultados</span>
+        <span className="text-xs text-gray-500">{total} resultados</span>
       </div>
       <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
         <table className="min-w-full table-auto text-sm">
@@ -125,7 +128,8 @@ export default function MonthlyOrders({ ordersPending = { data: [] }, ordersPaid
       </div>
       <Paginator meta={page.meta} links={page.links} />
     </div>
-  );
+    );
+  };
 
   const headerTitle = useMemo(() => {
     if (status === 'pending') return 'Órdenes mensuales (pendientes)';
@@ -153,15 +157,18 @@ export default function MonthlyOrders({ ordersPending = { data: [] }, ordersPaid
               placeholder="Buscar por nombre o apellido"
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') applyFilters(); }}
-              showReject
+              onKeyDown={(e) => { if (e.key === 'Enter') { setStatus('all'); applyFilters({ status: 'all' }); } }}
             />
           </div>
           <div>
             <select
               className="rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"
               value={status}
-              onChange={(e) => { setStatus(e.target.value); setTimeout(applyFilters, 0); }}
+              onChange={(e) => {
+                const next = e.target.value;
+                setStatus(next);
+                applyFilters({ status: next });
+              }}
             >
               <option value="all">Todas</option>
               <option value="pending">Pendientes</option>
@@ -170,7 +177,7 @@ export default function MonthlyOrders({ ordersPending = { data: [] }, ordersPaid
           </div>
           <div className="flex gap-2">
             <button
-              onClick={applyFilters}
+              onClick={() => { setStatus('all'); applyFilters({ status: 'all' }); }}
               className="rounded-md bg-orange-600 px-3 py-2 text-xs font-semibold text-white hover:bg-orange-500"
             >
               Buscar
@@ -191,6 +198,7 @@ export default function MonthlyOrders({ ordersPending = { data: [] }, ordersPaid
               title="Pendientes"
               emptyText="No hay órdenes pendientes."
               showConfirm
+              showReject
             />
             <Table
               page={ordersPaid}
