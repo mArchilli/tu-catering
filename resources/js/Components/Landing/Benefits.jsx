@@ -105,8 +105,14 @@ export default function Benefits() {
     };
 
     return (
-        <section className="bg-white">
-            <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
+        <section className="relative isolate overflow-hidden bg-orange-100">
+            {/* blobs decorativos y overlays como en Services */}
+            <div className="pointer-events-none absolute -top-16 -left-10 h-80 w-80 rounded-full bg-amber-300/30 blur-3xl z-0"></div>
+            <div className="pointer-events-none absolute -bottom-20 -right-10 h-96 w-96 rounded-full bg-orange-400/20 blur-3xl z-0"></div>
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white to-transparent z-10"></div>
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white to-transparent z-10"></div>
+
+            <div className="relative z-20 mx-auto max-w-7xl px-6 py-16 lg:px-8">
                 <div className="mx-auto max-w-7xl text-center lg:text-left">
                     <h2 className="text-3xl sm:text-4xl font-semibold text-gray-900">¿Por qué elegirnos?</h2>
                 </div>
