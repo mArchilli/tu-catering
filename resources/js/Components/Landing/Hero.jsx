@@ -68,7 +68,7 @@ export default function Hero() {
                     <div className="text-center lg:text-left">
                         {/* Badge superior con el servicio */}
                         
-                        <h1 className="mt-4 text-6xl md:text-8xl font-bold tracking-tight sm:text-6xl">Tu Catering</h1>
+                        <h1 className="mt-4 text-7xl sm:text-10xl md:text-7xl font-bold tracking-tight ">Tu Catering</h1>
                         <div className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-white shadow-sm backdrop-blur mt-3">
                             Servicio alimentario escolar
                         </div>
