@@ -34,3 +34,94 @@
 .only-weekdays .rdp-cell {
 	display: block;
 }
+
+/* Hero: animación de mensajes apilados en la columna derecha (desktop) */
+@keyframes hero-stack {
+	0%, 20% { transform: translateY(0); }
+	25%, 45% { transform: translateY(calc(-1 * var(--slide-h, 6rem))); }
+	50%, 70% { transform: translateY(calc(-2 * var(--slide-h, 6rem))); }
+	75%, 95% { transform: translateY(calc(-3 * var(--slide-h, 6rem))); }
+	100% { transform: translateY(calc(-3 * var(--slide-h, 6rem))); }
+}
+
+.hero-stack-animate {
+	animation: hero-stack 12s ease-in-out infinite;
+	will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.hero-stack-animate { animation: none; }
+}
+
+/* Rotor de 3 tarjetas: todas visibles, con movimiento cíclico y superposición */
+.hero-rotor {
+	--card-h: 6rem; /* altura de cada tarjeta */
+	--gap: 0.75rem; /* separación vertical entre tarjetas */
+	--step: calc(var(--card-h) + var(--gap));
+	height: calc(var(--card-h) * 3 + var(--gap) * 2);
+	position: relative;
+	perspective: 800px; /* ligera sensación 3D */
+}
+
+.hero-card {
+	position: absolute;
+	left: 0;
+	right: 0;
+	height: var(--card-h);
+	border-radius: 1rem;
+	backdrop-filter: blur(8px);
+	transform-origin: center;
+	overflow: hidden;
+	/* composición de zoom en hover */
+	--hover-scale: 1;
+	--base-scale: 1;
+	transition: transform 200ms ease-in-out;
+}
+
+.hero-card:hover { --hover-scale: 1.05; }
+
+/* Estados iniciales por tarjeta (A en el medio para foco inicial) */
+.hero-card--a { --base-scale: 1;    transform: translateY(calc(1 * var(--step))) scale(calc(var(--base-scale) * var(--hover-scale))); z-index: 3; animation: hero-move-a 15s ease-in-out infinite; }
+.hero-card--b { --base-scale: 0.92; transform: translateY(calc(2 * var(--step))) scale(calc(var(--base-scale) * var(--hover-scale))); z-index: 1; animation: hero-move-b 15s ease-in-out infinite; }
+.hero-card--c { --base-scale: 0.92; transform: translateY(calc(0 * var(--step))) scale(calc(var(--base-scale) * var(--hover-scale))); z-index: 2; animation: hero-move-c 15s ease-in-out infinite; }
+
+/* Keyframes por tarjeta: recorren top -> mid -> bottom y reinician detrás */
+@keyframes hero-move-a {
+	0%   { --base-scale: 1;    transform: translateY(calc(1 * var(--step))) scale(calc(var(--base-scale) * var(--hover-scale))); z-index: 3; opacity: 1;    filter: blur(0px); }
+	33%  { --base-scale: 0.92; transform: translateY(calc(2 * var(--step))) scale(calc(var(--base-scale) * var(--hover-scale))); z-index: 1; opacity: 0.7;  filter: blur(3px); }
+	66%  { --base-scale: 0.92; transform: translateY(calc(0 * var(--step))) scale(calc(var(--base-scale) * var(--hover-scale))); z-index: 2; opacity: 0.8;  filter: blur(2px); }
+	100% { --base-scale: 1;    transform: translateY(calc(1 * var(--step))) scale(calc(var(--base-scale) * var(--hover-scale))); z-index: 3; opacity: 1;    filter: blur(0px); }
+}
+
+@keyframes hero-move-b {
+	0%   { --base-scale: 0.92; transform: translateY(calc(2 * var(--step))) scale(calc(var(--base-scale) * var(--hover-scale))); z-index: 1; opacity: 0.7;  filter: blur(3px); }
+	33%  { --base-scale: 0.92; transform: translateY(calc(0 * var(--step))) scale(calc(var(--base-scale) * var(--hover-scale))); z-index: 2; opacity: 0.8;  filter: blur(2px); }
+	66%  { --base-scale: 1;    transform: translateY(calc(1 * var(--step))) scale(calc(var(--base-scale) * var(--hover-scale))); z-index: 3; opacity: 1;    filter: blur(0px); }
+	100% { --base-scale: 0.92; transform: translateY(calc(2 * var(--step))) scale(calc(var(--base-scale) * var(--hover-scale))); z-index: 1; opacity: 0.7;  filter: blur(3px); }
+}
+
+@keyframes hero-move-c {
+	0%   { --base-scale: 0.92; transform: translateY(calc(0 * var(--step))) scale(calc(var(--base-scale) * var(--hover-scale))); z-index: 2; opacity: 0.8;  filter: blur(2px); }
+	33%  { --base-scale: 1;    transform: translateY(calc(1 * var(--step))) scale(calc(var(--base-scale) * var(--hover-scale))); z-index: 3; opacity: 1;    filter: blur(0px); }
+	66%  { --base-scale: 0.92; transform: translateY(calc(2 * var(--step))) scale(calc(var(--base-scale) * var(--hover-scale))); z-index: 1; opacity: 0.7;  filter: blur(3px); }
+	100% { --base-scale: 0.92; transform: translateY(calc(0 * var(--step))) scale(calc(var(--base-scale) * var(--hover-scale))); z-index: 2; opacity: 0.8;  filter: blur(2px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.hero-card--a, .hero-card--b, .hero-card--c { animation: none; }
+}
+
+/* Zoom solo en hover para botones */
+.btn-zoom {
+	transition: transform 200ms ease-in-out;
+	will-change: transform;
+}
+
+.btn-zoom:hover {
+	transform: scale(1.05);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.btn-zoom { transition: none; }
+	.btn-zoom:hover { transform: none; }
+}
