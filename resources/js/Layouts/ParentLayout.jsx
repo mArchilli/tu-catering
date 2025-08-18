@@ -1,4 +1,3 @@
-import ApplicationLogo from '@/Components/ApplicationLogo';
 import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
@@ -31,6 +30,15 @@ export default function ParentLayout({ header, children }) {
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 justify-between">
                         <div className="flex">
+                            <div className="flex shrink-0 items-center">
+                                <Link href="/" className="inline-flex items-center">
+                                    <img
+                                        src="/logo-hero.png"
+                                        alt="Tu Catering"
+                                        className="h-9 w-auto filter brightness-0 invert drop-shadow"
+                                    />
+                                </Link>
+                            </div>
 
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink
