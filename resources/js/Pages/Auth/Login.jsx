@@ -90,7 +90,7 @@ export default function Login({ status, canResetPassword }) {
 
                     {/* Título desktop */}
                     <div className="hidden lg:block text-center mb-8">
-                        <h2 className="text-3xl font-bold text-gray-900 font-sans mb-2">Bienvenido</h2>
+                        <h2 className="text-3xl font-bold text-gray-900 font-sans mb-2">Iniciar Sesión</h2>
                         <p className="text-gray-600 font-serif">Accede a tu panel administrativo</p>
                     </div>
 
@@ -213,7 +213,7 @@ export default function Login({ status, canResetPassword }) {
 
                     {/* Footer */}
                     <div className="text-center mt-8">
-                        <p className="text-sm text-gray-500 font-serif">© 2024 Tu Catering. Todos los derechos reservados.</p>
+                        <p className="text-sm text-gray-500 font-serif">© Tu Catering. Todos los derechos reservados.</p>
                     </div>
                 </div>
             </div>
