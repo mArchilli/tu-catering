@@ -1,4 +1,3 @@
-import ApplicationLogo from '@/Components/ApplicationLogo';
 import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
@@ -21,13 +20,17 @@ export default function AuthenticatedLayout({ header, children }) {
     return (
         <div className="min-h-screen bg-orange-50">
             <Toaster position="top-right" />
-            <nav className="border-b border-orange-100 bg-orange-600">
+            <nav className="border-b border-orange-100 bg-orange-400">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 justify-between">
                         <div className="flex">
                             <div className="flex shrink-0 items-center">
-                                <Link href="/">
-                                    <ApplicationLogo className="block h-9 w-auto fill-current text-orange-600" />
+                                <Link href="/" className="inline-flex items-center">
+                                    <img
+                                        src="/logo-hero.png"
+                                        alt="Tu Catering"
+                                        className="h-9 w-auto filter brightness-0 invert drop-shadow"
+                                    />
                                 </Link>
                             </div>
 
@@ -206,6 +209,15 @@ export default function AuthenticatedLayout({ header, children }) {
                             >
                                 Cerrar sesión
                             </ResponsiveNavLink>
+                        </div>
+
+                        <div className="px-4 py-2">
+                            <Link
+                                href="/"
+                                className="block w-full rounded-md border border-orange-200 bg-white px-4 py-2 text-center text-sm font-semibold text-orange-600 hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                            >
+                                Volver al sitio
+                            </Link>
                         </div>
                     </div>
                 </div>

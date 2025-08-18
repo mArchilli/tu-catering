@@ -87,7 +87,7 @@ export default function PreciosPadre() {
             <Head title="Precios" />
             <div className="bg-orange-50 py-12">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="overflow-hidden rounded-2xl bg-gradient-to-tr from-orange-600 to-orange-500 shadow-sm">
+                    <div className="overflow-hidden rounded-2xl bg-gradient-to-tr from-orange-400 to-orange-400 shadow-sm">
                         <div className="p-6 text-white sm:p-8">
                             <h3 className="text-lg font-semibold">Precios</h3>
                             <p className="mt-1 text-sm text-orange-50">
@@ -108,7 +108,7 @@ export default function PreciosPadre() {
                                     className={[
                                         'px-4 py-2 rounded-lg text-sm font-semibold border transition',
                                         active
-                                            ? 'bg-orange-600 text-white border-orange-600'
+                                            ? 'bg-orange-400 text-white border-orange-400'
                                             : 'bg-white text-orange-700 border-orange-200 hover:bg-orange-50',
                                     ].join(' ')}
                                 >
@@ -142,14 +142,14 @@ export default function PreciosPadre() {
                                         href={d.url}
                                         target="_blank"
                                         rel="noopener"
-                                        className="text-sm font-semibold text-orange-600 hover:text-orange-700"
+                                        className="text-sm font-semibold text-orange-400 hover:text-orange-700"
                                     >
                                         Abrir en nueva pestaña →
                                     </a>
                                     <a
                                         href={d.url}
                                         download
-                                        className="text-sm font-semibold text-orange-600 hover:text-orange-700"
+                                        className="text-sm font-semibold text-orange-400 hover:text-orange-700"
                                     >
                                         Descargar PDF
                                     </a>

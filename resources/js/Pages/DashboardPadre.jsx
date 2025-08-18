@@ -9,7 +9,7 @@ export default function DashboardPadre() {
             <div className="bg-orange-50 py-12">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     {/* Banner de bienvenida */}
-                    <div className="overflow-hidden rounded-2xl bg-gradient-to-tr from-orange-600 to-orange-500 shadow-sm">
+                    <div className="overflow-hidden rounded-2xl bg-gradient-to-tr from-orange-400 to-orange-400 shadow-sm">
                         <div className="p-6 text-white sm:p-8">
                             <h3 className="text-lg font-semibold">¡Bienvenido!</h3>
                             <p className="mt-1 text-sm text-orange-50">
@@ -34,7 +34,7 @@ export default function DashboardPadre() {
                             <div className="mt-4">
                                 <Link
                                     href={route().has('children.index') ? route('children.index') : '#'}
-                                    className="text-sm font-semibold text-orange-600 hover:text-orange-700"
+                                    className="text-sm font-semibold text-orange-400 hover:text-orange-700"
                                 >
                                     Ver alumnos →
                                 </Link>
@@ -55,7 +55,7 @@ export default function DashboardPadre() {
                             <div className="mt-4">
                                 <Link
                                     href={route('profile.edit')}
-                                    className="text-sm font-semibold text-orange-600 hover:text-orange-700"
+                                    className="text-sm font-semibold text-orange-400 hover:text-orange-700"
                                 >
                                     Editar perfil →
                                 </Link>
@@ -65,7 +65,7 @@ export default function DashboardPadre() {
 
                     <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
                         <div className="rounded-xl border border-orange-100 bg-white p-6 shadow-sm">
-                            <div className="mb-2 inline-flex rounded-full bg-orange-100 p-2 text-orange-600">
+                            <div className="mb-2 inline-flex rounded-full bg-orange-100 p-2 text-orange-400">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                                     <path d="M4 7h16M4 12h16M4 17h10" />
                                 </svg>
@@ -77,7 +77,7 @@ export default function DashboardPadre() {
                             <div className="mt-4">
                                 <Link
                                     href={route('menus.padre')}
-                                    className="text-sm font-semibold text-orange-600 hover:text-orange-700"
+                                    className="text-sm font-semibold text-orange-400 hover:text-orange-700"
                                 >
                                     Ver menu →
                                 </Link>
@@ -98,7 +98,7 @@ export default function DashboardPadre() {
                             <div className="mt-4">
                                 <Link
                                     href={route('precios.padre')}
-                                    className="text-sm font-semibold text-orange-600 hover:text-orange-700"
+                                    className="text-sm font-semibold text-orange-400 hover:text-orange-700"
                                 >
                                     Ver precios →
                                 </Link>

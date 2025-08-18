@@ -27,7 +27,7 @@ export default function ParentLayout({ header, children }) {
     return (
         <div className="min-h-screen bg-orange-50">
             <Toaster position="top-right" />
-            <nav className="border-b border-orange-100 bg-orange-600">
+            <nav className="border-b border-orange-100 bg-orange-400">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 justify-between">
                         <div className="flex">

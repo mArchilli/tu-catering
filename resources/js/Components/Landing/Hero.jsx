@@ -1,7 +1,10 @@
 import { Link, usePage } from '@inertiajs/react';
+import { useState } from 'react';
+import { Menu as MenuIcon, X as XIcon } from 'lucide-react';
 
 export default function Hero() {
     const user = usePage().props.auth?.user;
+    const [mobileOpen, setMobileOpen] = useState(false);
 
     // Destino de panel según rol
     const dashboardHref = (() => {
@@ -32,31 +35,76 @@ export default function Hero() {
                         />
                     </Link>
                     <div className="flex items-center gap-3">
-                        {user ? (
-                            <Link
-                                href={dashboardHref}
-                                className="inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-orange-600 shadow-sm transition hover:bg-orange-50"
-                            >
-                                Ir al panel
-                            </Link>
-                        ) : (
-                            <>
+                        {/* Acciones desktop */}
+                        <div className="hidden sm:flex items-center gap-3">
+                            {user ? (
                                 <Link
-                                    href={route('login')}
-                                    className="inline-flex items-center rounded-md border border-white/40 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10 btn-zoom"
+                                    href={dashboardHref}
+                                    className="inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-orange-600 shadow-sm transition hover:bg-orange-50"
                                 >
-                                    Iniciar sesión
+                                    Ir al panel
                                 </Link>
-                                <Link
-                                    href={route('register')}
-                                    className="inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-orange-600 shadow-sm transition hover:bg-orange-50 btn-zoom"
-                                >
-                                    Registrarse
-                                </Link>
-                            </>
-                        )}
+                            ) : (
+                                <>
+                                    <Link
+                                        href={route('login')}
+                                        className="inline-flex items-center rounded-md border border-white/40 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10 btn-zoom"
+                                    >
+                                        Iniciar sesión
+                                    </Link>
+                                    <Link
+                                        href={route('register')}
+                                        className="inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-orange-600 shadow-sm transition hover:bg-orange-50 btn-zoom"
+                                    >
+                                        Registrarse
+                                    </Link>
+                                </>
+                            )}
+                        </div>
+                        {/* Botón hamburguesa mobile */}
+                        <button
+                            type="button"
+                            aria-label="Abrir menú"
+                            onClick={() => setMobileOpen((v) => !v)}
+                            className="sm:hidden inline-flex items-center justify-center rounded-md border border-white/40 p-2 text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/50"
+                        >
+                            {mobileOpen ? <XIcon className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
+                        </button>
                     </div>
                 </div>
+                {/* Panel móvil */}
+                {mobileOpen && (
+                    <div className="mx-auto max-w-7xl px-6 lg:px-8 sm:hidden">
+                        <div className="mt-2 rounded-lg border border-white/20 bg-white/10 backdrop-blur shadow-lg p-2">
+                            {user ? (
+                                <Link
+                                    href={dashboardHref}
+                                    onClick={() => setMobileOpen(false)}
+                                    className="block w-full rounded-md px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
+                                >
+                                    Ir al panel
+                                </Link>
+                            ) : (
+                                <div className="flex flex-col gap-2">
+                                    <Link
+                                        href={route('login')}
+                                        onClick={() => setMobileOpen(false)}
+                                        className="block w-full rounded-md border border-white/30 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
+                                    >
+                                        Iniciar sesión
+                                    </Link>
+                                    <Link
+                                        href={route('register')}
+                                        onClick={() => setMobileOpen(false)}
+                                        className="block w-full rounded-md bg-white px-4 py-2 text-sm font-semibold text-orange-600 shadow-sm hover:bg-orange-50"
+                                    >
+                                        Registrarse
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Blobs decorativos para un look más orgánico */}
@@ -68,8 +116,8 @@ export default function Hero() {
                     <div className="text-center lg:text-left">
                         {/* Badge superior con el servicio */}
                         
-                        <h1 className="mt-4 text-7xl sm:text-10xl md:text-7xl font-bold tracking-tight ">Tu Catering</h1>
-                        <div className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-white shadow-sm backdrop-blur mt-3">
+                        <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight pb-4 sm:pb-2">Tu Catering</h1>
+                        <div className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-white shadow-sm backdrop-blur ">
                             Servicio alimentario escolar
                         </div>
                         <div className="mt-4 flex flex-wrap items-center gap-3 justify-center lg:justify-start">
@@ -92,8 +140,7 @@ export default function Hero() {
                         <div className="mx-auto max-w-lg hero-rotor" style={{ ['--gap']: '0.5rem' }}>
                             <div className="hero-card hero-card--a border border-white/20 bg-white/10 text-orange-50 shadow-lg p-4">
                                 <p className="text-base leading-7">
-                                    Trabajamos con personal con muchos años de experiencia y nos dedicamos a brindar un
-                                    servicio de calidad desde hace 5 años.
+                                    Nos dedicamos a brindar un servicio de calidad desde hace mas de 5 años.
                                 </p>
                             </div>
                             <div className="hero-card hero-card--b border border-white/20 bg-white/10 text-orange-50 shadow-lg p-4">

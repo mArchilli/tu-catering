@@ -171,14 +171,14 @@ export default function Register() {
                                 <PrimaryButton
                                     type="submit"
                                     disabled={processing}
-                                    className="w-full justify-center bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-serif py-4 text-base rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-300 border-0"
+                                    className="w-full justify-center bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white font-serif py-4 text-base rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-300 border-0"
                                 >
                                     Crear cuenta
                                 </PrimaryButton>
 
                                 <Link
                                     href="/"
-                                    className="inline-flex w-full items-center justify-center rounded-xl border border-orange-600 bg-white px-4 py-3 text-sm font-semibold text-orange-600 transition hover:-translate-y-0.5 hover:bg-orange-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                    className="inline-flex w-full items-center justify-center rounded-xl border border-orange-400 bg-white px-4 py-3 text-sm font-semibold text-orange-600 transition hover:-translate-y-0.5 hover:bg-orange-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
                                 >
                                     Volver al sitio
                                 </Link>
@@ -187,7 +187,7 @@ export default function Register() {
                             <div className="mt-8 pt-6 border-t border-gray-200">
                                 <p className="text-center text-sm text-gray-600">
                                     ¿Ya tenés cuenta?{' '}
-                                    <Link href={route('login')} className="font-semibold text-orange-600 hover:text-orange-700">
+                                    <Link href={route('login')} className="font-semibold text-orange-400 hover:text-orange-500">
                                         Iniciá sesión
                                     </Link>
                                 </p>
@@ -203,7 +203,7 @@ export default function Register() {
             </div>
 
             {/* Columna derecha (hero) */}
-            <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-orange-500">
+            <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-orange-400">
                 <div className="absolute inset-0 bg-black/10"></div>
                 <div className="absolute top-20 left-20 w-32 h-32 bg-white/10 rounded-full blur-xl"></div>
                 <div className="absolute bottom-20 right-20 w-40 h-40 bg-white/5 rounded-full blur-2xl"></div>
