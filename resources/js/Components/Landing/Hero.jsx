@@ -70,7 +70,7 @@ export default function Hero() {
                         
                         <h1 className="mt-4 text-7xl sm:text-10xl md:text-7xl font-bold tracking-tight ">Tu Catering</h1>
                         <div className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-white shadow-sm backdrop-blur mt-3">
-                            Servicio alimentario escolar
+                            Soluciones alimentarias a medida
                         </div>
                         <div className="mt-4 flex flex-wrap items-center gap-3 justify-center lg:justify-start">
                             <a

@@ -75,7 +75,7 @@ export default function Services() {
     const [selected, setSelected] = useState(services[0].key);
     const active = services.find((s) => s.key === selected) || services[0];
     return (
-    <section id="services" className="relative isolate overflow-hidden bg-orange-100">
+        <section id="services" className="relative isolate overflow-hidden bg-orange-100">
             {/* blobs decorativos */}
             <div className="pointer-events-none absolute -top-16 -left-10 h-80 w-80 rounded-full bg-amber-300/30 blur-3xl z-0"></div>
             <div className="pointer-events-none absolute -bottom-20 -right-10 h-96 w-96 rounded-full bg-orange-400/20 blur-3xl z-0"></div>
@@ -83,6 +83,30 @@ export default function Services() {
             {/* overlays de degradado a blanco para suavizar el quiebre superior e inferior */}
             <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white to-transparent z-10"></div>
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white to-transparent z-10"></div>
+
+            {/* Estilos: permitir 2 líneas en mobile y normal en sm+ */}
+            <style>
+                {`
+                @media (max-width: 639.98px) {
+                    .chip-title {
+                        display: -webkit-box;
+                        -webkit-line-clamp: 2;
+                        -webkit-box-orient: vertical;
+                        overflow: hidden;
+                        word-break: break-word;
+                    }
+                }
+                @media (min-width: 640px) {
+                    .chip-title {
+                        display: block;
+                        -webkit-line-clamp: initial;
+                        -webkit-box-orient: initial;
+                        overflow: visible;
+                        white-space: normal;
+                    }
+                }
+                `}
+            </style>
 
             <div className="relative z-20 mx-auto max-w-7xl px-6 py-20 ">
                 <div className="max-w-7xl">
@@ -147,10 +171,15 @@ export default function Services() {
                                         <span className={`block rounded-2xl bg-gradient-to-r ${s.gradient} p-[1px] shadow-sm`}>
                                             <span className={`block rounded-2xl ${selected ? 'bg-white' : 'bg-white/80'} px-4 py-3` }>
                                                 <span className="flex items-center gap-3">
-                                                    <span className={`inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br ${s.gradient} text-white shadow`}>
+                                                    <span className={`inline-flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-gradient-to-br ${s.gradient} text-white shadow`}>
                                                         <span className="text-base">{s.emoji}</span>
                                                     </span>
-                                                    <span className={`text-xs font-semibold ${selected ? 'text-gray-900' : 'text-gray-700'}`}>{s.title}</span>
+                                                    {/* Título: usar label corto para SAE */}
+                                                    <span className={`flex-1 min-w-0 font-semibold ${selected ? 'text-gray-900' : 'text-gray-700'} text-[10px] sm:text-xs leading-snug`}>
+                                                        <span className="chip-title block">
+                                                            {s.key === 'sae' ? 'S.A.E' : s.title}
+                                                        </span>
+                                                    </span>
                                                 </span>
                                             </span>
                                         </span>

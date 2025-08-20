@@ -17,7 +17,7 @@ export default function About() {
 
                     {/* Derecha: Diseño alternativo con bloque destacado, badges y cita */}
                     <div className="mx-auto w-full max-w-2xl">
-                        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900 text-center lg:text-left">Lo que nos mueve</h2>
+                        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900 text-center lg:text-left">Nuestra esencia</h2>
 
                         <div className="flex lg:hidden justify-center order-first lg:order-none pt-5">
                             <div className="relative h-64 w-64 sm:h-72 sm:w-72 lg:h-96 lg:w-96 rounded-full bg-white shadow-xl border-4 border-orange-500 p-1 overflow-hidden">
@@ -33,8 +33,9 @@ export default function About() {
                         {/* Bloque destacado */}
                         <div className="mt-6 rounded-2xl bg-orange-50/70 p-6 ring-1 ring-orange-100">
                             <p className="text-base leading-7 text-gray-700">
-                                Brindamos soluciones integrales de alimentación escolar con foco en nutrición, seguridad e higiene.
-                                Diseñamos menús equilibrados y procesos claros para acompañar el día a día de cada institución.
+                                Nuestra esencia es acompañar a cada institución con una alimentación cuidada y cercana.
+                                Combinamos nutrición, higiene y calidad para crear menús equilibrados, procesos claros
+                                y una atención que escucha las necesidades de cada comunidad educativa.
                             </p>
                         </div>
 
