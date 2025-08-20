@@ -153,7 +153,7 @@ export default function MonthlyOrders({ ordersPending = { data: [] }, ordersPaid
           <div className="flex-1">
             <input
               type="text"
-              className="w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+              className="w-full rounded-md border-gray-300 text-sm focus:border-orange-400 focus:ring-orange-400"
               placeholder="Buscar por nombre o apellido"
               value={q}
               onChange={(e) => setQ(e.target.value)}
@@ -162,7 +162,7 @@ export default function MonthlyOrders({ ordersPending = { data: [] }, ordersPaid
           </div>
           <div>
             <select
-              className="rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+              className="rounded-md border-gray-300 text-sm focus:border-orange-400 focus:ring-orange-400"
               value={status}
               onChange={(e) => {
                 const next = e.target.value;
@@ -178,7 +178,7 @@ export default function MonthlyOrders({ ordersPending = { data: [] }, ordersPaid
           <div className="flex gap-2">
             <button
               onClick={() => { setStatus('all'); applyFilters({ status: 'all' }); }}
-              className="rounded-md bg-orange-600 px-3 py-2 text-xs font-semibold text-white hover:bg-orange-500"
+              className="rounded-md bg-orange-400 px-3 py-2 text-xs font-semibold text-white hover:bg-orange-500"
             >
               Buscar
             </button>

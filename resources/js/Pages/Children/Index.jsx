@@ -10,7 +10,7 @@ export default function ChildrenIndex({ children: items = [] }) {
         >
             
             <div className="mx-auto max-w-7xl p-6">
-                <div className="overflow-hidden rounded-2xl bg-gradient-to-tr from-orange-600 to-orange-500 shadow-sm my-6">
+                <div className="overflow-hidden rounded-2xl bg-gradient-to-tr from-orange-400 to-orange-400 shadow-sm my-6">
                         <div className="p-6 text-white sm:p-8">
                             <h3 className="text-lg font-semibold">Alumnos registrados</h3>
                             <p className="mt-1 text-sm text-orange-50">
@@ -27,7 +27,7 @@ export default function ChildrenIndex({ children: items = [] }) {
                     </p>
                     <Link
                         href={route().has('children.create') ? route('children.create') : '#'}
-                        className="rounded bg-orange-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-orange-500 focus:outline-none focus:ring"
+                        className="rounded bg-orange-400 px-4 py-2 text-sm font-medium text-white shadow hover:bg-orange-500 focus:outline-none focus:ring"
                     >
                         Agregar alumno
                     </Link>
@@ -78,13 +78,13 @@ export default function ChildrenIndex({ children: items = [] }) {
                                 <div className="mt-4 flex items-center justify-end gap-2">
                                     <Link
                                         href={route().has('children.show') ? route('children.show', child.id) : '#'}
-                                        className="inline-flex items-center rounded-md border border-orange-300 bg-white px-3 py-1.5 text-sm font-medium text-orange-600 hover:bg-orange-50"
+                                        className="inline-flex items-center rounded-md border border-orange-400 bg-white px-3 py-1.5 text-sm font-medium text-orange-400 hover:bg-orange-50"
                                     >
                                         Ver
                                     </Link>
                                     <Link
                                         href={route().has('children.edit') ? route('children.edit', child.id) : '#'}
-                                        className="inline-flex items-center rounded-md bg-orange-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-orange-500"
+                                        className="inline-flex items-center rounded-md bg-orange-400 px-3 py-1.5 text-sm font-semibold text-white hover:bg-orange-500"
                                     >
                                         Editar
                                     </Link>

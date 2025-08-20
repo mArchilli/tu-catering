@@ -17,7 +17,7 @@ export default function MenuPadre() {
             <Head title="Menú" />
             <div className="bg-orange-50 py-12">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="overflow-hidden rounded-2xl bg-gradient-to-tr from-orange-600 to-orange-500 shadow-sm">
+                    <div className="overflow-hidden rounded-2xl bg-gradient-to-tr from-orange-400 to-orange-400 shadow-sm">
                         <div className="p-6 text-white sm:p-8">
                             <h3 className="text-lg font-semibold">Menús disponibles</h3>
                             <p className="mt-1 text-sm text-orange-50">
@@ -43,14 +43,14 @@ export default function MenuPadre() {
                                     href={generalUrl}
                                     target="_blank"
                                     rel="noopener"
-                                    className="text-sm font-semibold text-orange-600 hover:text-orange-700"
+                                    className="text-sm font-semibold text-orange-400 hover:text-orange-700"
                                 >
                                     Abrir en nueva pestaña →
                                 </a>
                                 <a
                                     href={generalUrl}
                                     download
-                                    className="text-sm font-semibold text-orange-600 hover:text-orange-700"
+                                    className="text-sm font-semibold text-orange-400 hover:text-orange-700"
                                 >
                                     Descargar PDF
                                 </a>
@@ -73,14 +73,14 @@ export default function MenuPadre() {
                                     href={economicoUrl}
                                     target="_blank"
                                     rel="noopener"
-                                    className="text-sm font-semibold text-orange-600 hover:text-orange-700"
+                                    className="text-sm font-semibold text-orange-400 hover:text-orange-700"
                                 >
                                     Abrir en nueva pestaña →
                                 </a>
                                 <a
                                     href={economicoUrl}
                                     download
-                                    className="text-sm font-semibold text-orange-600 hover:text-orange-700"
+                                    className="text-sm font-semibold text-orange-400 hover:text-orange-700"
                                 >
                                     Descargar PDF
                                 </a>

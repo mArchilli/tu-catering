@@ -19,7 +19,7 @@ export default function View({ child }) {
                         </Link>
                         <Link
                             href={route('children.orders.create', child.id)}
-                            className="inline-flex items-center rounded-md bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-500"
+                            className="inline-flex items-center rounded-md bg-orange-400 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-500"
                         >
                             Calendario de servicios
                         </Link>
