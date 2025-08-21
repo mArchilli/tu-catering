@@ -7,7 +7,7 @@ export default function Footer() {
                 {/* Top: grid content */}
                 <div className="grid grid-cols-1 gap-10 sm:gap-12 md:grid-cols-2 lg:grid-cols-3">
                     {/* Brand */}
-                    <div>
+                    <div className="border-2 border-orange-300 rounded-xl p-6">
                         <a href="#inicio" className="inline-flex items-center gap-2">
                             <img src="/logo-hero.png" alt="Tu Catering" className="h-10 w-auto" />
                             <span className="sr-only">Ir al inicio</span>
@@ -63,7 +63,7 @@ export default function Footer() {
                     </div>
 
                     {/* Navegación */}
-                    <div>
+                    <div className="border-2 border-orange-300 rounded-xl p-6">
                         <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-900">Navegación</h3>
                         <ul className="mt-4 space-y-3 text-sm text-gray-600">
                             <li><a href="#inicio" className="hover:text-gray-900">Inicio</a></li>
@@ -75,7 +75,7 @@ export default function Footer() {
                     </div>
 
                     {/* Contacto */}
-                    <div>
+                    <div className="border-2 border-orange-300 rounded-xl p-6">
                         <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-900">Contacto</h3>
                         <ul className="mt-4 space-y-3 text-sm text-gray-600">
                             <li className="flex items-start gap-3">

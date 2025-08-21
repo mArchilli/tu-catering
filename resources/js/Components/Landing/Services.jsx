@@ -156,8 +156,9 @@ export default function Services() {
                     </div>
 
                     {/* Derecha: selector tipo chips en lista sticky */}
-                    <div className="order-1 lg:order-2 lg:col-span-4 lg:sticky lg:top-24 self-start">
-                        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-1">
+                    <div className="order-1 lg:order-2 lg:col-span-4 lg:sticky lg:top-24 self-stretch">
+                        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-1 h-full lg:h-full content-center
+                            lg:flex lg:flex-col lg:justify-center lg:gap-6">
                             {services.map((s) => {
                                 const selected = s.key === active.key;
                                 return (

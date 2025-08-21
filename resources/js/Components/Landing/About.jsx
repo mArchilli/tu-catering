@@ -31,48 +31,48 @@ export default function About() {
                         </div>
 
                         {/* Bloque destacado */}
-                        <div className="mt-6 rounded-2xl bg-orange-50/70 p-6 ring-1 ring-orange-100">
-                            <p className="text-base leading-7 text-gray-700">
-                                Nuestra esencia es acompañar a cada institución con una alimentación cuidada y cercana.
+                        <div className="mt-6 bg-orange-50/70 p-6 ring-1 ring-orange-100 lg:pl-0 lg:pr-0">
+                            <p className="text-base leading-7 text-gray-700 lg:pl-0">
+                                Creemos en acompañar a cada institución con una alimentación cuidada y cercana.
                                 Combinamos nutrición, higiene y calidad para crear menús equilibrados, procesos claros
-                                y una atención que escucha las necesidades de cada comunidad educativa.
+                                y una atención que escucha las necesidades del espacio.
                             </p>
                         </div>
 
                         {/* Badges de valores (chips con borde degradado e icono) */}
-                        <div className="mt-4 flex flex-wrap items-center gap-3">
+                        <div className="mt-4 grid grid-cols-2 gap-2 justify-items-center sm:flex sm:flex-wrap sm:items-center sm:justify-center lg:grid-cols-4 lg:flex-nowrap lg:justify-start lg:pl-0">
                             {/* Nutrición */}
-                            <div className="group">
-                                <span className="inline-flex items-center rounded-full bg-gradient-to-r from-orange-500 to-amber-400 p-[1px] shadow-sm">
-                                    <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-semibold text-orange-700 transition-transform duration-200 group-hover:-translate-y-0.5">
-                                        <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-orange-100 text-orange-600">🥗</span>
+                            <div className="group w-full lg:w-auto">
+                                <span className="inline-flex w-full items-center justify-center rounded-full bg-gradient-to-r from-orange-500 to-amber-400 p-[1px] shadow-sm">
+                                    <span className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-4 py-2 text-sm sm:px-3 sm:py-1 sm:text-xs font-semibold text-orange-700 text-center min-h-[44px] transition-transform duration-200 group-hover:-translate-y-0.5">
+                                        <span className="inline-flex h-7 w-7 sm:h-5 sm:w-5 items-center justify-center rounded-full bg-orange-100 text-orange-600">🥗</span>
                                         Nutrición
                                     </span>
                                 </span>
                             </div>
                             {/* Higiene */}
-                            <div className="group">
-                                <span className="inline-flex items-center rounded-full bg-gradient-to-r from-orange-500 to-amber-400 p-[1px] shadow-sm">
-                                    <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-semibold text-orange-700 transition-transform duration-200 group-hover:-translate-y-0.5">
-                                        <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-orange-100 text-orange-600">✨</span>
+                            <div className="group w-full lg:w-auto">
+                                <span className="inline-flex w-full items-center justify-center rounded-full bg-gradient-to-r from-orange-500 to-amber-400 p-[1px] shadow-sm">
+                                    <span className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-4 py-2 text-sm sm:px-3 sm:py-1 sm:text-xs font-semibold text-orange-700 text-center min-h-[44px] transition-transform duration-200 group-hover:-translate-y-0.5">
+                                        <span className="inline-flex h-7 w-7 sm:h-5 sm:w-5 items-center justify-center rounded-full bg-orange-100 text-orange-600">✨</span>
                                         Higiene
                                     </span>
                                 </span>
                             </div>
                             {/* Calidad */}
-                            <div className="group">
-                                <span className="inline-flex items-center rounded-full bg-gradient-to-r from-orange-500 to-amber-400 p-[1px] shadow-sm">
-                                    <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-semibold text-orange-700 transition-transform duration-200 group-hover:-translate-y-0.5">
-                                        <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-orange-100 text-orange-600">⭐</span>
+                            <div className="group w-full lg:w-auto">
+                                <span className="inline-flex w-full items-center justify-center rounded-full bg-gradient-to-r from-orange-500 to-amber-400 p-[1px] shadow-sm">
+                                    <span className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-4 py-2 text-sm sm:px-3 sm:py-1 sm:text-xs font-semibold text-orange-700 text-center min-h-[44px] transition-transform duration-200 group-hover:-translate-y-0.5">
+                                        <span className="inline-flex h-7 w-7 sm:h-5 sm:w-5 items-center justify-center rounded-full bg-orange-100 text-orange-600">⭐</span>
                                         Calidad
                                     </span>
                                 </span>
                             </div>
                             {/* Cercanía */}
-                            <div className="group">
-                                <span className="inline-flex items-center rounded-full bg-gradient-to-r from-orange-500 to-amber-400 p-[1px] shadow-sm">
-                                    <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-semibold text-orange-700 transition-transform duration-200 group-hover:-translate-y-0.5">
-                                        <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-orange-100 text-orange-600">🤝</span>
+                            <div className="group w-full lg:w-auto">
+                                <span className="inline-flex w-full items-center justify-center rounded-full bg-gradient-to-r from-orange-500 to-amber-400 p-[1px] shadow-sm">
+                                    <span className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-4 py-2 text-sm sm:px-3 sm:py-1 sm:text-xs font-semibold text-orange-700 text-center min-h-[44px] transition-transform duration-200 group-hover:-translate-y-0.5">
+                                        <span className="inline-flex h-7 w-7 sm:h-5 sm:w-5 items-center justify-center rounded-full bg-orange-100 text-orange-600">🤝</span>
                                         Cercanía
                                     </span>
                                 </span>
@@ -80,9 +80,9 @@ export default function About() {
                         </div>
 
                         {/* Cita / Testimonio corto */}
-                        <figure className="mt-6">
-                            <blockquote className="rounded-2xl border border-orange-100 bg-white p-5 text-gray-700 shadow-sm">
-                                <p className="text-sm italic">
+                        <figure className="mt-6 lg:pl-0">
+                            <blockquote className="bg-white p-5 text-gray-700 shadow-sm lg:p-0">
+                                <p className="text-sm italic lg:pl-0">
                                     "Nuestro compromiso diario es ofrecer preparaciones ricas y balanceadas, con procesos
                                     cuidados y atención cercana a cada comunidad educativa."
                                 </p>
