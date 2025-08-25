@@ -22,11 +22,12 @@ class ChildrenController extends Controller
         $end = now()->endOfMonth()->toDateString();
         $ids = $children->pluck('id');
 
-        $aggregates = \App\Models\DailyOrder::query()
+    $aggregates = \App\Models\DailyOrder::query()
             ->selectRaw('child_id, '
                 .'SUM(service_types.price_cents) as total_cents, '
                 .'SUM(CASE WHEN daily_orders.status = "paid" THEN 1 ELSE 0 END) as paid_days, '
-                .'COUNT(*) as total_days')
+                .'COUNT(*) as total_days, '
+                .'MAX(daily_orders.date) as last_date')
             ->join('service_types','service_types.id','=','daily_orders.service_type_id')
             ->whereIn('child_id', $ids)
             ->whereBetween('date', [$start, $end])
@@ -34,12 +35,19 @@ class ChildrenController extends Controller
             ->get()
             ->keyBy('child_id');
 
-        $children = $children->map(function ($c) use ($aggregates) {
+    $today = now()->toDateString();
+    $children = $children->map(function ($c) use ($aggregates, $today) {
             $agg = $aggregates->get($c->id);
             if ($agg) {
-                $status = ($agg->paid_days == $agg->total_days) ? 'paid' : 'pending';
-                $c->payment_status = $status; // paid | pending
-                $c->payment_total_cents = (int) $agg->total_cents;
+                // Si ya pasó el último día contratado, se considera expirado el ciclo y vuelve a "sin días"
+                if ($agg->last_date && $agg->last_date < $today) {
+                    $c->payment_status = null; // expirado -> requiere nueva contratación
+                    $c->payment_total_cents = 0;
+                } else {
+                    $status = ($agg->paid_days == $agg->total_days) ? 'paid' : 'pending';
+                    $c->payment_status = $status; // paid | pending
+                    $c->payment_total_cents = (int) $agg->total_cents;
+                }
             } else {
                 $c->payment_status = null; // sin días cargados
                 $c->payment_total_cents = 0;

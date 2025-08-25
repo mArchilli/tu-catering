@@ -419,11 +419,8 @@ class OrderController extends Controller
         }
 
         if ($status === 'paid') {
-            $periodEnd = Carbon::create($year, $month, 1)->endOfMonth();
-            if (now()->lessThanOrEqualTo($periodEnd)) {
-                return [false, 'Este período ya fue aprobado y continúa vigente. Podrás editar nuevamente cuando finalice el mes.'];
-            }
-            // Si el período está vencido, permitimos nueva edición (por ejemplo, programar un nuevo mes)
+            // Nueva lógica: permitir siempre editar (re-contratar) incluso si el mes vigente continúa.
+            // El ciclo anterior se considera un bloque cerrado; las nuevas selecciones pueden sobrescribir días futuros del mismo mes.
             return [true, ''];
         }
 
