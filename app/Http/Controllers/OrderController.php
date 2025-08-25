@@ -5,9 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Children;
 use App\Models\DailyOrder;
 use App\Models\ServiceType;
-use App\Models\MonthlyOrder;
+use App\Models\MonthlyOrder; // Deprecated: mantener hasta limpiar referencias de edición/permisos
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 
@@ -298,81 +299,90 @@ class OrderController extends Controller
             ->with('success', 'Se informó a la administración su pedido. No verá cambios hasta que el administrador confirme la recepción del pago.');
     }
 
-    // ADMIN: listar órdenes mensuales pendientes
+    // ADMIN: listado agregado por alumno (estado derivado de daily_orders: paid si todos los días están pagados)
     public function adminMonthlyIndex(Request $request)
     {
-    $statusParam = $request->get('status'); // all|pending|paid
-    $status = in_array($statusParam, ['pending','paid','all'], true) ? $statusParam : 'all';
-    $search = trim((string) $request->get('q', ''));
+        // Nuevo listado: agrupar información desde daily_orders por alumno para un período (mes/año)
+        $month = (int) $request->get('month', now()->month);
+        $year = (int) $request->get('year', now()->year);
+        $statusParam = $request->get('status'); // all|pending|paid
+        $status = in_array($statusParam, ['pending','paid','all'], true) ? $statusParam : 'all';
+        $search = trim((string) $request->get('q', ''));
 
-        $base = MonthlyOrder::query()
-            ->with(['child:id,name,lastname'])
-            ->when(in_array($status, ['pending','paid'], true), fn($q) => $q->where('status', $status))
+        $start = now()->setDate($year, $month, 1)->startOfMonth();
+        $end = (clone $start)->endOfMonth();
+
+        $rows = DailyOrder::query()
+            ->selectRaw('children.id as child_id, children.name, children.lastname, '
+                .'SUM(service_types.price_cents) as total_cents, '
+                .'GROUP_CONCAT(DISTINCT daily_orders.date ORDER BY daily_orders.date) as days, '
+                .'SUM(CASE WHEN daily_orders.status = "paid" THEN 1 ELSE 0 END) as paid_days, '
+                .'COUNT(*) as total_days')
+            ->join('children', 'children.id', '=', 'daily_orders.child_id')
+            ->join('service_types', 'service_types.id', '=', 'daily_orders.service_type_id')
+            ->whereBetween('daily_orders.date', [$start->toDateString(), $end->toDateString()])
             ->when($search !== '', function ($q) use ($search) {
-                $q->whereHas('child', function ($qc) use ($search) {
-                    $qc->where('name', 'like', "%$search%")
-                       ->orWhere('lastname', 'like', "%$search%");
+                $q->where(function ($qq) use ($search) {
+                    $qq->where('children.name', 'like', "%$search%")
+                       ->orWhere('children.lastname', 'like', "%$search%");
                 });
             })
-            ->orderByDesc('year')
-            ->orderByDesc('month')
-            ->select(['id','child_id','month','year','status','total_cents']);
+            ->groupBy('children.id', 'children.name', 'children.lastname')
+            ->orderBy('children.lastname')
+            ->orderBy('children.name')
+            ->get();
 
-        // Paginamos por separado para cada listado usando distintos nombres de página
-        $ordersPending = (clone $base)
-            ->where('status','pending')
-            ->paginate(10, ['*'], 'page_pending')
-            ->appends(['status' => $status, 'q' => $search]);
-
-        $ordersPaid = (clone $base)
-            ->where('status','paid')
-            ->paginate(10, ['*'], 'page_paid')
-            ->appends(['status' => $status, 'q' => $search]);
+        $aggregated = $rows->map(function ($r) use ($status) {
+            $computedStatus = ($r->paid_days == $r->total_days) ? 'paid' : 'pending';
+            if ($status !== 'all' && $computedStatus !== $status) {
+                return null;
+            }
+            $days = collect(explode(',', (string) $r->days))
+                ->filter()
+                ->values()
+                ->all();
+            return [
+                'child_id' => $r->child_id,
+                'child' => trim($r->name . ' ' . $r->lastname),
+                'days' => $days,
+                'days_count' => count($days),
+                'total_cents' => (int) $r->total_cents,
+                'status' => $computedStatus,
+            ];
+        })->filter()->values();
 
         return Inertia::render('Admin/MonthlyOrders', [
             'filters' => [
                 'status' => $status,
                 'q' => $search,
+                'month' => $month,
+                'year' => $year,
             ],
-            'ordersPending' => $ordersPending,
-            'ordersPaid' => $ordersPaid,
+            'orders' => $aggregated,
+            'month' => $month,
+            'year' => $year,
         ]);
     }
-
-    // ADMIN: confirmar pago de una orden mensual
-    public function adminMonthlyConfirm(Request $request, MonthlyOrder $order)
+    // ADMIN: confirmar pago por días (marca todas las daily_orders del período como paid)
+    public function adminDailyConfirm(Request $request)
     {
-        $order->update([
-            'status' => 'paid',
-            'decision_at' => now(),
-            'notified' => false,
+        $validated = $request->validate([
+            'child_id' => ['required','exists:children,id'],
+            'month' => ['required','integer','min:1','max:12'],
+            'year' => ['required','integer','min:2000'],
         ]);
 
-        return back()->with('success', 'Orden confirmada como pagada.');
-    }
+        $start = Carbon::create($validated['year'], $validated['month'], 1)->startOfMonth();
+        $end = (clone $start)->endOfMonth();
 
-    // ADMIN: eliminar una orden mensual (solo si está pagada)
-    public function adminMonthlyDestroy(Request $request, MonthlyOrder $order)
-    {
-        if ($order->status !== 'paid') {
-            return back()->with('error', 'Solo se pueden eliminar órdenes marcadas como pagadas.');
-        }
+        $updated = DailyOrder::where('child_id', $validated['child_id'])
+            ->whereBetween('date', [$start->toDateString(), $end->toDateString()])
+            ->update([
+                'status' => 'paid',
+                'updated_at' => now(),
+            ]);
 
-        $order->delete();
-
-        return back()->with('success', 'Orden eliminada correctamente.');
-    }
-
-    // ADMIN: rechazar pago de una orden mensual
-    public function adminMonthlyReject(Request $request, MonthlyOrder $order)
-    {
-        $order->update([
-            'status' => 'rejected',
-            'decision_at' => now(),
-            'notified' => false,
-        ]);
-
-        return back()->with('success', 'Orden rechazada.');
+        return back()->with('success', "Pago confirmado. Días actualizados: $updated");
     }
 
     private function authorizeChild(Children $child): void

@@ -31,7 +31,7 @@ export default function About() {
                         </div>
 
                         {/* Bloque destacado */}
-                        <div className="mt-6 bg-orange-50/70 p-6 ring-1 ring-orange-100 lg:pl-0 lg:pr-0">
+                        <div className="mt-6 bg-orange-50/70 p-6 ring-1 ring-orange-100 rounded-md">
                             <p className="text-base leading-7 text-gray-700 lg:pl-0">
                                 Creemos en acompañar a cada institución con una alimentación cuidada y cercana.
                                 Combinamos nutrición, higiene y calidad para crear menús equilibrados, procesos claros

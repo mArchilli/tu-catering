@@ -1,9 +1,10 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm, Link } from '@inertiajs/react';
+import { Head, useForm, Link, router } from '@inertiajs/react';
+import { useState } from 'react';
 
 export default function Price(props) {
-    // El backend envía 'existing' (ver PriceController@edit). Mantengo compatibilidad si alguna vez llega 'prices'.
-    const { existing = {}, prices = {} } = props || {};
+    // El backend envía 'existing' y 'serviceTypePrices'.
+    const { existing = {}, prices = {}, serviceTypePrices = {} } = props || {};
     const currentMap = (prices && Object.keys(prices).length > 0) ? prices : existing;
     const { data, setData, post, processing, errors, reset } = useForm({
         // Juan XXIII
@@ -19,6 +20,23 @@ export default function Price(props) {
         sr_primario: null,
         sr_secundario: null,
     });
+
+    // Form precios service types
+    const [pricesForm, setPricesForm] = useState({
+        vianda_price: serviceTypePrices.vianda ? (serviceTypePrices.vianda / 100).toString() : '',
+        economico_price: serviceTypePrices.economico ? (serviceTypePrices.economico / 100).toString() : '',
+        premium_price: serviceTypePrices.premium ? (serviceTypePrices.premium / 100).toString() : '',
+    });
+    const [confirmModal, setConfirmModal] = useState(false);
+    const [loadingPrices, setLoadingPrices] = useState(false);
+
+    const submitServicePrices = () => {
+        setLoadingPrices(true);
+        router.post(route('prices.update.service-types'), pricesForm, {
+            preserveScroll: true,
+            onFinish: () => { setLoadingPrices(false); setConfirmModal(false); },
+        });
+    };
 
     function submit(e) {
         e.preventDefault();
@@ -66,6 +84,31 @@ export default function Price(props) {
             <Head title="Precios" />
             <div className="bg-orange-50 py-12">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    {/* Contenedor de precios de Service Types */}
+                    <div className="mb-10 rounded-2xl border border-orange-100 bg-white p-6 shadow-sm">
+                        <h3 className="text-base font-semibold text-gray-900">Precios de Servicios</h3>
+                        <p className="mt-1 text-sm text-gray-600">Modificá uno o varios precios. Los valores se guardan en centavos internamente.</p>
+                        <div className="mt-5 grid gap-5 md:grid-cols-3">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Vianda (ARS)</label>
+                                <input type="number" min="0" step="0.01" value={pricesForm.vianda_price} onChange={e=>setPricesForm(p=>({...p, vianda_price: e.target.value}))} className="mt-1 w-full rounded-md border-gray-300 text-sm focus:border-orange-400 focus:ring-orange-400" placeholder="Ej: 1500" />
+                                <div className="mt-1 text-xs text-gray-500">Actual: {serviceTypePrices.vianda ? '$'+(serviceTypePrices.vianda/100).toLocaleString('es-AR') : '-'}</div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Comedor Económico (ARS)</label>
+                                <input type="number" min="0" step="0.01" value={pricesForm.economico_price} onChange={e=>setPricesForm(p=>({...p, economico_price: e.target.value}))} className="mt-1 w-full rounded-md border-gray-300 text-sm focus:border-orange-400 focus:ring-orange-400" placeholder="Ej: 2000" />
+                                <div className="mt-1 text-xs text-gray-500">Actual: {serviceTypePrices.economico ? '$'+(serviceTypePrices.economico/100).toLocaleString('es-AR') : '-'}</div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Comedor Premium (ARS)</label>
+                                <input type="number" min="0" step="0.01" value={pricesForm.premium_price} onChange={e=>setPricesForm(p=>({...p, premium_price: e.target.value}))} className="mt-1 w-full rounded-md border-gray-300 text-sm focus:border-orange-400 focus:ring-orange-400" placeholder="Ej: 2500" />
+                                <div className="mt-1 text-xs text-gray-500">Actual: {serviceTypePrices.premium ? '$'+(serviceTypePrices.premium/100).toLocaleString('es-AR') : '-'}</div>
+                            </div>
+                        </div>
+                        <div className="mt-6 flex justify-end">
+                            <button onClick={()=>setConfirmModal(true)} disabled={loadingPrices || (!pricesForm.vianda_price && !pricesForm.economico_price && !pricesForm.premium_price)} className="rounded-md bg-orange-400 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-500 disabled:opacity-50">Guardar cambios</button>
+                        </div>
+                    </div>
                     <form onSubmit={submit} className="rounded-2xl border border-orange-100 bg-white p-6 shadow-sm">
                         <p className="text-sm text-gray-600">
                             Cargá los PDFs por nivel y escuela (no es obligatorio subir todos).
@@ -180,6 +223,30 @@ export default function Price(props) {
                             </button>
                         </div>
                     </form>
+                    {/* Modal confirmación precios */}
+                    {confirmModal && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center">
+                            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={()=>!loadingPrices && setConfirmModal(false)}></div>
+                            <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-black/10">
+                                <div className="border-b border-gray-100 px-5 py-4">
+                                    <h3 className="text-sm font-semibold text-gray-800">Confirmar actualización de precios</h3>
+                                </div>
+                                <div className="px-5 py-4 text-sm text-gray-700 space-y-3">
+                                    <p>Vas a actualizar los precios de los siguientes servicios (solo se aplican los que completaste):</p>
+                                    <ul className="list-disc pl-5 text-xs space-y-1">
+                                        {pricesForm.vianda_price && <li>Vianda: {pricesForm.vianda_price} ARS</li>}
+                                        {pricesForm.economico_price && <li>Comedor Económico: {pricesForm.economico_price} ARS</li>}
+                                        {pricesForm.premium_price && <li>Comedor Premium: {pricesForm.premium_price} ARS</li>}
+                                    </ul>
+                                    <div className="rounded-md bg-orange-50 px-3 py-2 text-xs text-orange-700 border border-orange-200">Esta acción reemplazará los precios actuales.</div>
+                                </div>
+                                <div className="flex items-center justify-end gap-2 bg-gray-50 px-5 py-3">
+                                    <button disabled={loadingPrices} onClick={()=>setConfirmModal(false)} className="rounded-md bg-white px-3 py-2 text-xs font-semibold text-gray-600 ring-1 ring-gray-300 hover:bg-gray-100">Cancelar</button>
+                                    <button disabled={loadingPrices} onClick={submitServicePrices} className="rounded-md bg-green-600 px-4 py-2 text-xs font-semibold text-white hover:bg-green-500 disabled:opacity-50">{loadingPrices ? 'Guardando...' : 'Confirmar'}</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </AuthenticatedLayout>

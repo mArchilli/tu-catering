@@ -5,8 +5,7 @@ export default function ChildrenIndex({ children: items = [] }) {
     const { auth } = usePage().props;
 
     return (
-        <ParentLayout
-            
+        <ParentLayout    
         >
             
             <div className="mx-auto max-w-7xl p-6">
@@ -65,13 +64,15 @@ export default function ChildrenIndex({ children: items = [] }) {
                                     </div>
                                 </div>
 
-                                <div className="mt-3">
-                                    {child.payment_status ? (
-                                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${child.payment_status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                                            Pago {child.payment_status === 'paid' ? 'confirmado' : 'pendiente'}
-                                        </span>
-                                    ) : (
-                                        <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">Sin pago</span>
+                                <div className="mt-3 flex flex-wrap items-center gap-2">
+                                    {child.payment_status === 'paid' && (
+                                        <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">Pago confirmado</span>
+                                    )}
+                                    {child.payment_status === 'pending' && (
+                                        <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800">Pago pendiente</span>
+                                    )}
+                                    {child.payment_status === null && (
+                                        <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">Sin días cargados</span>
                                     )}
                                 </div>
 

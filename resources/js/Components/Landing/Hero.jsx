@@ -92,8 +92,7 @@ export default function Hero() {
                         <div className="mx-auto max-w-lg hero-rotor" style={{ ['--gap']: '0.5rem' }}>
                             <div className="hero-card hero-card--a border border-white/20 bg-white/10 text-orange-50 shadow-lg p-4">
                                 <p className="text-base leading-7">
-                                    Trabajamos con personal con muchos años de experiencia y nos dedicamos a brindar un
-                                    servicio de calidad desde hace 5 años.
+                                    Nos dedicamos a brindar un servicio de calidad desde hace 5 años.
                                 </p>
                             </div>
                             <div className="hero-card hero-card--b border border-white/20 bg-white/10 text-orange-50 shadow-lg p-4">

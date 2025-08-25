@@ -2,7 +2,9 @@ import ParentLayout from '@/Layouts/ParentLayout';
 import { Link } from '@inertiajs/react';
 import { useState } from 'react';
 
-export default function View({ child }) {
+const money = (cents) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format((cents || 0) / 100);
+
+export default function View({ child, dailyOrders = [], summary = { total_days:0, paid_days:0, pending_days:0, total_cents:0 }, month, year }) {
     const [showDelete, setShowDelete] = useState(false);
 
     return (
@@ -85,6 +87,53 @@ export default function View({ child }) {
                             <dd className="text-base font-medium text-gray-900">{child.condition || '-'}</dd>
                         </div>
                     </dl>
+
+                    {/* Tabla de días contratados */}
+                    <div className="mt-8">
+                        <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                            <div>
+                                <h3 className="text-base font-semibold text-gray-800">Servicios del mes</h3>
+                                <p className="text-xs text-gray-500">Período: {String(month).padStart(2,'0')}/{year}</p>
+                            </div>
+                            <div className="flex flex-wrap gap-3 text-xs">
+                                <span className="rounded-full bg-gray-100 px-2 py-0.5 font-medium text-gray-700">Total días: {summary.total_days}</span>
+                                <span className="rounded-full bg-green-100 px-2 py-0.5 font-medium text-green-700">Pagados: {summary.paid_days}</span>
+                                <span className="rounded-full bg-yellow-100 px-2 py-0.5 font-medium text-yellow-800">Pendientes: {summary.pending_days}</span>
+                                <span className="rounded-full bg-orange-100 px-2 py-0.5 font-medium text-orange-700">Total: {money(summary.total_cents)}</span>
+                            </div>
+                        </div>
+                        <div className="overflow-x-auto rounded-xl border border-gray-200">
+                            <table className="min-w-full table-auto text-sm">
+                                <thead className="bg-gray-50 text-left text-gray-600">
+                                    <tr>
+                                        <th className="px-3 py-2 font-medium">Fecha</th>
+                                        <th className="px-3 py-2 font-medium">Servicio</th>
+                                        <th className="px-3 py-2 font-medium">Precio</th>
+                                        <th className="px-3 py-2 font-medium">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {dailyOrders.map(d => (
+                                        <tr key={d.date + d.service} className="text-gray-800">
+                                            <td className="px-3 py-2 whitespace-nowrap">{d.date}</td>
+                                            <td className="px-3 py-2">{d.service || '-'}</td>
+                                            <td className="px-3 py-2 font-medium">{money(d.price_cents)}</td>
+                                            <td className="px-3 py-2">
+                                                <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${d.status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-800'}`}>
+                                                    {d.status === 'paid' ? 'Pagado' : 'Pendiente'}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {dailyOrders.length === 0 && (
+                                        <tr>
+                                            <td colSpan={4} className="px-3 py-4 text-center text-gray-600">No hay días cargados para este mes.</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
                     {/* Modal de confirmación de eliminación */}
                     {showDelete && (

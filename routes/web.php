@@ -19,7 +19,44 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
+    $today = today();
+    $todayOrders = \App\Models\DailyOrder::query()
+        ->whereDate('date', $today)
+        ->join('service_types', 'daily_orders.service_type_id', '=', 'service_types.id')
+        ->join('children', 'daily_orders.child_id', '=', 'children.id')
+        ->select(
+            'daily_orders.child_id',
+            'service_types.name as service_name',
+            'children.name',
+            'children.lastname',
+            'children.dni',
+            'children.school',
+            'children.grado',
+            'children.condition'
+        )
+        ->orderBy('children.lastname')
+        ->orderBy('children.name')
+        ->get();
+
+    $mapFn = fn($row) => [
+        'child_id' => $row->child_id,
+        'full_name' => trim($row->name . ' ' . $row->lastname),
+        'dni' => $row->dni,
+        'school' => $row->school,
+        'grado' => $row->grado,
+        'condition' => $row->condition,
+    ];
+
+    $viandaToday = $todayOrders->where('service_name', 'Vianda')->map($mapFn)->values();
+    $comedorEconomicoToday = $todayOrders->where('service_name', 'Comedor Económico')->map($mapFn)->values();
+    $comedorPremiumToday = $todayOrders->where('service_name', 'Comedor Premium')->map($mapFn)->values();
+
+    return Inertia::render('Dashboard', [
+        'viandaToday' => $viandaToday,
+        'comedorEconomicoToday' => $comedorEconomicoToday,
+        'comedorPremiumToday' => $comedorPremiumToday,
+        'dateLabel' => $today->format('d/m/Y'),
+    ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/dashboard-padre', function () {
@@ -37,6 +74,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/menu', [MenuController::class, 'update'])->name('menu.update');
     Route::get('/prices', [PriceController::class, 'edit'])->name('prices.edit');
     Route::post('/prices', [PriceController::class, 'update'])->name('prices.update');
+    Route::post('/prices/service-types', [PriceController::class, 'updateServiceTypePrices'])->name('prices.update.service-types');
     Route::get('/padre/menu', [MenuController::class, 'padre'])->name('menus.padre');
     Route::get('/padre/precios', [MenuController::class, 'preciosPadre'])->name('precios.padre');
     // Calendario de pedidos por hijo
@@ -48,10 +86,9 @@ Route::middleware('auth')->group(function () {
     Route::post('children/{child}/payment/confirm', [OrderController::class, 'paymentConfirm'])->name('children.payment.confirm');
     // Admin: órdenes mensuales (protegidas por middleware de admin)
     Route::middleware([\App\Http\Middleware\AdminOnly::class])->group(function () {
-        Route::get('/admin/monthly-orders', [OrderController::class, 'adminMonthlyIndex'])->name('admin.monthly-orders.index');
-        Route::post('/admin/monthly-orders/{order}/confirm', [OrderController::class, 'adminMonthlyConfirm'])->name('admin.monthly-orders.confirm');
-    Route::post('/admin/monthly-orders/{order}/reject', [OrderController::class, 'adminMonthlyReject'])->name('admin.monthly-orders.reject');
-    Route::delete('/admin/monthly-orders/{order}', [OrderController::class, 'adminMonthlyDestroy'])->name('admin.monthly-orders.destroy');
+    Route::get('/admin/monthly-orders', [OrderController::class, 'adminMonthlyIndex'])->name('admin.monthly-orders.index');
+    Route::post('/admin/daily-orders/confirm', [OrderController::class, 'adminDailyConfirm'])->name('admin.daily-orders.confirm');
+    Route::get('/admin/reports/daily-service/{service}', [\App\Http\Controllers\DailyServiceReportController::class, 'servicePdf'])->name('admin.reports.daily-service');
     });
 });
 

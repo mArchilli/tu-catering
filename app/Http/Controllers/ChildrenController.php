@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Children;
-use App\Models\MonthlyOrder;
+// Eliminado MonthlyOrder: estado se calcula con daily_orders
 
 class ChildrenController extends Controller
 {
@@ -17,20 +17,33 @@ class ChildrenController extends Controller
             ->orderBy('name')
             ->get(['id','name','lastname','dni','school','grado','condition']);
 
-        // Traer estado de pago mensual actual por alumno
-        $month = now()->month;
-        $year = now()->year;
+        // Calcular estado (pending|paid|null) y total desde daily_orders del mes actual
+        $start = now()->startOfMonth()->toDateString();
+        $end = now()->endOfMonth()->toDateString();
         $ids = $children->pluck('id');
-        $monthly = MonthlyOrder::whereIn('child_id', $ids)
-            ->where('month', $month)
-            ->where('year', $year)
-            ->get(['child_id','status','total_cents'])
+
+        $aggregates = \App\Models\DailyOrder::query()
+            ->selectRaw('child_id, '
+                .'SUM(service_types.price_cents) as total_cents, '
+                .'SUM(CASE WHEN daily_orders.status = "paid" THEN 1 ELSE 0 END) as paid_days, '
+                .'COUNT(*) as total_days')
+            ->join('service_types','service_types.id','=','daily_orders.service_type_id')
+            ->whereIn('child_id', $ids)
+            ->whereBetween('date', [$start, $end])
+            ->groupBy('child_id')
+            ->get()
             ->keyBy('child_id');
 
-        $children = $children->map(function ($c) use ($monthly) {
-            $m = $monthly->get($c->id);
-            $c->payment_status = $m->status ?? null; // pending | paid | null
-            $c->payment_total_cents = $m->total_cents ?? 0;
+        $children = $children->map(function ($c) use ($aggregates) {
+            $agg = $aggregates->get($c->id);
+            if ($agg) {
+                $status = ($agg->paid_days == $agg->total_days) ? 'paid' : 'pending';
+                $c->payment_status = $status; // paid | pending
+                $c->payment_total_cents = (int) $agg->total_cents;
+            } else {
+                $c->payment_status = null; // sin días cargados
+                $c->payment_total_cents = 0;
+            }
             return $c;
         });
 
@@ -80,9 +93,42 @@ class ChildrenController extends Controller
         if ($child->user_id !== $request->user()->id) {
             abort(403);
         }
+        $month = (int)$request->get('month', now()->month);
+        $year = (int)$request->get('year', now()->year);
+        $start = now()->setDate($year, $month, 1)->startOfMonth();
+        $end = (clone $start)->endOfMonth();
+
+        $orders = \App\Models\DailyOrder::where('child_id', $child->id)
+            ->whereBetween('date', [$start->toDateString(), $end->toDateString()])
+            ->with('serviceType:id,name,price_cents')
+            ->orderBy('date')
+            ->get();
+
+        $dailyOrders = $orders->map(function ($o) {
+            return [
+                'date' => $o->date->toDateString(),
+                'service' => optional($o->serviceType)->name,
+                'price_cents' => optional($o->serviceType)->price_cents ?? 0,
+                'status' => $o->status,
+            ];
+        });
+
+        $totalDays = $dailyOrders->count();
+        $paidDays = $dailyOrders->where('status','paid')->count();
+        $pendingDays = $totalDays - $paidDays;
+        $totalCents = $dailyOrders->sum('price_cents');
 
         return Inertia::render('Children/View', [
             'child' => $child,
+            'dailyOrders' => $dailyOrders,
+            'summary' => [
+                'total_days' => $totalDays,
+                'paid_days' => $paidDays,
+                'pending_days' => $pendingDays,
+                'total_cents' => $totalCents,
+            ],
+            'month' => $month,
+            'year' => $year,
         ]);
     }
 
