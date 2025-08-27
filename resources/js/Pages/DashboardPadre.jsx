@@ -2,6 +2,11 @@ import ParentLayout from '@/Layouts/ParentLayout';
 import { Head, Link } from '@inertiajs/react';
 
 export default function DashboardPadre() {
+    // clases base + hover (mismas que se usan en el dashboard del panel de administración)
+    const cardBase = 'rounded-xl border border-orange-100 bg-white p-6 shadow-sm transition-transform duration-200 transform';
+    const cardHover = 'hover:-translate-y-1 hover:scale-105 hover:shadow-lg hover:border-orange-200';
+    const cardClasses = `${cardBase} ${cardHover}`;
+
     return (
         <ParentLayout
         >
@@ -21,7 +26,8 @@ export default function DashboardPadre() {
 
                     {/* Accesos rápidos */}
                     <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
-                        <div className="rounded-xl border border-orange-100 bg-white p-6 shadow-sm">
+                        { /* Mis alumnos - aplicado cardClasses */ }
+                        <div className={cardClasses}>
                             <div className="mb-2 inline-flex rounded-full bg-orange-100 p-2 text-orange-600">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                                     <path d="M4 7h16M4 12h16M4 17h10" />
@@ -41,7 +47,8 @@ export default function DashboardPadre() {
                             </div>
                         </div>
 
-                        <div className="rounded-xl border border-orange-100 bg-white p-6 shadow-sm">
+                        { /* Mi perfil - aplicado cardClasses */ }
+                        <div className={cardClasses}>
                             <div className="mb-2 inline-flex rounded-full bg-orange-100 p-2 text-orange-600">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                                     <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5z" />
@@ -64,7 +71,8 @@ export default function DashboardPadre() {
                     </div>
 
                     <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
-                        <div className="rounded-xl border border-orange-100 bg-white p-6 shadow-sm">
+                        { /* Menu - aplicado cardClasses */ }
+                        <div className={cardClasses}>
                             <div className="mb-2 inline-flex rounded-full bg-orange-100 p-2 text-orange-400">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                                     <path d="M4 7h16M4 12h16M4 17h10" />
@@ -84,7 +92,8 @@ export default function DashboardPadre() {
                             </div>
                         </div>
 
-                        <div className="rounded-xl border border-orange-100 bg-white p-6 shadow-sm">
+                        { /* Precios - aplicado cardClasses */ }
+                        <div className={cardClasses}>
                             <div className="mb-2 inline-flex rounded-full bg-orange-100 p-2 text-orange-600">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                                     <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5z" />

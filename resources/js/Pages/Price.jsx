@@ -54,22 +54,39 @@ export default function Price(props) {
     };
 
     const PdfField = ({ id, label, value, onChange, error, currentUrl }) => (
-        <div>
+        <div className="mb-6">
             <label htmlFor={id} className="block text-sm font-medium text-gray-700">
                 {label} (PDF)
             </label>
-            <input
-                id={id}
-                name={id}
-                type="file"
-                accept="application/pdf"
-                className="mt-1 block w-full text-sm text-gray-700 file:mr-4 file:rounded-md file:border-0 file:bg-orange-400 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-orange-400 focus:outline-none"
-                onClick={(e) => { e.target.value = null; }}
-                onChange={(e) => onChange(e.target.files && e.target.files[0] ? e.target.files[0] : null)}
-            />
-            <div className="mt-1 text-xs text-gray-500">
-                {value ? `Seleccionado: ${value.name}` : 'Ningún archivo seleccionado'}
+
+            <div className="mt-2 flex items-center gap-3">
+                {/* input oculto activado por el label-actuador compacto */}
+                <input
+                    id={id}
+                    name={id}
+                    type="file"
+                    accept="application/pdf"
+                    className="sr-only"
+                    onClick={(e) => { e.target.value = null; }}
+                    onChange={(e) => onChange(e.target.files && e.target.files[0] ? e.target.files[0] : null)}
+                    aria-hidden="true"
+                />
+                <label
+                    htmlFor={id}
+                    className="inline-flex items-center rounded-md bg-orange-400 px-3 py-1.5 text-sm font-semibold text-white hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-300 transition-colors duration-150 cursor-pointer"
+                >
+                    {/* Ícono pequeño */}
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m0 0l4-4m-4 4-4-4M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    </svg>
+                    Subir
+                </label>
+
+                <div className="text-xs text-gray-500 truncate">
+                    {value ? `${value.name}` : 'Ningún archivo seleccionado'}
+                </div>
             </div>
+
             {currentUrl && (
                 <p className="mt-2 text-sm">
                     Actual: <a href={currentUrl} target="_blank" className="text-orange-400 hover:text-orange-700" rel="noreferrer">Ver PDF</a>
@@ -117,7 +134,7 @@ export default function Price(props) {
                         {/* Juan XXIII */}
                         <div className="mt-6">
                             <h3 className="text-base font-semibold text-gray-900">Juan XXIII</h3>
-                            <div className="mt-4 grid gap-4 md:grid-cols-3">
+                            <div className="mt-4 grid gap-6 md:grid-cols-3">
                                 <PdfField
                                     id="juan_xxiii_inicial"
                                     label="Inicial"
@@ -148,7 +165,7 @@ export default function Price(props) {
                         {/* Colegio Buenos Aires */}
                         <div className="mt-8">
                             <h3 className="text-base font-semibold text-gray-900">Colegio Buenos Aires</h3>
-                            <div className="mt-4 grid gap-4 md:grid-cols-3">
+                            <div className="mt-4 grid gap-6 md:grid-cols-3">
                                 <PdfField
                                     id="cba_inicial"
                                     label="Inicial"
@@ -179,7 +196,7 @@ export default function Price(props) {
                         {/* Santísimo Redentor */}
                         <div className="mt-8">
                             <h3 className="text-base font-semibold text-gray-900">Santísimo Redentor</h3>
-                            <div className="mt-4 grid gap-4 md:grid-cols-3">
+                            <div className="mt-4 grid gap-6 md:grid-cols-3">
                                 <PdfField
                                     id="sr_inicial"
                                     label="Inicial"
