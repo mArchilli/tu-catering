@@ -105,7 +105,7 @@ export default function Dashboard({ viandaToday = [], comedorEconomicoToday = []
                     {/* Tablas del día por servicio */}
                     <div className="mt-12 space-y-10">
                         <div>
-                            <div className="mb-3 flex items-center justify-between">
+                            <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                 <div className="flex items-center gap-3">
                                     <h3 className="text-base font-semibold text-gray-900">Vianda - Hoy ({dateLabel})</h3>
                                     <span
@@ -113,13 +113,14 @@ export default function Dashboard({ viandaToday = [], comedorEconomicoToday = []
                                         aria-label={`Total ${viandaFiltered.length}`}
                                         className="ml-2 inline-flex items-center rounded-full bg-orange-200 border border-orange-300 px-2 py-0.5 text-xs font-semibold text-orange-800 shadow-sm"
                                     >
-                                        Total: {viandaFiltered.length}
+                                        <span className="hidden sm:inline">Total: {viandaFiltered.length}</span>
+                                        <span className="inline sm:hidden">{viandaFiltered.length}</span>
                                     </span>
                                 </div>
-                                <div className="flex items-center gap-3">
-                                    <div>
-                                        {/* Select: más grande y con fondo naranja tenue para mejor lectura */}
-                                        <select value={schoolVianda} onChange={e=>setSchoolVianda(e.target.value)} className="rounded-md border border-orange-300 bg-orange-100 text-orange-800 text-sm px-3 py-1.5 pr-10 min-w-[10rem] truncate focus:border-orange-400 focus:ring-2 focus:ring-orange-200 transition">
+                                <div className="flex items-center gap-3 w-full sm:w-auto">
+                                    <div className="w-full sm:w-auto">
+                                        {/* Select: full-width en mobile, más legible */}
+                                        <select value={schoolVianda} onChange={e=>setSchoolVianda(e.target.value)} className="w-full sm:w-auto rounded-md border border-orange-300 bg-orange-100 text-orange-800 text-sm px-3 py-1.5 pr-10 sm:min-w-[10rem] truncate focus:border-orange-400 focus:ring-2 focus:ring-orange-200 transition">
                                             <option value="all">Todas las escuelas</option>
                                             {schoolsVianda.map(s => <option key={s} value={s}>{s}</option>)}
                                         </select>
@@ -161,7 +162,7 @@ export default function Dashboard({ viandaToday = [], comedorEconomicoToday = []
                          </div>
  
                          <div>
-                             <div className="mb-3 flex items-center justify-between">
+                             <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                 <div className="flex items-center gap-3">
                                     <h3 className="text-base font-semibold text-gray-900">Comedor Económico - Hoy ({dateLabel})</h3>
                                     <span
@@ -169,12 +170,13 @@ export default function Dashboard({ viandaToday = [], comedorEconomicoToday = []
                                         aria-label={`Total ${ecoFiltered.length}`}
                                         className="ml-2 inline-flex items-center rounded-full bg-orange-200 border border-orange-300 px-2 py-0.5 text-xs font-semibold text-orange-800 shadow-sm"
                                     >
-                                        Total: {ecoFiltered.length}
+                                        <span className="hidden sm:inline">Total: {ecoFiltered.length}</span>
+                                        <span className="inline sm:hidden">{ecoFiltered.length}</span>
                                     </span>
                                 </div>
-                                <div className="flex items-center gap-3">
-                                    <div>
-                                        <select value={schoolEco} onChange={e=>setSchoolEco(e.target.value)} className="rounded-md border border-orange-300 bg-orange-100 text-orange-800 text-sm px-3 py-1.5 pr-10 min-w-[10rem] truncate focus:border-orange-400 focus:ring-2 focus:ring-orange-200 transition">
+                                <div className="flex items-center gap-3 w-full sm:w-auto">
+                                    <div className="w-full sm:w-auto">
+                                        <select value={schoolEco} onChange={e=>setSchoolEco(e.target.value)} className="w-full sm:w-auto rounded-md border border-orange-300 bg-orange-100 text-orange-800 text-sm px-3 py-1.5 pr-10 sm:min-w-[10rem] truncate focus:border-orange-400 focus:ring-2 focus:ring-orange-200 transition">
                                             <option value="all">Todas las escuelas</option>
                                             {schoolsEco.map(s => <option key={s} value={s}>{s}</option>)}
                                         </select>
@@ -214,7 +216,7 @@ export default function Dashboard({ viandaToday = [], comedorEconomicoToday = []
                          </div>
  
                          <div>
-                             <div className="mb-3 flex items-center justify-between">
+                             <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                 <div className="flex items-center gap-3">
                                     <h3 className="text-base font-semibold text-gray-900">Comedor Premium - Hoy ({dateLabel})</h3>
                                     <span
@@ -222,12 +224,13 @@ export default function Dashboard({ viandaToday = [], comedorEconomicoToday = []
                                         aria-label={`Total ${premFiltered.length}`}
                                         className="ml-2 inline-flex items-center rounded-full bg-orange-200 border border-orange-300 px-2 py-0.5 text-xs font-semibold text-orange-800 shadow-sm"
                                     >
-                                        Total: {premFiltered.length}
+                                        <span className="hidden sm:inline">Total: {premFiltered.length}</span>
+                                        <span className="inline sm:hidden">{premFiltered.length}</span>
                                     </span>
                                 </div>
-                                <div className="flex items-center gap-3">
-                                    <div>
-                                        <select value={schoolPrem} onChange={e=>setSchoolPrem(e.target.value)} className="rounded-md border border-orange-300 bg-orange-100 text-orange-800 text-sm px-3 py-1.5 pr-10 min-w-[10rem] truncate focus:border-orange-400 focus:ring-2 focus:ring-orange-200 transition">
+                                <div className="flex items-center gap-3 w-full sm:w-auto">
+                                    <div className="w-full sm:w-auto">
+                                        <select value={schoolPrem} onChange={e=>setSchoolPrem(e.target.value)} className="w-full sm:w-auto rounded-md border border-orange-300 bg-orange-100 text-orange-800 text-sm px-3 py-1.5 pr-10 sm:min-w-[10rem] truncate focus:border-orange-400 focus:ring-2 focus:ring-orange-200 transition">
                                             <option value="all">Todas las escuelas</option>
                                             {schoolsPrem.map(s => <option key={s} value={s}>{s}</option>)}
                                         </select>
