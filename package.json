@@ -26,6 +26,6 @@
         "vite": "^7.0.4"
     },
     "dependencies": {
-        "lucide-react": "^0.539.0"
+        "lucide-react": "^0.263.0"
     }
 }
