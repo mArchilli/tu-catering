@@ -1,4 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
+import { useRef, useEffect } from 'react';
 
 export default function LevelsInstitutions() {
     const user = usePage().props.auth?.user;
@@ -6,7 +7,6 @@ export default function LevelsInstitutions() {
     const dashboardHref = (() => {
         if (!user) return null;
         const role = (user.role || '').toLowerCase();
-        // Si existe la ruta del panel de padre y el rol coincide, usarla; si no, usar dashboard general
         if (typeof route === 'function') {
             if (route().has('dashboard.padre') && ['padre', 'parent', 'tutor'].includes(role)) {
                 return route('dashboard.padre');
@@ -18,20 +18,52 @@ export default function LevelsInstitutions() {
         return '/dashboard';
     })();
 
-    const levels = [
-        { title: 'Educación Inicial', desc: 'Acompañamos a los más chicos con menús adecuados y balanceados.' },
-        { title: 'Educación Primaria', desc: 'Propuestas nutritivas para etapas de crecimiento y aprendizaje.' },
-        { title: 'Educación Secundaria', desc: 'Energía y variedad para jornadas escolares demandantes.' },
+    // Nuevos activos: logos de instituciones y fotos de eventos
+    const institutions = [
+        { name: 'Juan XXIII', img: '/images/logos/juan-xxiii.png' },
+        { name: 'Colegio Buenos Aires', img: '/images/logos/colegio-buenos-aires.png' },
+        { name: 'Santísimo Redentor', img: '/images/logos/santisimo-redentor.png' },
     ];
 
-    // Imágenes por nivel: inicial, primario, secundario
-    const levelImages = [
-        '/images/nivel-inicial.png',
-        '/images/nivel-primario.png', // Nueva imagen de Primario
-        '/images/nivel-secundario.png', // Nueva imagen de Secundario (colocar la adjunta en public/images/nivel-secundario.jpg)
+    const eventImages = [
+        '/images/events/event1.jpg',
+        '/images/events/event2.jpg',
+        '/images/events/event3.jpg',
+        '/images/events/event4.jpg',
+        '/images/events/event5.jpg',
     ];
 
-    const institutions = ['Juan XXIII', 'Colegio Buenos Aires', 'Santísimo Redentor'];
+    // Refs para scroll controlado
+    const instRef = useRef(null);
+    const eventsRef = useRef(null);
+
+    const scrollContainerBy = (ref, direction = 1) => {
+        const el = ref.current;
+        if (!el) return;
+        const amount = el.clientWidth || el.scrollWidth / 3;
+        el.scrollBy({ left: direction * amount, behavior: 'smooth' });
+    };
+
+    useEffect(() => {
+        // Opcional: ocultar scrollbars en WebKit pero mantener funcionalidad de swipe
+    }, []);
+
+    // Agregar función para scrollear a contacto
+    const scrollToContact = (e) => {
+        if (e && e.preventDefault) e.preventDefault();
+        const el = document.getElementById('contacto') || document.querySelector('section#contacto, #contacto');
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (typeof el.focus === 'function') el.focus();
+        } else {
+            // Fallback: navegar a la página de contacto si no hay ancla en la página actual
+            if (typeof route === 'function' && route().has && route().has('contacto')) {
+                window.location.href = route('contacto');
+            } else {
+                window.location.href = '/contacto';
+            }
+        }
+    };
 
     return (
         <section id="alcance" className="bg-white">
@@ -43,83 +75,161 @@ export default function LevelsInstitutions() {
                     </p>
                 </div>
 
-                {/* Cards con imagen arriba y descripción abajo.
-                    Mobile: una debajo de la otra (inicial, primario, secundario).
-                    Desktop: lado a lado de izquierda a derecha (inicial, primario, secundario). */}
-                <div className="mt-10 flex flex-col gap-6 lg:flex-row lg:gap-8">
-                    {levels.map((l, idx) => (
-                        <article
-                            key={l.title}
-                            className="flex-1 overflow-hidden rounded-xl border-2 border-orange-300 bg-gradient-to-b from-orange-50 to-white shadow-md transition-transform duration-300 ease-out hover:scale-[1.02] hover:shadow-lg hover:border-orange-400"
-                        >
-                            <img
-                                src={levelImages[idx]}
-                                alt={`${l.title} - ilustración`}
-                                className="h-56 w-full object-cover sm:h-64 lg:h-72"
-                                loading="lazy"
-                            />
-                            <div className="p-5">
-                                <h3 className="text-base font-semibold text-orange-800">{l.title}</h3>
-                                <p className="mt-2 text-sm text-gray-700">{l.desc}</p>
-                            </div>
-                        </article>
-                    ))}
-                </div>
-
-                <div className="mt-12">
-                    {/* Animación para marquee y pausa al hover */}
-                    <style>
-                        {`
-                        @keyframes scrollX {
-                            0% { transform: translateX(0); }
-                            100% { transform: translateX(-50%); }
+                {/* CSS para ocultar scrollbar en desktop pero mantener swipe */}
+                <style>
+                    {`
+                    @media (min-width: 768px) {
+                        .events-scrollbar {
+                            -ms-overflow-style: none;  /* IE 10+ */
+                            scrollbar-width: none;     /* Firefox */
                         }
-                        .marquee-wrap:hover .marquee-track {
-                            animation-play-state: paused;
+                        .events-scrollbar::-webkit-scrollbar {
+                            display: none;             /* WebKit */
                         }
-                        `}
-                    </style>
+                    }
+                    `}
+                </style>
 
+                {/* --- Sección REEMPLAZADA: Instituciones que confían en nosotros --- */}
+                <div className="mt-10">
                     <div className="rounded-2xl border-2 border-orange-300 bg-gradient-to-r from-orange-50 via-white to-orange-50 p-6 sm:p-8 shadow-md">
-                        <h3 className="text-center text-base font-semibold text-orange-800">
-                            Instituciones con las que trabajamos
+                        <h3 className="text-center text-2xl font-semibold text-orange-800">
+                            Instituciones que confían en nosotros
                         </h3>
+                        <p className="mt-2 text-center text-sm text-gray
+                        -600 max-w-2xl mx-auto">
+                            Trabajamos con colegios reconocidos brindando alimentación escolar con calidad, higiene y puntualidad.
+                        </p>
 
-                        {/* Mobile: marquee infinito con pausa al hover */}
-                        <div className="mt-5 md:hidden marquee-wrap overflow-hidden">
-                            <div className="marquee-track flex items-center gap-3 whitespace-nowrap animate-[scrollX_20s_linear_infinite]">
-                                {[...institutions, ...institutions].map((name, i) => (
+                        {/* Carrusel horizontal mobile-first (swipeable). Snap + versión desktop: fila única */}
+                        <div className="mt-6">
+                            {/* Mobile: carrusel swipeable */}
+                            <div
+                                ref={instRef}
+                                className="md:hidden flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide"
+                                role="list"
+                            >
+                                {institutions.map((inst) => (
                                     <div
-                                        key={`${name}-${i}`}
-                                        className="flex-shrink-0 inline-flex items-center rounded-full border-2 border-orange-300 bg-gradient-to-b from-orange-50 to-white px-4 py-2 text-sm font-semibold text-orange-800 shadow-sm transition-transform duration-300 ease-out hover:scale-[1.04] hover:shadow-md hover:border-orange-400"
+                                        key={inst.name}
+                                        className="snap-center flex-none w-72 rounded-xl border border-orange-200 bg-white shadow-sm p-4 flex items-center gap-4"
                                     >
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="mr-2 h-4 w-4 text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                                            <path d="M3 10l9-5 9 5-9 5-9-5z" />
-                                            <path d="M5 12v6a2 2 0 002 2h10a2 2 0 002-2v-6" />
-                                        </svg>
-                                        {name}
+                                        {inst.img ? (
+                                            <img
+                                                src={inst.img}
+                                                alt={inst.name}
+                                                className="h-14 w-14 object-contain rounded-md bg-white p-1"
+                                                loading="lazy"
+                                            />
+                                        ) : (
+                                            <div className="h-14 w-14 flex items-center justify-center rounded-md bg-orange-100 text-orange-800 font-semibold">
+                                                {inst.name.split(' ').map(s => s[0]).join('').slice(0,3)}
+                                            </div>
+                                        )}
+                                        <div className="text-left">
+                                            <div className="text-sm font-semibold text-orange-800">{inst.name}</div>
+                                            <div className="text-xs text-gray-500">Cliente institucional</div>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
-                        </div>
 
-                        {/* Desktop: grilla con hover tipo botón */}
-                        <div className="mt-6 hidden md:grid grid-cols-3 gap-4">
-                            {institutions.map((name) => (
-                                <div
-                                    key={name}
-                                    className="flex items-center justify-center rounded-full border-2 border-orange-300 bg-gradient-to-b from-orange-50 to-white px-5 py-3 text-sm font-semibold text-orange-800 shadow-sm transition-transform duration-300 ease-out hover:scale-[1.04] hover:shadow-md hover:border-orange-400"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="mr-2 h-4 w-4 text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                                        <path d="M3 10l9-5 9 5-9 5-9-5z" />
-                                        <path d="M5 12v6a2 2 0 002 2h10a2 2 0 002-2v-6" />
-                                    </svg>
-                                    {name}
-                                </div>
-                            ))}
+                            {/* Desktop: una sola fila, cada card ocupa el mismo ancho y llenan todo el espacio */}
+                            <div className="hidden md:flex md:gap-6">
+                                {institutions.map((inst) => (
+                                    <article
+                                        key={inst.name}
+                                        className="flex-1 min-w-0 rounded-xl border border-orange-200 bg-white shadow-sm p-6 flex flex-col items-center justify-center text-center"
+                                    >
+                                        <img
+                                            src={inst.img}
+                                            alt={inst.name}
+                                            className="h-28 w-auto object-contain mb-4"
+                                            loading="lazy"
+                                        />
+                                        <h4 className="text-lg font-semibold text-orange-800">{inst.name}</h4>
+                                        <p className="text-sm text-gray-500 mt-1">Cliente institucional</p>
+                                    </article>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                {/* --- Nueva Sección: Eventos sociales y particulares --- */}
+                <div className="mt-12">
+                    <div className="rounded-2xl border-2 border-orange-300 bg-gradient-to-b from-orange-50 to-white p-6 sm:p-8 shadow-md">
+                        <div className="md:flex md:items-center md:justify-between md:gap-6">
+                            <div className="max-w-xl">
+                                <h3 className="text-2xl font-semibold text-gray-900">
+                                    Ahora también llevamos nuestra experiencia a tus eventos
+                                </h3>
+                                <p className="mt-3 text-sm text-gray-600">
+                                    Ofrecemos soluciones gastronómicas para bodas, cumpleaños, XV, reuniones familiares y empresariales, con la misma calidad y cuidado que en nuestros servicios institucionales.
+                                </p>
+
+                                <div className="mt-6 flex gap-3">
+                                    {/* botón que scrollea a la sección de contacto */}
+                                    <a
+                                        href="#contacto"
+                                        onClick={scrollToContact}
+                                        className="inline-flex items-center justify-center rounded-full bg-orange-600 px-5 py-2 text-sm font-semibold text-white shadow hover:bg-orange-700 transition"
+                                    >
+                                        Solicitar presupuesto
+                                    </a>
+                                    {/* "Ver servicios" eliminado */}
+                                </div>
+                            </div>
+
+                            {/* Carrusel de eventos */}
+                            <div className="mt-6 md:mt-0 md:flex-1">
+                                <div className="relative">
+                                    {/* contenedor swipeable: cada slide ocupa todo el ancho visible (1 por vista).
+                                        Se añade la clase events-scrollbar para ocultar la barra en desktop */}
+                                    <div
+                                        ref={eventsRef}
+                                        className="events-scrollbar flex gap-4 overflow-x-auto pb-3 snap-x snap-mandatory"
+                                    >
+                                        {eventImages.map((src, i) => (
+                                            <div
+                                                key={i}
+                                                className="snap-center flex-none w-full rounded-lg overflow-hidden"
+                                            >
+                                                <img
+                                                    src={src}
+                                                    alt={`evento-${i}`}
+                                                    className="h-44 w-full object-cover"
+                                                    loading="lazy"
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* Flechas de navegación: siempre visibles, superpuestas */}
+                                    <div className="absolute left-2 top-1/2 -translate-y-1/2 flex gap-2 z-10">
+                                        <button
+                                            onClick={() => scrollContainerBy(eventsRef, -1)}
+                                            aria-label="Anterior evento"
+                                            className="h-10 w-10 rounded-full bg-white/95 border border-orange-200 text-orange-700 shadow-sm hover:bg-white focus:outline-none"
+                                        >
+                                            ‹
+                                        </button>
+                                    </div>
+                                    <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-2 z-10">
+                                        <button
+                                            onClick={() => scrollContainerBy(eventsRef, 1)}
+                                            aria-label="Siguiente evento"
+                                            className="h-10 w-10 rounded-full bg-white/95 border border-orange-200 text-orange-700 shadow-sm hover:bg-white focus:outline-none"
+                                        >
+                                            ›
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </section>
     );
