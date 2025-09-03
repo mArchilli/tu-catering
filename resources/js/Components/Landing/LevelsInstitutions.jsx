@@ -76,17 +76,12 @@ export default function LevelsInstitutions() {
     // Refs para scroll controlado
     const instRef = useRef(null);
     const instMarqueeRef = useRef(null);
+    const instMarqueeTrackRef = useRef(null); // NUEVO
     const eventsRef = useRef(null);
     
     // Pausar/reanudar marquee en touch (mobile)
-    const pauseMarquee = () => {
-        const track = instMarqueeRef.current?.querySelector('.marquee-track');
-        if (track) track.style.animationPlayState = 'paused';
-    };
-    const resumeMarquee = () => {
-        const track = instMarqueeRef.current?.querySelector('.marquee-track');
-        if (track) track.style.animationPlayState = 'running';
-    };
+    const pauseMarquee = () => { pausedRef.current = true; };
+    const resumeMarquee = () => { pausedRef.current = false; };
 
     const scrollContainerBy = (ref, direction = 1) => {
         const el = ref.current;
@@ -168,6 +163,35 @@ export default function LevelsInstitutions() {
         return () => window.removeEventListener('resize', onResize);
     }, [currentEventIndex]);
 
+    // Loop infinito JS para marquee instituciones (mobile)
+    const offsetRef = useRef(0);
+    const pausedRef = useRef(false);
+    useEffect(() => {
+        const track = instMarqueeTrackRef.current;
+        if (!track) return;
+        let frameId;
+        let lastTime;
+        const baseWidth = () => track.scrollWidth / 2; // mitad (lista original)
+        const speed = 40; // px/seg (ajustable)
+
+        const step = (ts) => {
+            if (!lastTime) lastTime = ts;
+            const dt = (ts - lastTime) / 1000;
+            lastTime = ts;
+            if (!pausedRef.current) {
+                offsetRef.current -= speed * dt;
+                const limit = -baseWidth();
+                if (offsetRef.current <= limit) {
+                    offsetRef.current -= limit; // reposicionar sin salto visible
+                }
+                track.style.transform = `translateX(${offsetRef.current}px)`;
+            }
+            frameId = requestAnimationFrame(step);
+        };
+        frameId = requestAnimationFrame(step);
+        return () => cancelAnimationFrame(frameId);
+    }, [institutions.length]);
+
     return (
         <section id="alcance" className="bg-white">
             <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
@@ -183,27 +207,20 @@ export default function LevelsInstitutions() {
                 {/* CSS para ocultar scrollbar en desktop pero mantener swipe */}
                 <style>
                     {`
-                    /* Marquee móvil: scroll suave de derecha a izquierda */
+                    /* Se elimina animación CSS previa; ahora controlado por JS */
                     .marquee-wrap { overflow: hidden; }
-                    .marquee-track { display: flex; gap: 1rem; align-items: center; }
-                    @keyframes marqueeScroll {
-                        0% { transform: translateX(0); }
-                        100% { transform: translateX(-50%); }
+                    .marquee-track {
+                        display: flex;
+                        gap: 1rem;
+                        align-items: center;
+                        will-change: transform;
                     }
-                    /* velocidad moderada: 20s. Ajustar si querés más lento/rápido */
-                    .marquee-track { animation: marqueeScroll 5s linear infinite; }
-                    .marquee-wrap:hover .marquee-track,
-                    .marquee-wrap:active .marquee-track { animation-play-state: paused; }
-
-
                     @media (min-width: 768px) {
                         .events-scrollbar {
-                            -ms-overflow-style: none;  /* IE 10+ */
-                            scrollbar-width: none;     /* Firefox */
+                            -ms-overflow-style: none;
+                            scrollbar-width: none;
                         }
-                        .events-scrollbar::-webkit-scrollbar {
-                            display: none;             /* WebKit */
-                        }
+                        .events-scrollbar::-webkit-scrollbar { display: none; }
                     }
                     `}
                 </style>
@@ -212,8 +229,8 @@ export default function LevelsInstitutions() {
                 <div className="mt-10">
                     <div className="rounded-2xl border-2 border-orange-300 bg-gradient-to-r from-orange-50 via-white to-orange-50 p-6 sm:p-8 shadow-md">
                         {/* Título y párrafo internos removidos (ya están arriba) */}
-                        {/* <h3 className="text-center text-2xl font-semibold text-orange-800">...</h3>
-                            <p className="mt-2 text-center text-sm text-gray-600 max-w-2xl mx-auto">...</p> */}
+                        <h3 className="hidden text-center text-2xl font-semibold text-orange-800">Instituciones</h3>
+                            {/* <p className="mt-2 text-center text-sm text-gray-600 max-w-2xl mx-auto">...</p>  */}
                         <div className="mt-0">
                             {/* Carrusel horizontal mobile-first (swipeable). Snap + versión desktop: fila única */}
                             <div className="mt-6">
@@ -228,7 +245,11 @@ export default function LevelsInstitutions() {
                                     onMouseLeave={resumeMarquee}
                                     role="list"
                                 >
-                                    <div className="marquee-track">
+                                    <div
+                                        ref={instMarqueeTrackRef}
+                                        className="marquee-track"
+                                        style={{ transform: 'translateX(0)' }} // será actualizado por JS
+                                    >
                                         {[...institutions, ...institutions].map((inst, idx) => (
                                             <div
                                                 key={`${inst.name}-${idx}`}
