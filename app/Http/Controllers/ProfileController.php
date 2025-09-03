@@ -25,6 +25,17 @@ class ProfileController extends Controller
     }
 
     /**
+     * Versión para el panel de padres (usa ParentLayout).
+     */
+    public function editParent(Request $request): Response
+    {
+        return Inertia::render('Profile/ParentEdit', [
+            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
+            'status' => session('status'),
+        ]);
+    }
+
+    /**
      * Update the user's profile information.
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse

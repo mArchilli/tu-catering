@@ -33,16 +33,16 @@ export default function DashboardPadre() {
                                     <path d="M4 7h16M4 12h16M4 17h10" />
                                 </svg>
                             </div>
-                            <h4 className="text-base font-semibold text-gray-900">Mis alumnos</h4>
+                            <h4 className="text-base font-semibold text-gray-900">Mis hijos</h4>
                             <p className="mt-1 text-sm text-gray-600">
-                                Consultá el listado, editá datos o añadí nuevos alumnos.
+                                Consultá o edita los datos de tus hijos/as.
                             </p>
                             <div className="mt-4">
                                 <Link
                                     href={route().has('children.index') ? route('children.index') : '#'}
                                     className="text-sm font-semibold text-orange-400 hover:text-orange-700"
                                 >
-                                    Ver alumnos →
+                                    Ver hijos →
                                 </Link>
                             </div>
                         </div>
@@ -61,7 +61,7 @@ export default function DashboardPadre() {
                             </p>
                             <div className="mt-4">
                                 <Link
-                                    href={route('profile.edit')}
+                                    href={route('parent.profile.edit')}
                                     className="text-sm font-semibold text-orange-400 hover:text-orange-700"
                                 >
                                     Editar perfil →

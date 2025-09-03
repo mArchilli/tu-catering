@@ -51,7 +51,7 @@ export default function ParentLayout({ header, children }) {
                                     href={route('children.index')}
                                     active={route().current('children.index')}
                                 >
-                                    Alumnos
+                                    Hijos
                                 </NavLink>
                                 <NavLink
                                     href={route('menus.padre')}
@@ -102,7 +102,7 @@ export default function ParentLayout({ header, children }) {
                                             </span>
                                         </Dropdown.Trigger>
                                         <Dropdown.Content>
-                                            <Dropdown.Link href={route('profile.edit')}>
+                                            <Dropdown.Link href={route('parent.profile.edit')}>
                                                 Perfil
                                             </Dropdown.Link>
                                             <Dropdown.Link
@@ -171,7 +171,7 @@ export default function ParentLayout({ header, children }) {
                             href={route().has('children.index') ? route('children.index') : '#'}
                             active={route().current('children.*')}
                         >
-                            Alumnos
+                            Hijos
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             href={route('menus.padre')}
@@ -198,7 +198,7 @@ export default function ParentLayout({ header, children }) {
                         </div>
 
                         <div className="mt-3 space-y-1">
-                            <ResponsiveNavLink href={route('profile.edit')}>
+                            <ResponsiveNavLink href={route('parent.profile.edit')}>
                                 Perfil
                             </ResponsiveNavLink>
                             <ResponsiveNavLink
