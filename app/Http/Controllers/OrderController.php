@@ -313,7 +313,7 @@ class OrderController extends Controller
         $end = (clone $start)->endOfMonth();
 
         $rows = DailyOrder::query()
-            ->selectRaw('children.id as child_id, children.name, children.lastname, '
+            ->selectRaw('children.id as child_id, children.name, children.lastname, children.dni, '
                 .'SUM(service_types.price_cents) as total_cents, '
                 .'GROUP_CONCAT(DISTINCT daily_orders.date ORDER BY daily_orders.date) as days, '
                 .'SUM(CASE WHEN daily_orders.status = "paid" THEN 1 ELSE 0 END) as paid_days, '
@@ -324,10 +324,11 @@ class OrderController extends Controller
             ->when($search !== '', function ($q) use ($search) {
                 $q->where(function ($qq) use ($search) {
                     $qq->where('children.name', 'like', "%$search%")
-                       ->orWhere('children.lastname', 'like', "%$search%");
+                       ->orWhere('children.lastname', 'like', "%$search%")
+                       ->orWhere('children.dni', 'like', "%$search%");
                 });
             })
-            ->groupBy('children.id', 'children.name', 'children.lastname')
+            ->groupBy('children.id', 'children.name', 'children.lastname', 'children.dni')
             ->orderBy('children.lastname')
             ->orderBy('children.name')
             ->get();
@@ -343,6 +344,7 @@ class OrderController extends Controller
                 ->all();
             return [
                 'child_id' => $r->child_id,
+                'dni' => $r->dni,
                 'child' => trim($r->name . ' ' . $r->lastname),
                 'days' => $days,
                 'days_count' => count($days),

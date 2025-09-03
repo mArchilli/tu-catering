@@ -4,7 +4,65 @@ import SecondaryButton from '@/Components/SecondaryButton';
 
 const money = (cents) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format((cents || 0) / 100);
 
+// Mapeo de datos según la escuela
+const paymentDataBySchool = (school) => {
+  switch (school) {
+    case 'Colegio Buenos Aires':
+      return {
+        sections: [
+          {
+            title: 'Transferencia',
+            entidad: 'Mercado Pago',
+            titular: 'Aguilera Oscar Daniel',
+            alias: 'tucateringod',
+          },
+        ],
+      };
+    case 'Santisimo Redentor':
+      return {
+        sections: [
+          {
+            title: 'Transferencia',
+            entidad: 'Banco Galicia',
+            titular: 'Aguilera Oscar Daniel',
+            cbu: '0070042930004079878954',
+            alias: 'TUCATERING.2024',
+          },
+          {
+            title: 'Billetera Virtual',
+            entidad: 'UALA',
+            titular: 'Aguilera Oscar Daniel',
+            cvu: '0000007900201132190502',
+            alias: 'aguileraod.uala',
+          },
+        ],
+      };
+    case 'Juan XXIII':
+      return {
+        sections: [
+          {
+            title: 'Transferencia',
+            entidad: 'Banco Santander',
+            titular: 'Aguilera Oscar Daniel',
+            cbu: '0720057188000037150336',
+            alias: 'MARCA.PIANO.MARCHA',
+          },
+          {
+            title: 'Billetera Virtual',
+            entidad: 'Naranja X',
+            titular: 'Aguilera Oscar Daniel',
+            cvu: '4530000800013868658887',
+            alias: 'OAGUILERA4764.NX.ARS',
+          },
+        ],
+      };
+    default:
+      return null; // Se usará el objeto "payment" genérico provisto desde el backend
+  }
+};
+
 export default function Payment({ child, childId, totalCents = 0, payment, month, year, totalsByService = [], daysCount = 0 }) {
+  const specific = paymentDataBySchool(child?.school);
   const { bank, cbu, alias, holder, cuil } = payment || {};
   const handleBack = () => {
     if (window && window.history) window.history.back();
@@ -24,7 +82,7 @@ export default function Payment({ child, childId, totalCents = 0, payment, month
     >
       <Head title="Pago" />
 
-      <div className="mx-auto max-w-3xl p-6 space-y-8">
+      <div className="mx-auto max-w-7xl p-6 space-y-8">
         <SecondaryButton className="hidden sm:block sm:w-auto justify-center text-center" onClick={handleBack}>Volver</SecondaryButton>
         <section className="rounded-xl border border-gray-200 bg-white p-4">
           <h3 className="text-base font-semibold text-gray-900">Resumen</h3>
@@ -80,15 +138,31 @@ export default function Payment({ child, childId, totalCents = 0, payment, month
         </section>
 
         <section className="rounded-xl border border-gray-200 bg-white p-4">
-          <h3 className="text-base font-semibold text-gray-900">Datos para transferencia</h3>
-          <div className="mt-3 grid grid-cols-1 gap-3 text-sm text-gray-800">
-              <div><span className="font-semibold text-gray-700">Banco: </span>{bank || 'Naranja X'}</div>
-              <div><span className="font-semibold text-gray-700">CBU: </span>{cbu || '—'}</div>
-              <div><span className="font-semibold text-gray-700">Alias CBU: </span>{alias || '—'}</div>
-              <div><span className="font-semibold text-gray-700">Titular: </span>{holder}</div>
-              <div><span className="font-semibold text-gray-700">CUIL: </span>{cuil}</div>
-          </div>
-          <p className="mt-4 text-xs text-gray-500">Una vez realizada la transferencia, por favor envía el comprobante a <a href={gmailHref} target="_blank" rel="noopener noreferrer" className="font-semibold text-orange-600 hover:underline">info@tucatering.com.ar</a> adjuntando la captura del comprobante, el nombre del padre registrado en el sitio y el nombre del estudiante para acreditar el pago.</p>
+          <h3 className="text-base font-semibold text-gray-900">Datos para pago</h3>
+          {specific ? (
+            <div className="mt-3 space-y-6">
+              {specific.sections.map((sec, i) => (
+                <div key={i} className="rounded-lg border border-gray-100 p-3 bg-gray-50/40">
+                  <h4 className="text-sm font-semibold text-gray-800 mb-2">{sec.title}: <span className="font-normal">{sec.entidad}</span></h4>
+                  <div className="grid grid-cols-1 gap-1 text-xs sm:text-sm sm:grid-cols-2">
+                    <div className="sm:col-span-2"><span className="font-semibold text-gray-700">Titular: </span>{sec.titular}</div>
+                    {sec.cbu && (<div className="sm:col-span-2"><span className="font-semibold text-gray-700">CBU: </span>{sec.cbu}</div>)}
+                    {sec.cvu && (<div className="sm:col-span-2"><span className="font-semibold text-gray-700">CVU: </span>{sec.cvu}</div>)}
+                    {sec.alias && (<div className="sm:col-span-2"><span className="font-semibold text-gray-700">Alias: </span>{sec.alias}</div>)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-3 grid grid-cols-1 gap-3 text-sm text-gray-800">
+              <div><span className="font-semibold text-gray-700">Banco: </span>{bank || 'N/A'}</div>
+              {cbu && (<div><span className="font-semibold text-gray-700">CBU: </span>{cbu}</div>)}
+              {alias && (<div><span className="font-semibold text-gray-700">Alias: </span>{alias}</div>)}
+              {holder && (<div><span className="font-semibold text-gray-700">Titular: </span>{holder}</div>)}
+              {cuil && (<div><span className="font-semibold text-gray-700">CUIL: </span>{cuil}</div>)}
+            </div>
+          )}
+          <p className="mt-4 text-xs text-gray-500">Una vez realizado el pago, enviá el comprobante a <a href={gmailHref} target="_blank" rel="noopener noreferrer" className="font-semibold text-orange-600 hover:underline">info@tucatering.com.ar</a> indicando nombre del padre registrado y del alumno para acreditar el pago.</p>
         </section>
 
         <div className="flex justify-end">

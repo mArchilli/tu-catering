@@ -155,7 +155,7 @@ export default function Edit({ child, schools = [], grados = [], conditions = []
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">
-                                    Condición
+                                    Observacion
                                 </label>
                                 <select
                                     className="mt-1 w-full rounded-lg border border-orange-200 bg-white px-3 py-2 text-sm focus:border-orange-400 focus:ring-orange-500"

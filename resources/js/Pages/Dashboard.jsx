@@ -2,7 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 
-export default function Dashboard({ viandaToday = [], comedorEconomicoToday = [], comedorPremiumToday = [], dateLabel = '' }) {
+export default function Dashboard({ viandaToday = [], comedorEconomicoToday = [], comedorPremiumToday = [], dateLabel = '', pendingStudents = [], pendingStudentsPagination = { page:1, per_page:10, total:0, last_page:1 }, pendingStudentsSchools = [], pendingStudentsFilters = { school: 'all' } }) {
     // Estados de filtro por escuela
     const [schoolVianda, setSchoolVianda] = useState('all');
     const [schoolEco, setSchoolEco] = useState('all');
@@ -20,6 +20,15 @@ export default function Dashboard({ viandaToday = [], comedorEconomicoToday = []
         const url = route('admin.reports.daily-service', serviceKey) + '?date=' + (dateLabel.split('/').reverse().join('-')); // dd/mm/YYYY -> YYYY-mm-dd
         window.open(url, '_blank');
     };
+    const goToPendingPage = (p) => {
+        const url = route('dashboard') + '?p_page=' + p + (pendingStudentsFilters.school && pendingStudentsFilters.school !== 'all' ? '&p_school=' + encodeURIComponent(pendingStudentsFilters.school) : '');
+        window.location.href = url;
+    };
+
+    const downloadPendingPdf = () => {
+        window.open(route('admin.reports.pending-students'), '_blank');
+    };
+
     return (
         <AuthenticatedLayout>
             <Head title="Dashboard" />
@@ -269,6 +278,86 @@ export default function Dashboard({ viandaToday = [], comedorEconomicoToday = []
                              </div>
                          </div>
                      </div>
+                    {/* Tabla alumnos pendientes / sin días (movida al final) */}
+                    <div className="mt-16">
+                        <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="flex items-center gap-3">
+                                <h3 className="text-base font-semibold text-gray-900">Alumnos pendientes / sin días</h3>
+                                <span className="inline-flex items-center rounded-full bg-orange-200 border border-orange-300 px-2 py-0.5 text-xs font-semibold text-orange-800 shadow-sm">Total: {pendingStudentsPagination.total}</span>
+                            </div>
+                            <div className="flex items-center gap-3 w-full sm:w-auto">
+                                <select
+                                    value={pendingStudentsFilters.school || 'all'}
+                                    onChange={(e)=>{
+                                        const val = e.target.value;
+                                        const base = route('dashboard');
+                                        const params = new URLSearchParams();
+                                        if (val !== 'all') params.set('p_school', val);
+                                        params.set('p_page','1');
+                                        window.location.href = base + (params.toString() ? ('?'+params.toString()) : '');
+                                    }}
+                                    className="w-full sm:w-auto rounded-md border border-orange-300 bg-orange-100 text-orange-800 text-sm px-3 py-1.5 pr-10 sm:min-w-[10rem] truncate focus:border-orange-400 focus:ring-2 focus:ring-orange-200 transition">
+                                    <option value="all">Todas las escuelas</option>
+                                    {pendingStudentsSchools.map(s => <option key={s} value={s}>{s}</option>)}
+                                </select>
+                                <button onClick={downloadPendingPdf} className="rounded-md bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-300 transition">+PDF</button>
+                            </div>
+                        </div>
+                        <div className="overflow-x-auto rounded-xl border border-orange-100 bg-white shadow-sm">
+                            <table className="min-w-full table-auto text-sm">
+                                <thead>
+                                    <tr className="text-left text-gray-600 uppercase tracking-wider text-xs">
+                                        <th className="px-4 py-2">Alumno</th>
+                                        <th className="px-4 py-2">DNI</th>
+                                        <th className="px-4 py-2">Escuela</th>
+                                        <th className="px-4 py-2">Grado</th>
+                                        <th className="px-4 py-2">Observación</th>
+                                        <th className="px-4 py-2">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {pendingStudents.map(r => (
+                                        <tr key={r.id} className="text-gray-800 hover:bg-orange-50">
+                                            <td className="px-4 py-2">{r.name} {r.lastname}</td>
+                                            <td className="px-4 py-2">{r.dni || '-'}</td>
+                                            <td className="px-4 py-2">{r.school || '-'}</td>
+                                            <td className="px-4 py-2">{r.grado || '-'}</td>
+                                            <td className="px-4 py-2">{r.condition || '-'}</td>
+                                            <td className="px-4 py-2">
+                                                {r.status === 'pending' && <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-[10px] font-medium text-yellow-800">Pendiente</span>}
+                                                {r.status === 'none' && <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-700">Sin días</span>}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {pendingStudents.length === 0 && (
+                                        <tr>
+                                            <td colSpan={6} className="px-4 py-4 text text-gray-500 text-sm">Sin alumnos pendientes o sin días.</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                        {pendingStudentsPagination.last_page > 1 && (
+                            <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-xs text-gray-600">
+                                <div>
+                                    Página {pendingStudentsPagination.page} de {pendingStudentsPagination.last_page}
+                                </div>
+                                <div className="flex flex-wrap gap-1">
+                                    {Array.from({ length: pendingStudentsPagination.last_page }).map((_, i) => {
+                                        const p = i + 1;
+                                        const active = p === pendingStudentsPagination.page;
+                                        return (
+                                            <button
+                                                key={p}
+                                                onClick={() => goToPendingPage(p)}
+                                                className={`px-3 py-1 rounded-md border text-xs font-medium ${active ? 'bg-orange-500 border-orange-600 text-white' : 'bg-white border-gray-200 text-gray-700 hover:bg-orange-50'}`}
+                                            >{p}</button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </AuthenticatedLayout>

@@ -32,8 +32,9 @@ export default function MonthlyOrders({ orders = [], filters = { status: 'all', 
   // Filtrado en cliente (ya se filtra en servidor, pero reforzamos por si cambia props sin recarga)
   const filtered = useMemo(() => {
     return orders.filter(o => {
-      const matchesQ = q.trim() === '' || o.child.toLowerCase().includes(q.trim().toLowerCase());
-      return matchesQ;
+      const term = q.trim().toLowerCase();
+      if (term === '') return true;
+      return o.child.toLowerCase().includes(term) || (o.dni || '').toLowerCase().includes(term);
     });
   }, [orders, q]);
 
@@ -79,7 +80,7 @@ export default function MonthlyOrders({ orders = [], filters = { status: 'all', 
             <input
               type="text"
               className="w-full rounded-md border-gray-300 text-sm focus:border-orange-400 focus:ring-orange-400"
-              placeholder="Buscar alumno"
+              placeholder="Buscar por nombre o DNI"
               value={q}
               onChange={(e) => setQ(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') applyFilters(); }}
@@ -137,6 +138,7 @@ export default function MonthlyOrders({ orders = [], filters = { status: 'all', 
               <thead>
                 <tr className="text-left text-gray-600">
                   <th className="px-3 py-2 font-medium">Alumno</th>
+                  <th className="px-3 py-2 font-medium">DNI</th>
                   <th className="px-3 py-2 font-medium">Periodo</th>
                   <th className="px-3 py-2 font-medium">Días</th>
                   <th className="px-3 py-2 font-medium">Total</th>
@@ -147,6 +149,7 @@ export default function MonthlyOrders({ orders = [], filters = { status: 'all', 
                 {pending.map(o => (
                   <tr key={o.child_id} className="text-gray-800">
                     <td className="px-3 py-2">{o.child}</td>
+                    <td className="px-3 py-2">{o.dni || '-'}</td>
                     <td className="px-3 py-2">{String(month).padStart(2,'0')}/{year}</td>
                     <td className="px-3 py-2">
                       <div className="flex flex-col">
@@ -181,6 +184,7 @@ export default function MonthlyOrders({ orders = [], filters = { status: 'all', 
               <thead>
                 <tr className="text-left text-gray-600">
                   <th className="px-3 py-2 font-medium">Alumno</th>
+                  <th className="px-3 py-2 font-medium">DNI</th>
                   <th className="px-3 py-2 font-medium">Periodo</th>
                   <th className="px-3 py-2 font-medium">Días</th>
                   <th className="px-3 py-2 font-medium">Total</th>
@@ -191,6 +195,7 @@ export default function MonthlyOrders({ orders = [], filters = { status: 'all', 
                 {paid.map(o => (
                   <tr key={o.child_id} className="text-gray-800">
                     <td className="px-3 py-2">{o.child}</td>
+                    <td className="px-3 py-2">{o.dni || '-'}</td>
                     <td className="px-3 py-2">{String(month).padStart(2,'0')}/{year}</td>
                     <td className="px-3 py-2">
                       <div className="flex flex-col">

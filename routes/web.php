@@ -22,6 +22,7 @@ Route::get('/dashboard', function () {
     $today = today();
     $todayOrders = \App\Models\DailyOrder::query()
         ->whereDate('date', $today)
+        ->where('daily_orders.status', 'paid')
         ->join('service_types', 'daily_orders.service_type_id', '=', 'service_types.id')
         ->join('children', 'daily_orders.child_id', '=', 'children.id')
         ->select(
@@ -51,11 +52,75 @@ Route::get('/dashboard', function () {
     $comedorEconomicoToday = $todayOrders->where('service_name', 'Comedor Económico')->map($mapFn)->values();
     $comedorPremiumToday = $todayOrders->where('service_name', 'Comedor Premium')->map($mapFn)->values();
 
+    // Alumnos con estado pendiente o sin días (mes actual)
+    $monthStart = now()->startOfMonth()->toDateString();
+    $monthEnd = now()->endOfMonth()->toDateString();
+    $pendingOrEmptyQuery = \App\Models\Children::query()
+        ->leftJoin('daily_orders', function($join) use ($monthStart, $monthEnd) {
+            $join->on('children.id','=','daily_orders.child_id')
+                ->whereBetween('daily_orders.date', [$monthStart, $monthEnd]);
+        })
+        ->leftJoin('service_types','service_types.id','=','daily_orders.service_type_id')
+        ->selectRaw('children.id, children.name, children.lastname, children.dni, children.school, children.grado, children.condition, '
+            .'SUM(service_types.price_cents) as total_cents, '
+            .'SUM(CASE WHEN daily_orders.status = "paid" THEN 1 ELSE 0 END) as paid_days, '
+            .'COUNT(daily_orders.id) as total_days')
+        ->groupBy('children.id','children.name','children.lastname','children.dni','children.school','children.grado','children.condition')
+        ->orderBy('children.lastname')
+        ->orderBy('children.name');
+
+    $page = (int) request()->get('p_page', 1);
+    $perPage = 10;
+    $results = $pendingOrEmptyQuery->get()->map(function($r){
+        if ($r->total_days == 0) {
+            $status = 'none';
+        } else {
+            $status = ($r->paid_days == $r->total_days) ? 'paid' : 'pending';
+        }
+        return [
+            'id' => $r->id,
+            'name' => $r->name,
+            'lastname' => $r->lastname,
+            'dni' => $r->dni,
+            'school' => $r->school,
+            'grado' => $r->grado,
+            'condition' => $r->condition,
+            'status' => $status,
+            'total_cents' => (int) $r->total_cents,
+            'total_days' => (int) $r->total_days,
+            'paid_days' => (int) $r->paid_days,
+        ];
+    })->filter(function($row){
+        return in_array($row['status'], ['pending','none']);
+    })->values();
+
+    // Filtro por escuela (p_school)
+    $schoolParam = request()->get('p_school', 'all');
+    $schools = $results->pluck('school')->filter()->unique()->sort()->values();
+    if ($schoolParam !== 'all') {
+        $results = $results->filter(fn($r) => ($r['school'] ?? '') === $schoolParam)->values();
+    }
+
+    $totalPendingRecords = $results->count();
+    $paged = $results->forPage($page, $perPage)->values();
+    $pagination = [
+        'page' => $page,
+        'per_page' => $perPage,
+        'total' => $totalPendingRecords,
+        'last_page' => (int) ceil(max(1,$totalPendingRecords) / $perPage),
+    ];
+
     return Inertia::render('Dashboard', [
         'viandaToday' => $viandaToday,
         'comedorEconomicoToday' => $comedorEconomicoToday,
         'comedorPremiumToday' => $comedorPremiumToday,
         'dateLabel' => $today->format('d/m/Y'),
+        'pendingStudents' => $paged,
+        'pendingStudentsPagination' => $pagination,
+        'pendingStudentsSchools' => $schools,
+        'pendingStudentsFilters' => [
+            'school' => $schoolParam,
+        ],
     ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -90,7 +155,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/monthly-orders', [OrderController::class, 'adminMonthlyIndex'])->name('admin.monthly-orders.index');
     Route::post('/admin/daily-orders/confirm', [OrderController::class, 'adminDailyConfirm'])->name('admin.daily-orders.confirm');
     Route::get('/admin/reports/daily-service/{service}', [\App\Http\Controllers\DailyServiceReportController::class, 'servicePdf'])->name('admin.reports.daily-service');
+    Route::get('/admin/reports/pending-students', [\App\Http\Controllers\PendingStudentsReportController::class, 'pdf'])->name('admin.reports.pending-students');
     });
 });
 
 require __DIR__.'/auth.php';
+
+// Fallback 404 para rutas no existentes (después de todas las definiciones anteriores)
+Route::fallback(function () {
+    return Inertia::render('Errors/NotFound')->toResponse(request())->setStatusCode(404);
+});
