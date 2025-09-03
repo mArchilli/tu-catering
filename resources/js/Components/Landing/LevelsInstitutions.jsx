@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 
 export default function LevelsInstitutions() {
     const user = usePage().props.auth?.user;
@@ -115,6 +115,58 @@ export default function LevelsInstitutions() {
             }
         }
     };
+
+    // --- NUEVO: estado y refs para carrusel de eventos ---
+    const [currentEventIndex, setCurrentEventIndex] = useState(0);
+    const lastUserInteractionRef = useRef(Date.now());
+
+    // Actualiza índice cuando el usuario hace scroll manual
+    const handleEventsScroll = () => {
+        const el = eventsRef.current;
+        if (!el) return;
+        const width = el.clientWidth;
+        if (width <= 0) return;
+        const idx = Math.round(el.scrollLeft / width);
+        setCurrentEventIndex(idx);
+        lastUserInteractionRef.current = Date.now();
+    };
+
+    // Salto directo a un slide concreto
+    const jumpTo = (idx) => {
+        const el = eventsRef.current;
+        if (!el) return;
+        const width = el.clientWidth;
+        el.scrollTo({ left: idx * width, behavior: 'smooth' });
+        setCurrentEventIndex(idx);
+        lastUserInteractionRef.current = Date.now();
+    };
+
+    // Autoplay (pausa 3s tras interacción del usuario)
+    useEffect(() => {
+        const el = eventsRef.current;
+        if (!el) return;
+        const interval = setInterval(() => {
+            if (Date.now() - lastUserInteractionRef.current < 3000) return; // pausa por interacción reciente
+            const total = eventImages.length;
+            const next = (currentEventIndex + 1) % total;
+            const width = el.clientWidth;
+            el.scrollTo({ left: next * width, behavior: 'smooth' });
+            setCurrentEventIndex(next);
+        }, 4500);
+        return () => clearInterval(interval);
+    }, [currentEventIndex, eventImages.length]);
+
+    // Ajustar índice si cambia el tamaño (responsive)
+    useEffect(() => {
+        const onResize = () => {
+            const el = eventsRef.current;
+            if (!el) return;
+            const width = el.clientWidth;
+            el.scrollTo({ left: currentEventIndex * width });
+        };
+        window.addEventListener('resize', onResize);
+        return () => window.removeEventListener('resize', onResize);
+    }, [currentEventIndex]);
 
     return (
         <section id="alcance" className="bg-white">
@@ -239,14 +291,14 @@ export default function LevelsInstitutions() {
                     <div className="rounded-2xl border-2 border-orange-300 bg-gradient-to-b from-orange-50 to-white p-6 sm:p-8 shadow-md">
                         <div className="md:flex md:items-center md:justify-between md:gap-6">
                             <div className="max-w-xl">
-                                <h3 className="text-2xl font-semibold text-gray-900">
+                                <h3 className="text-2xl text-center md:text-left font-semibold text-gray-900">
                                     Ahora también llevamos nuestra experiencia a tus eventos
                                 </h3>
                                 <p className="mt-3 text-sm text-gray-600">
                                     Ofrecemos soluciones gastronómicas para bodas, cumpleaños, XV, reuniones familiares y empresariales, con la misma calidad y cuidado que en nuestros servicios institucionales.
                                 </p>
 
-                                <div className="mt-6 flex gap-3">
+                                <div className="hidden md:flex mt-6 gap-3">
                                     {/* botón que scrollea a la sección de contacto */}
                                     <a
                                         href="#contacto"
@@ -266,7 +318,8 @@ export default function LevelsInstitutions() {
                                         Se añade la clase events-scrollbar para ocultar la barra en desktop */}
                                     <div
                                         ref={eventsRef}
-                                        className="events-scrollbar flex gap-4 overflow-x-auto pb-3 snap-x snap-mandatory h-64 md:h-80"
+                                        className="events-scrollbar flex gap-4 overflow-x-hidden pb-3 snap-x snap-mandatory h-64 md:h-80"
+                                        onScroll={handleEventsScroll} // <-- NUEVO
                                     >
                                         {eventImages.map((filename, i) => (
                                             <div
@@ -286,7 +339,7 @@ export default function LevelsInstitutions() {
                                     </div>
 
                                     {/* Flechas de navegación: siempre visibles, superpuestas */}
-                                    <div className="absolute left-2 top-1/2 -translate-y-1/2 flex gap-2 z-10">
+                                    <div className="hidden absolute left-2 top-1/2 -translate-y-1/2  gap-2 z-10">
                                         <button
                                             onClick={() => scrollContainerBy(eventsRef, -1)}
                                             aria-label="Anterior evento"
@@ -295,7 +348,7 @@ export default function LevelsInstitutions() {
                                             ‹
                                         </button>
                                     </div>
-                                    <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-2 z-10">
+                                    <div className="hidden absolute right-2 top-1/2 -translate-y-1/2 gap-2 z-10">
                                         <button
                                             onClick={() => scrollContainerBy(eventsRef, 1)}
                                             aria-label="Siguiente evento"
@@ -305,7 +358,41 @@ export default function LevelsInstitutions() {
                                         </button>
                                     </div>
                                 </div>
+
+                                {/* --- NUEVO: Barra de progreso segmentada debajo del carrusel --- */}
+                                <div className="mt-4 flex justify-center">
+                                    <div className="flex w-full max-w-xs gap-1 px-4">
+                                        {eventImages.map((_, i) => {
+                                            const active = i === currentEventIndex;
+                                            return (
+                                                <button
+                                                    key={i}
+                                                    type="button"
+                                                    aria-label={`Ir a imagen ${i + 1}`}
+                                                    onClick={() => jumpTo(i)}
+                                                    className={
+                                                        `flex-1 h-1.5 rounded-full transition-all ` +
+                                                        (active
+                                                            ? 'bg-orange-500 shadow-[0_0_0_4px_rgba(249,115,22,0.25)]'
+                                                            : 'bg-orange-200 hover:bg-orange-300')
+                                                    }
+                                                />
+                                            );
+                                        })}
+                                    </div>
+                                </div>
                             </div>
+                            <div className="flex md:hidden mt-6 gap-3">
+                                    {/* botón que scrollea a la sección de contacto */}
+                                    <a
+                                        href="#contacto"
+                                        onClick={scrollToContact}
+                                        className="inline-flex items-center justify-center rounded-full bg-orange-600 px-5 py-2 text-sm font-semibold text-white shadow hover:bg-orange-700 transition w-full"
+                                    >
+                                        Solicitar presupuesto
+                                    </a>
+                                    {/* "Ver servicios" eliminado */}
+                                </div>
                         </div>
                     </div>
                 </div>
