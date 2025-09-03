@@ -1,5 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useRef, useEffect, useState } from 'react';
+import { ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react';
 
 export default function LevelsInstitutions() {
     const user = usePage().props.auth?.user;
@@ -33,6 +34,15 @@ export default function LevelsInstitutions() {
         'event3.jpg',
         'event4.jpg',
         'event5.jpg',
+    ];
+
+    // NUEVO: textos rotativos para overlay del carrusel
+    const eventCaptions = [
+        'Sabores que elevan tus momentos especiales',
+        'Catering profesional para eventos corporativos y sociales',
+        'Presentaciones cuidadas, calidad e higiene garantizadas',
+        'Experiencias gastronómicas que crean recuerdos',
+        'Variedad, puntualidad y servicio integral para tu evento',
     ];
 
     // placeholder simple para eventos
@@ -76,8 +86,7 @@ export default function LevelsInstitutions() {
     // Refs para scroll controlado
     const instRef = useRef(null);
     const instMarqueeRef = useRef(null);
-    const instMarqueeTrackRef = useRef(null); // NUEVO
-    const eventsRef = useRef(null);
+    const instMarqueeTrackRef = useRef(null);
     
     // Pausar/reanudar marquee en touch (mobile)
     const pauseMarquee = () => { pausedRef.current = true; };
@@ -112,56 +121,78 @@ export default function LevelsInstitutions() {
     };
 
     // --- NUEVO: estado y refs para carrusel de eventos ---
-    const [currentEventIndex, setCurrentEventIndex] = useState(0);
-    const lastUserInteractionRef = useRef(Date.now());
+    const imagesForCarousel = eventImages.map((filename, i) => ({
+        src: `/images/events/${filename}`,
+        alt: `Evento ${i + 1}`,
+        caption: eventCaptions[i % eventCaptions.length],
+        original: filename,
+    }));
 
-    // Actualiza índice cuando el usuario hace scroll manual
-    const handleEventsScroll = () => {
-        const el = eventsRef.current;
-        if (!el) return;
-        const width = el.clientWidth;
-        if (width <= 0) return;
-        const idx = Math.round(el.scrollLeft / width);
-        setCurrentEventIndex(idx);
-        lastUserInteractionRef.current = Date.now();
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [isHovered, setIsHovered] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(true);
+    const [progress, setProgress] = useState(0);
+
+    // Autoplay + barra progreso
+    useEffect(() => {
+        if (!isPlaying || isHovered || imagesForCarousel.length <= 1) {
+            setProgress(0);
+            return;
+        }
+        const intervalMs = 50;
+        const progressInterval = setInterval(() => {
+            setProgress(prev => {
+                if (prev >= 100) {
+                    setCurrentIndex(prevIdx => (prevIdx + 1) % imagesForCarousel.length);
+                    return 0;
+                }
+                return prev + 100 / (4000 / intervalMs); // 4000ms default (igual que interval de v0)
+            });
+        }, intervalMs);
+        return () => clearInterval(progressInterval);
+    }, [isPlaying, isHovered, imagesForCarousel.length, currentIndex]);
+
+    const goToPrevious = () => {
+        setCurrentIndex(prev => (prev - 1 + imagesForCarousel.length) % imagesForCarousel.length);
+        setProgress(0);
+    };
+    const goToNext = () => {
+        setCurrentIndex(prev => (prev + 1) % imagesForCarousel.length);
+        setProgress(0);
+    };
+    const goToSlide = (idx) => {
+        setCurrentIndex(idx);
+        setProgress(0);
+    };
+    const togglePlayPause = () => {
+        setIsPlaying(p => !p);
+        setProgress(0);
     };
 
-    // Salto directo a un slide concreto
-    const jumpTo = (idx) => {
-        const el = eventsRef.current;
-        if (!el) return;
-        const width = el.clientWidth;
-        el.scrollTo({ left: idx * width, behavior: 'smooth' });
-        setCurrentEventIndex(idx);
-        lastUserInteractionRef.current = Date.now();
+    // Soporte swipe táctil
+    const touchStartXRef = useRef(null);
+    const touchDeltaXRef = useRef(0);
+    const handleTouchStart = (e) => {
+        touchStartXRef.current = e.touches[0].clientX;
+        touchDeltaXRef.current = 0;
+        setIsHovered(true); // pausa progreso mientras se toca
     };
-
-    // Autoplay (pausa 3s tras interacción del usuario)
-    useEffect(() => {
-        const el = eventsRef.current;
-        if (!el) return;
-        const interval = setInterval(() => {
-            if (Date.now() - lastUserInteractionRef.current < 3000) return; // pausa por interacción reciente
-            const total = eventImages.length;
-            const next = (currentEventIndex + 1) % total;
-            const width = el.clientWidth;
-            el.scrollTo({ left: next * width, behavior: 'smooth' });
-            setCurrentEventIndex(next);
-        }, 4500);
-        return () => clearInterval(interval);
-    }, [currentEventIndex, eventImages.length]);
-
-    // Ajustar índice si cambia el tamaño (responsive)
-    useEffect(() => {
-        const onResize = () => {
-            const el = eventsRef.current;
-            if (!el) return;
-            const width = el.clientWidth;
-            el.scrollTo({ left: currentEventIndex * width });
-        };
-        window.addEventListener('resize', onResize);
-        return () => window.removeEventListener('resize', onResize);
-    }, [currentEventIndex]);
+    const handleTouchMove = (e) => {
+        if (touchStartXRef.current == null) return;
+        touchDeltaXRef.current = e.touches[0].clientX - touchStartXRef.current;
+    };
+    const handleTouchEnd = () => {
+        const delta = touchDeltaXRef.current;
+        const threshold = 40;
+        if (delta > threshold) {
+            goToPrevious();
+        } else if (delta < -threshold) {
+            goToNext();
+        }
+        touchStartXRef.current = null;
+        touchDeltaXRef.current = 0;
+        setIsHovered(false);
+    };
 
     // Loop infinito JS para marquee instituciones (mobile)
     const offsetRef = useRef(0);
@@ -228,14 +259,13 @@ export default function LevelsInstitutions() {
                 {/* --- Sección REEMPLAZADA: Instituciones que confían en nosotros --- */}
                 <div className="mt-10">
                     <div className="rounded-2xl border-2 border-orange-300 bg-gradient-to-r from-orange-50 via-white to-orange-50 p-6 sm:p-8 shadow-md">
-                        {/* Título y párrafo internos removidos (ya están arriba) */}
+                        
                         <h3 className="hidden text-center text-2xl font-semibold text-orange-800">Instituciones</h3>
-                            {/* <p className="mt-2 text-center text-sm text-gray-600 max-w-2xl mx-auto">...</p>  */}
+                            
                         <div className="mt-0">
-                            {/* Carrusel horizontal mobile-first (swipeable). Snap + versión desktop: fila única */}
+                            
                             <div className="mt-6">
-                                {/* Mobile: marquee infinito (duplicamos items para efecto continuo).
-                                    Pausa al hover o touch. */}
+                    
                                 <div
                                     ref={instMarqueeRef}
                                     className="marquee-wrap md:hidden"
@@ -309,113 +339,156 @@ export default function LevelsInstitutions() {
 
                 {/* --- Nueva Sección: Eventos sociales y particulares --- */}
                 <div className="mt-12">
-                    <div className="rounded-2xl border-2 border-orange-300 bg-gradient-to-b from-orange-50 to-white p-6 sm:p-8 shadow-md">
-                        <div className="md:flex md:items-center md:justify-between md:gap-6">
-                            <div className="max-w-xl">
-                                <h3 className="text-2xl text-center md:text-left font-semibold text-gray-900">
-                                    Ahora también llevamos nuestra experiencia a tus eventos
-                                </h3>
-                                <p className="mt-3 text-sm text-gray-600">
-                                    Ofrecemos soluciones gastronómicas para bodas, cumpleaños, XV, reuniones familiares y empresariales, con la misma calidad y cuidado que en nuestros servicios institucionales.
-                                </p>
 
-                                <div className="hidden md:flex mt-6 gap-3">
-                                    {/* botón que scrollea a la sección de contacto */}
-                                    <a
-                                        href="#contacto"
-                                        onClick={scrollToContact}
-                                        className="inline-flex items-center justify-center rounded-full bg-orange-600 px-5 py-2 text-sm font-semibold text-white shadow hover:bg-orange-700 transition"
-                                    >
-                                        Solicitar presupuesto
-                                    </a>
-                                    {/* "Ver servicios" eliminado */}
-                                </div>
-                            </div>
+                <div className="mx-auto max-w-3xl text-center">
+                    <h2 className="text-3xl sm:text-4xl font-semibold text-gray-900">
+                        También llevamos nuestra experiencia a tus eventos
+                    </h2>
+                    <p className="mt-3 text-base text-gray-600">
+                        Ofrecemos soluciones gastronómicas para bodas, cumpleaños, XV, reuniones familiares y empresariales, con la misma calidad y cuidado que en nuestros servicios institucionales.
+                    </p>
+                </div>
+                    
+                        <div className="md:flex md:items-center md:justify-between md:gap-6 mt-10">
 
-                            {/* Carrusel de eventos */}
-                            <div className="mt-6 md:mt-0 md:flex-1">
-                                <div className="relative">
-                                    {/* contenedor swipeable: cada slide ocupa todo el ancho visible (1 por vista).
-                                        Se añade la clase events-scrollbar para ocultar la barra en desktop */}
-                                    <div
-                                        ref={eventsRef}
-                                        className="events-scrollbar flex gap-4 overflow-x-hidden pb-3 snap-x snap-mandatory h-64 md:h-80"
-                                        onScroll={handleEventsScroll} // <-- NUEVO
-                                    >
-                                        {eventImages.map((filename, i) => (
-                                            <div
-                                                key={i}
-                                                className="snap-center flex-none w-full h-full rounded-lg overflow-hidden"
+                            {/* Carrusel nuevo */}
+                            <div className="mt-6 md:mt-0 md:flex-1 ">
+                                <div
+                                    className="relative w-full group"
+                                    onMouseEnter={() => setIsHovered(true)}
+                                    onMouseLeave={() => setIsHovered(false)}
+                                    onTouchStart={handleTouchStart}
+                                    onTouchMove={handleTouchMove}
+                                    onTouchEnd={handleTouchEnd}
+                                >
+                                    {/* Full width dentro del contenedor principal (si quieres full-bleed usar: -mx-6 lg:-mx-8) */}
+                                    <div className="relative h-72 sm:h-80 md:h-[28rem] overflow-hidden rounded-xl sm:rounded-2xl shadow-2xl bg-gradient-to-br from-orange-500 to-orange-600">
+                                        <div className="relative h-full">
+                                            {imagesForCarousel.map((img, index) => (
+                                                <div
+                                                    key={img.src + index}
+                                                    className={`absolute inset-0 transition-all duration-700 ease-out ${
+                                                        index === currentIndex
+                                                            ? 'opacity-100 scale-100 z-10'
+                                                            : index === (currentIndex - 1 + imagesForCarousel.length) % imagesForCarousel.length
+                                                                ? 'opacity-0 scale-110 -translate-x-full z-0'
+                                                                : index === (currentIndex + 1) % imagesForCarousel.length
+                                                                    ? 'opacity-0 scale-110 translate-x-full z-0'
+                                                                    : 'opacity-0 scale-95 z-0'
+                                                    }`}
+                                                >
+                                                    <img
+                                                        src={img.src}
+                                                        alt={img.alt}
+                                                        className="w-full h-full object-cover transition-transform duration-700 ease-out"
+                                                        loading="lazy"
+                                                        data-attempt="0"
+                                                        onError={(e) => handleEventImgError(e, img.original)}
+                                                    />
+                                                    {/* Overlays */}
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
+                                                    <div className="absolute inset-0 bg-gradient-to-r from-orange-500/25 to-transparent" />
+                                                    {img.caption && (
+                                                        <div className="absolute bottom-6 left-4 right-4 sm:left-8 sm:right-8">
+                                                            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-4 sm:p-6 shadow-2xl">
+                                                                <p className="text-white font-medium text-sm sm:text-sm md:text-lg leading-relaxed">
+                                                                    {img.caption}
+                                                                </p>
+                                                                {/* <div className="mt-4">
+                                                                    <a
+                                                                        href="#contacto"
+                                                                        onClick={scrollToContact}
+                                                                        className="inline-flex items-center rounded-full bg-orange-600 hover:bg-orange-700 text-white text-xs sm:text-sm font-semibold px-4 py-2 shadow transition"
+                                                                    >
+                                                                        Solicitar presupuesto
+                                                                    </a>
+                                                                </div> */}
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {imagesForCarousel.length > 1 && (
+                                            <>
+                                                <button
+                                                    onClick={goToPrevious}
+                                                    aria-label="Imagen anterior"
+                                                    className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-md hover:bg-white/30 text-white p-2 sm:p-3 rounded-full shadow-xl transition-all duration-300 opacity-0 group-hover:opacity-100 hover:scale-110 border border-white/30"
+                                                >
+                                                    <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+                                                </button>
+                                                <button
+                                                    onClick={goToNext}
+                                                    aria-label="Imagen siguiente"
+                                                    className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-md hover:bg-white/30 text-white p-2 sm:p-3 rounded-full shadow-xl transition-all duration-300 opacity-0 group-hover:opacity-100 hover:scale-110 border border-white/30"
+                                                >
+                                                    <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+                                                </button>
+                                            </>
+                                        )}
+
+                                        <div className="absolute top-3 right-3 flex items-center space-x-2">
+                                            <button
+                                                onClick={togglePlayPause}
+                                                aria-label={isPlaying ? 'Pausar' : 'Reproducir'}
+                                                className="bg-white/20 backdrop-blur-md hover:bg-white/30 text-white p-2 rounded-full shadow-lg transition-all duration-300 hover:scale-110 border border-white/30"
                                             >
-                                                <img
-                                                    src={`/images/events/${filename}`}
-                                                    alt={`evento-${i}`}
-                                                    className="h-full w-full object-cover"
-                                                    loading="lazy"
-                                                    data-attempt="0"
-                                                    onError={(e) => handleEventImgError(e, filename)}
+                                                {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                                            </button>
+                                            <div className="bg-white/20 backdrop-blur-md rounded-full px-3 py-1 shadow-lg border border-white/30">
+                                                <span className="text-white text-xs font-bold">
+                                                    {currentIndex + 1} / {imagesForCarousel.length}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {isPlaying && !isHovered && imagesForCarousel.length > 1 && (
+                                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20">
+                                                <div
+                                                    className="h-full bg-gradient-to-r from-orange-400 to-orange-300 transition-all duration-75 ease-linear shadow-lg shadow-orange-500/50"
+                                                    style={{ width: `${progress}%` }}
                                                 />
                                             </div>
-                                        ))}
+                                        )}
                                     </div>
 
-                                    {/* Flechas de navegación: siempre visibles, superpuestas */}
-                                    <div className="hidden absolute left-2 top-1/2 -translate-y-1/2  gap-2 z-10">
-                                        <button
-                                            onClick={() => scrollContainerBy(eventsRef, -1)}
-                                            aria-label="Anterior evento"
-                                            className="h-10 w-10 rounded-full bg-white/95 border border-orange-200 text-orange-700 shadow-sm hover:bg-white focus:outline-none"
-                                        >
-                                            ‹
-                                        </button>
-                                    </div>
-                                    <div className="hidden absolute right-2 top-1/2 -translate-y-1/2 gap-2 z-10">
-                                        <button
-                                            onClick={() => scrollContainerBy(eventsRef, 1)}
-                                            aria-label="Siguiente evento"
-                                            className="h-10 w-10 rounded-full bg-white/95 border border-orange-200 text-orange-700 shadow-sm hover:bg-white focus:outline-none"
-                                        >
-                                            ›
-                                        </button>
-                                    </div>
-                                </div>
-
-                                {/* --- NUEVO: Barra de progreso segmentada debajo del carrusel --- */}
-                                <div className="mt-4 flex justify-center">
-                                    <div className="flex w-full max-w-xs gap-1 px-4">
-                                        {eventImages.map((_, i) => {
-                                            const active = i === currentEventIndex;
-                                            return (
+                                    {imagesForCarousel.length > 1 && (
+                                        <div className="flex justify-center mt-6 space-x-3">
+                                            {imagesForCarousel.map((_, idx) => (
                                                 <button
-                                                    key={i}
-                                                    type="button"
-                                                    aria-label={`Ir a imagen ${i + 1}`}
-                                                    onClick={() => jumpTo(i)}
-                                                    className={
-                                                        `flex-1 h-1.5 rounded-full transition-all ` +
-                                                        (active
-                                                            ? 'bg-orange-500 shadow-[0_0_0_4px_rgba(249,115,22,0.25)]'
-                                                            : 'bg-orange-200 hover:bg-orange-300')
-                                                    }
-                                                />
-                                            );
-                                        })}
-                                    </div>
+                                                    key={idx}
+                                                    onClick={() => goToSlide(idx)}
+                                                    aria-label={`Ir a imagen ${idx + 1}`}
+                                                    className={`relative transition-all duration-300 hover:scale-125 ${
+                                                        idx === currentIndex
+                                                            ? 'w-8 h-3 bg-orange-500 rounded-full shadow-lg shadow-orange-500/40'
+                                                            : 'w-3 h-3 bg-gray-300 hover:bg-orange-300 rounded-full'
+                                                    }`}
+                                                >
+                                                    {idx === currentIndex && (
+                                                        <div className="absolute inset-0 bg-orange-400 rounded-full animate-pulse" />
+                                                    )}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
-                            <div className="flex md:hidden mt-6 gap-3">
-                                    {/* botón que scrollea a la sección de contacto */}
-                                    <a
-                                        href="#contacto"
-                                        onClick={scrollToContact}
-                                        className="inline-flex items-center justify-center rounded-full bg-orange-600 px-5 py-2 text-sm font-semibold text-white shadow hover:bg-orange-700 transition w-full"
-                                    >
-                                        Solicitar presupuesto
-                                    </a>
-                                    {/* "Ver servicios" eliminado */}
-                                </div>
+
+                            {/* Botón mobile debajo */}
+                            {/* <div className="flex md:hidden mt-6 gap-3 w-full">
+                                <a
+                                    href="#contacto"
+                                    onClick={scrollToContact}
+                                    className="inline-flex items-center justify-center rounded-full bg-orange-600 px-5 py-2 text-sm font-semibold text-white shadow hover:bg-orange-700 transition w-full"
+                                >
+                                    Solicitar presupuesto
+                                </a>
+                            </div> */}
                         </div>
-                    </div>
+                    
                 </div>
 
             </div>
