@@ -61,7 +61,7 @@ const paymentDataBySchool = (school) => {
   }
 };
 
-export default function Payment({ child, childId, totalCents = 0, payment, month, year, totalsByService = [], daysCount = 0 }) {
+export default function Payment({ child, childId, totalCents = 0, payment, month, year, totalsByService = [], daysCount = 0, surcharge = null, totalWithSurchargeCents = null, businessDayIndex = null }) {
   const specific = paymentDataBySchool(child?.school);
   const { bank, cbu, alias, holder, cuil } = payment || {};
   const handleBack = () => {
@@ -92,6 +92,9 @@ export default function Payment({ child, childId, totalCents = 0, payment, month
         <section className="rounded-xl border border-gray-200 bg-white p-4">
           <h3 className="text-base font-semibold text-gray-900">Resumen</h3>
           <div className="mt-2 text-sm text-gray-700">Periodo: {String(month).padStart(2,'0')}/{year}</div>
+          {typeof businessDayIndex === 'number' && (
+            <div className="mt-1 text-xs text-gray-600">Hoy es el día hábil N° {businessDayIndex} del mes.</div>
+          )}
 
           <div className="mt-3 overflow-x-auto">
             <table className="min-w-full table-auto text-sm">
@@ -121,11 +124,23 @@ export default function Payment({ child, childId, totalCents = 0, payment, month
             </table>
           </div>
 
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t pt-4">
+          <div className="mt-4 flex flex-col gap-2 border-t pt-4">
             <div className="text-sm text-gray-600">Días totales: <span className="font-semibold text-gray-800">{daysCount}</span></div>
-            <div className="flex items-center gap-4">
-              <div className="text-sm text-gray-600">Total</div>
-              <div className="text-lg font-bold text-gray-900">{money(totalCents)}</div>
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-600">Subtotal</div>
+              <div className="text-base font-semibold text-gray-900">{money(totalCents)}</div>
+            </div>
+            {surcharge?.percent > 0 && (
+              <div className="flex items-center justify-between text-sm">
+                <div className="text-gray-700">
+                  {surcharge?.label || `Recargo por pago fuera de término (${surcharge?.percent}%)`}
+                </div>
+                <div className="font-medium text-gray-900">{money(surcharge?.cents || 0)}</div>
+              </div>
+            )}
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-600">Total a pagar</div>
+              <div className="text-lg font-bold text-gray-900">{money(totalWithSurchargeCents ?? totalCents)}</div>
             </div>
           </div>
         </section>

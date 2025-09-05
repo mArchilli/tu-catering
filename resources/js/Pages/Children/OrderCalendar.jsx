@@ -3,7 +3,7 @@ import { Head, router } from '@inertiajs/react';
 import SecondaryButton from '@/Components/SecondaryButton';
 import OrderCalendar from '@/Components/OrderCalendar';
 
-export default function OrderCalendarPage({ child, serviceTypes, existing, year, month }) {
+export default function OrderCalendarPage({ child, serviceTypes, existing, year, month, businessDayIndex = null }) {
   const initialSelections = Object.fromEntries((existing || []).map(e => [e.date, e.service_type_id]));
 
   const handleSubmit = (selections) => {
@@ -18,6 +18,9 @@ export default function OrderCalendarPage({ child, serviceTypes, existing, year,
       <Head title="Calendario" />
       
       <div className="mx-auto max-w-7xl p-6 space-y-4">
+        {typeof businessDayIndex === 'number' && (
+          <div className="mt-1 text-xs text-gray-600">Hoy es el día hábil N° {businessDayIndex} del mes.</div>
+        )}
         <div>
           <SecondaryButton className="hidden sm:block sm:w-auto justify-center text-center" onClick={() => router.visit(route('children.view', child.id))}>
             Volver

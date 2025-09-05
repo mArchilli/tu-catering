@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
+use App\Support\ArBusinessDays;
 
 class OrderController extends Controller
 {
@@ -44,6 +45,10 @@ class OrderController extends Controller
                 'price_cents' => $o->serviceType->price_cents,
             ]);
 
+    // Día hábil actual del mes para mostrar en UI (permitir override en debug)
+    $today = $this->resolveToday($request);
+    $businessDayIndex = \App\Support\ArBusinessDays::businessDayIndexInMonth($today, $month, $year);
+
         return Inertia::render('Children/OrderCalendar', [
             'child' => [
                 'id' => $child->id,
@@ -54,6 +59,7 @@ class OrderController extends Controller
             'existing' => $existing,
             'year' => $year,
             'month' => $month,
+            'businessDayIndex' => $businessDayIndex,
         ]);
     }
 
@@ -133,6 +139,13 @@ class OrderController extends Controller
 
         $totalCents = $summary->sum('price_cents');
 
+        // Intentar inferir mes/año desde el primer ítem para calcular día hábil actual
+    $firstDate = $summary->first()['date'] ?? null;
+    $month = $firstDate ? (int) \Illuminate\Support\Carbon::parse($firstDate)->month : now()->month;
+    $year = $firstDate ? (int) \Illuminate\Support\Carbon::parse($firstDate)->year : now()->year;
+    $today = $this->resolveToday($request);
+    $businessDayIndex = \App\Support\ArBusinessDays::businessDayIndexInMonth($today, $month, $year);
+
         return Inertia::render('Children/OrderSummary', [
             'child' => [
                 'id' => $child->id,
@@ -142,6 +155,9 @@ class OrderController extends Controller
             'summary' => $summary,
             'totalsByService' => $totalsByService,
             'totalCents' => $totalCents,
+            'year' => $year,
+            'month' => $month,
+            'businessDayIndex' => $businessDayIndex,
         ]);
     }
 
@@ -181,6 +197,9 @@ class OrderController extends Controller
 
         $totalCents = $summary->sum('price_cents');
 
+    $today = $this->resolveToday($request);
+    $businessDayIndex = \App\Support\ArBusinessDays::businessDayIndexInMonth($today, $month, $year);
+
         return Inertia::render('Children/OrderSummary', [
             'child' => [
                 'id' => $child->id,
@@ -192,6 +211,7 @@ class OrderController extends Controller
             'totalCents' => $totalCents,
             'year' => $year,
             'month' => $month,
+            'businessDayIndex' => $businessDayIndex,
         ]);
     }
 
@@ -211,7 +231,7 @@ class OrderController extends Controller
             ->with('serviceType:id,name,price_cents')
             ->get();
 
-        $totalCents = $orders->sum(fn($o) => optional($o->serviceType)->price_cents ?? 0);
+    $totalCents = $orders->sum(fn($o) => optional($o->serviceType)->price_cents ?? 0);
 
         // Armar resumen y totales por servicio
         $summary = $orders->map(function ($o) {
@@ -233,7 +253,13 @@ class OrderController extends Controller
             ];
         })->values();
 
-        $daysCount = $summary->count();
+    $daysCount = $summary->count();
+
+    // Recargo por día hábil argentino (permitir override del "hoy" en debug)
+    $today = $this->resolveToday($request);
+    $surchargePercent = ArBusinessDays::surchargePercentForMonth($month, $year, $today);
+    $surchargeCents = ArBusinessDays::applySurchargeCents($totalCents, $surchargePercent);
+    $totalWithSurchargeCents = $totalCents + $surchargeCents;
 
         // Datos de pago (CBU y ALIAS opcionalmente desde variables de entorno)
         $payment = [
@@ -243,6 +269,8 @@ class OrderController extends Controller
             'holder' => 'Oscar Daniel Aguilera',
             'cuil' => '20-11321905-0',
         ];
+
+    $businessDayIndex = \App\Support\ArBusinessDays::businessDayIndexInMonth($today, $month, $year);
 
         return Inertia::render('Children/Payment', [
             'child' => [
@@ -256,12 +284,19 @@ class OrderController extends Controller
             ],
             'childId' => $child->id,
             'totalCents' => $totalCents,
+            'surcharge' => [
+                'percent' => $surchargePercent,
+                'cents' => $surchargeCents,
+                'label' => $surchargePercent > 0 ? ("Recargo por pago fuera de término ({$surchargePercent}% )") : null,
+            ],
+            'totalWithSurchargeCents' => $totalWithSurchargeCents,
             'payment' => $payment,
             'totalsByService' => $totalsByService,
             'daysCount' => $daysCount,
             // 'summary' => $summary, // disponible si luego se quiere mostrar por día
             'year' => $year,
             'month' => $month,
+            'businessDayIndex' => $businessDayIndex,
         ]);
     }
 
@@ -279,7 +314,12 @@ class OrderController extends Controller
             ->whereBetween('date', [$start, $end])
             ->with('serviceType:id,price_cents')
             ->get();
-        $totalCents = $orders->sum(fn($o) => optional($o->serviceType)->price_cents ?? 0);
+    $totalCents = $orders->sum(fn($o) => optional($o->serviceType)->price_cents ?? 0);
+    // Aplicar recargo al momento de confirmar (respetando override en debug si viene)
+    $today = $this->resolveToday($request);
+    $surchargePercent = \App\Support\ArBusinessDays::surchargePercentForMonth($month, $year, $today);
+    $surchargeCents = \App\Support\ArBusinessDays::applySurchargeCents($totalCents, $surchargePercent);
+    $totalWithSurchargeCents = $totalCents + $surchargeCents;
 
         // Crear o actualizar orden mensual con estado pendiente
         MonthlyOrder::updateOrCreate(
@@ -290,13 +330,31 @@ class OrderController extends Controller
             ],
             [
                 'status' => 'pending',
-                'total_cents' => $totalCents,
+                'total_cents' => $totalWithSurchargeCents,
             ]
         );
 
         return redirect()
             ->route('dashboard.padre')
             ->with('success', 'Se informó a la administración su pedido. No verá cambios hasta que el administrador confirme la recepción del pago.');
+    }
+
+    /**
+     * Permite simular la fecha "de hoy" cuando config('app.debug') es true o ALLOW_AS_OF_OVERRIDE=true.
+     * Usar query ?as_of=YYYY-MM-DD.
+     */
+    private function resolveToday(Request $request): \Illuminate\Support\Carbon
+    {
+        $allow = (bool) config('app.debug') || (bool) env('ALLOW_AS_OF_OVERRIDE', false);
+        $asOf = trim((string) $request->get('as_of', ''));
+        if ($allow && $asOf !== '') {
+            try {
+                return \Illuminate\Support\Carbon::parse($asOf)->startOfDay();
+            } catch (\Throwable $e) {
+                // fallback
+            }
+        }
+        return now();
     }
 
     // ADMIN: listado agregado por alumno (estado derivado de daily_orders: paid si todos los días están pagados)

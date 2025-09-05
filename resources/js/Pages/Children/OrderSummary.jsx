@@ -4,7 +4,7 @@ import SecondaryButton from '@/Components/SecondaryButton';
 
 const money = (cents) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format((cents || 0) / 100);
 
-export default function OrderSummary({ child, summary = [], totalsByService = [], totalCents = 0 }) {
+export default function OrderSummary({ child, summary = [], totalsByService = [], totalCents = 0, month, year, businessDayIndex = null }) {
   const handleConfirm = () => {
     // Confirmación final: reusar payload a store
     const items = summary.map(({ date, service_type_id }) => ({ date, service_type_id }));
@@ -20,7 +20,7 @@ export default function OrderSummary({ child, summary = [], totalsByService = []
       }
     }
 
-    router.post(
+  router.post(
       route('children.orders.store', child.id),
       { items },
       {
@@ -45,6 +45,12 @@ export default function OrderSummary({ child, summary = [], totalsByService = []
         <SecondaryButton className="hidden md:block w-full sm:w-auto justify-center text-center" onClick={handleBack}>Volver</SecondaryButton>
         <section className="rounded-xl border border-gray-200 bg-white p-4">
           <h3 className="text-base font-semibold text-gray-900">Resumen por servicio</h3>
+          {(month && year) && (
+            <div className="mt-1 text-xs text-gray-600">Periodo: {String(month).padStart(2,'0')}/{year}</div>
+          )}
+          {typeof businessDayIndex === 'number' && (
+            <div className="mt-1 text-xs text-gray-600">Hoy es el día hábil N° {businessDayIndex} del mes.</div>
+          )}
           <div className="mt-3 overflow-x-auto">
             <table className="min-w-full table-auto text-sm">
               <thead>
