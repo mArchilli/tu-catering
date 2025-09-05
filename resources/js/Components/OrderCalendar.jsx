@@ -100,7 +100,6 @@ export default function OrderCalendar({ serviceTypes = [], initialSelections = {
   );
 
   const monthDate = new Date(year, month - 1, 1);
-  const today = new Date();
 
   // Custom DayContent para pintar el servicio elegido
   const DayContent = (props) => {
@@ -144,7 +143,7 @@ export default function OrderCalendar({ serviceTypes = [], initialSelections = {
 
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-[1fr_280px]">
-  <section className="rounded-xl border border-orange-100 bg-white p-4">
+      <section className="rounded-xl border border-orange-100 bg-white p-4">
         <DayPicker
           mode="single"
           month={monthDate}
@@ -156,8 +155,8 @@ export default function OrderCalendar({ serviceTypes = [], initialSelections = {
           modifiersClassNames={dayModifiersClassNames}
           showOutsideDays={false}
           disabled={[
-            { before: new Date(today.getFullYear(), today.getMonth(), today.getDate()) },
-            { dayOfWeek: [0, 6] }, // Domingo(0) y Sábado(6)
+            // Solo fines de semana
+            { dayOfWeek: [0, 6] },
           ]}
           components={{ DayContent, HeadRow: WeekdaysHeadRow, IconLeft: EmptyIcon, IconRight: EmptyIcon, Nav: EmptyNav }}
           locale={es}

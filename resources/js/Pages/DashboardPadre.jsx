@@ -1,11 +1,25 @@
 import ParentLayout from '@/Layouts/ParentLayout';
 import { Head, Link } from '@inertiajs/react';
+import { useEffect, useState } from 'react'; // + NUEVO
 
 export default function DashboardPadre() {
     // clases base + hover (mismas que se usan en el dashboard del panel de administración)
     const cardBase = 'rounded-xl border border-orange-100 bg-white p-6 shadow-sm transition-transform duration-200 transform';
     const cardHover = 'hover:-translate-y-1 hover:scale-105 hover:shadow-lg hover:border-orange-200';
     const cardClasses = `${cardBase} ${cardHover}`;
+
+    // NUEVO: modal de confirmación de comprobante
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    useEffect(() => {
+        try {
+            if (localStorage.getItem('paymentConfirmed') === '1') {
+                setShowPaymentModal(true);
+                localStorage.removeItem('paymentConfirmed');
+            }
+        } catch (e) {
+            // no-op
+        }
+    }, []);
 
     return (
         <ParentLayout
@@ -116,6 +130,32 @@ export default function DashboardPadre() {
                     </div>
                 </div>
             </div>
+
+            {/* NUEVO: Modal de confirmación */}
+            {showPaymentModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-black/50" aria-hidden="true"></div>
+                    <div
+                        role="dialog"
+                        aria-modal="true"
+                        className="relative z-10 w-full max-w-md rounded-xl bg-white p-7 shadow-xl mx-5"
+                    >
+                        <h3 className="text-lg font-semibold text-gray-900">Comprobante enviado</h3>
+                        <p className="mt-2 text-sm text-gray-600">
+                            Se informó a la administración su pedido. No verá cambios hasta que el administrador confirme la recepción del pago.
+                        </p>
+                        <div className="mt-6 flex justify-end">
+                            <button
+                                type="button"
+                                onClick={() => setShowPaymentModal(false)}
+                                className="inline-flex items-center rounded-md bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700"
+                            >
+                                Aceptar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </ParentLayout>
     );
 }

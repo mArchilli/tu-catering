@@ -73,6 +73,11 @@ export default function Payment({ child, childId, totalCents = 0, payment, month
   const gmailHref = `https://mail.google.com/mail/?view=cm&fs=1&to=info@tucatering.com.ar&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(defaultBody)}`;
 
   const handleConfirmSent = () => {
+    try {
+      localStorage.setItem('paymentConfirmed', '1');
+    } catch (e) {
+      // no-op
+    }
     router.post(route('children.payment.confirm', childId), { month, year });
   };
 
