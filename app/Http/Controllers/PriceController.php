@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use App\Models\ServiceType;
+use Illuminate\Support\Str;
 
 class PriceController extends Controller
 {
@@ -24,9 +25,17 @@ class PriceController extends Controller
         ];
 
         $existing = [];
+    $publicPdfPath = trim((string) env('PUBLIC_PDF_BASE', ''));
+        $publicPdfUrl = trim((string) env('PUBLIC_PDF_URL', ''));
         foreach ($keys as $key) {
             $path = "precios/{$key}.pdf";
-            $existing[$key] = Storage::disk('public')->exists($path) ? Storage::url($path) : null;
+            if ($publicPdfPath !== '') {
+                $baseFs = Str::startsWith($publicPdfPath, ['/','\\']) ? $publicPdfPath : base_path($publicPdfPath);
+                $fsPath = rtrim($baseFs, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'precios' . DIRECTORY_SEPARATOR . "{$key}.pdf";
+                $existing[$key] = file_exists($fsPath) ? ($publicPdfUrl !== '' ? rtrim($publicPdfUrl, '/') . "/precios/{$key}.pdf" : null) : null;
+            } else {
+                $existing[$key] = Storage::disk('public')->exists($path) ? Storage::url($path) : null;
+            }
         }
         return $existing;
     }
@@ -89,10 +98,24 @@ class PriceController extends Controller
 
         $validated = $request->validate($rules);
 
-        foreach ($validated as $field => $file) {
-            if ($request->hasFile($field)) {
-                // Guarda con nombre fijo por campo (coincide con los IDs de tu formulario)
-                $request->file($field)->storeAs('precios', "{$field}.pdf", 'public');
+    $publicPdfPath = trim((string) env('PUBLIC_PDF_BASE', ''));
+        if ($publicPdfPath !== '') {
+            $baseFs = Str::startsWith($publicPdfPath, ['/','\\']) ? $publicPdfPath : base_path($publicPdfPath);
+            $targetDir = rtrim($baseFs, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'precios';
+            if (!is_dir($targetDir)) {
+                @mkdir($targetDir, 0755, true);
+            }
+            foreach ($validated as $field => $file) {
+                if ($request->hasFile($field)) {
+                    $request->file($field)->move($targetDir, "{$field}.pdf");
+                }
+            }
+        } else {
+            foreach ($validated as $field => $file) {
+                if ($request->hasFile($field)) {
+                    // Guarda con nombre fijo por campo (coincide con los IDs de tu formulario)
+                    $request->file($field)->storeAs('precios', "{$field}.pdf", 'public');
+                }
             }
         }
 

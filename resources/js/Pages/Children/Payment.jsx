@@ -15,6 +15,7 @@ const paymentDataBySchool = (school) => {
             entidad: 'Mercado Pago',
             titular: 'Aguilera Oscar Daniel',
             alias: 'tucateringod',
+            cbu: '0000003100022218516492',
           },
         ],
       };

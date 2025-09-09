@@ -3,14 +3,15 @@ import { Head, usePage } from '@inertiajs/react';
 
 export default function MenuPadre() {
     const { props } = usePage();
+    const BASE = import.meta.env.VITE_PUBLIC_PDF_BASE || '/storage';
     const generalUrl =
         props?.menus?.generalUrl ||
         props?.menus?.general ||
-        '/storage/menus/menu_general.pdf';
+        `${BASE}/menus/menu_general.pdf`;
     const economicoUrl =
         props?.menus?.economicoUrl ||
         props?.menus?.economico ||
-        '/storage/menus/menu_economico.pdf';
+        `${BASE}/menus/menu_economico.pdf`;
 
     return (
         <ParentLayout>
