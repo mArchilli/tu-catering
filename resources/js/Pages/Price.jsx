@@ -3,6 +3,8 @@ import { Head, useForm, Link, router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
 export default function Price(props) {
+    const DOCS_BASE = (import.meta.env.VITE_PUBLIC_DOCS_PATH || 'docs').replace(/^\/?(?:public|public_html)\/?/i,'').replace(/\/+$/,'');
+    const DOCS_URL = (import.meta.env.VITE_PUBLIC_DOCS_URL || '').replace(/\/$/, '');
     // El backend envía 'existing' y 'serviceTypePrices'.
     const { existing = {}, prices = {}, serviceTypePrices = {} } = props || {};
     const currentMap = (prices && Object.keys(prices).length > 0) ? prices : existing;
@@ -45,15 +47,34 @@ export default function Price(props) {
         });
     }
 
+    const sanitizeHref = (href) => {
+        if (!href) return href;
+        // Normaliza relativas y elimina /public_html al inicio del path
+        try {
+            const u = new URL(href, window.location?.origin || 'http://localhost');
+            const cleanedPath = u.pathname.replace(/^\/?public_html\/?/i, '');
+            const normalized = '/' + cleanedPath.replace(/^\/+/, '');
+            if (DOCS_URL && normalized.startsWith(`/${DOCS_BASE}/`)) {
+                return `${DOCS_URL}${normalized.substring(DOCS_BASE.length + 1)}${u.search}${u.hash}`;
+            }
+            return `${u.origin}${normalized}${u.search}${u.hash}`;
+        } catch {
+            // Si no es URL válida, limpiamos string
+            let s = href;
+            if (!/^https?:\/\//i.test(s) && !s.startsWith('/')) s = `/${s}`;
+            s = s.replace(/^\/?public_html\/?/i, '/');
+            if (DOCS_URL && s.startsWith(`/${DOCS_BASE}/`)) {
+                return `${DOCS_URL}${s.substring(DOCS_BASE.length + 1)}`;
+            }
+            return s;
+        }
+    };
+
     const getCurrentUrl = (key) => {
         const v = currentMap?.[key];
         if (!v) return null;
-        if (typeof v === 'string') {
-            // Si viene una ruta relativa (pdf_path) sin slash inicial, la normalizamos
-            if (!/^https?:\/\//i.test(v) && !v.startsWith('/')) return `/${v}`;
-            return v;
-        }
-        if (typeof v === 'object' && v !== null) return v.url || v.href || null;
+        if (typeof v === 'string') return sanitizeHref(v);
+        if (typeof v === 'object' && v !== null) return sanitizeHref(v.url || v.href || null);
         return null;
     };
 

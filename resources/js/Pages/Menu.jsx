@@ -4,9 +4,21 @@ import { useEffect, useState } from 'react';
 
 export default function Menu({ economicoUrl = null, generalUrl = null }) {
     const DOCS_BASE = (import.meta.env.VITE_PUBLIC_DOCS_PATH || 'docs').replace(/^\/?(?:public|public_html)\/?/i,'').replace(/\/+$/,'');
-    const baseHref = `/${DOCS_BASE}`;
-    const effectiveEconomicoUrl = economicoUrl || `${baseHref}/menus/menu_economico.pdf`;
-    const effectiveGeneralUrl = generalUrl || `${baseHref}/menus/menu_general.pdf`;
+    const DOCS_URL = (import.meta.env.VITE_PUBLIC_DOCS_URL || '').replace(/\/$/, '');
+    const baseHref = DOCS_URL || `/${DOCS_BASE}`;
+    const sanitizeHref = (href) => {
+        if (!href) return href;
+        try {
+            const u = new URL(href, window.location?.origin || 'http://localhost');
+            const cleanedPath = u.pathname.replace(/^\/?public_html\/?/i, '');
+            const normalized = '/' + cleanedPath.replace(/^\/+/, '');
+            return `${u.origin}${normalized}${u.search}${u.hash}`;
+        } catch {
+            return href.replace(/^\/?public_html\/?/i, '/');
+        }
+    };
+    const effectiveEconomicoUrl = sanitizeHref(economicoUrl || `${baseHref}/menus/menu_economico.pdf`);
+    const effectiveGeneralUrl = sanitizeHref(generalUrl || `${baseHref}/menus/menu_general.pdf`);
     const { data, setData, post, processing, errors, reset } = useForm({
         menu_economico: null,
         menu_general: null,
