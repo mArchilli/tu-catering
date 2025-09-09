@@ -23,24 +23,16 @@ class PriceController extends Controller
             'sr_primario',
             'sr_secundario',
         ];
+        // Base relativa a la carpeta public/ (sin prefijo 'public/')
+        $docsBase = trim((string) env('PUBLIC_DOCS_PATH', 'docs'));
+        $docsBase = trim($docsBase, "\\/");
 
         $existing = [];
-    $publicPdfPath = trim((string) env('PUBLIC_PDF_BASE', ''));
-        $publicPdfUrl = trim((string) env('PUBLIC_PDF_URL', ''));
+        $baseFs = rtrim(public_path($docsBase), DIRECTORY_SEPARATOR);
+        $prefix = '/' . $docsBase;
         foreach ($keys as $key) {
-            $path = "precios/{$key}.pdf";
-            if ($publicPdfPath !== '') {
-                $baseFs = Str::startsWith($publicPdfPath, ['/','\\']) ? $publicPdfPath : base_path($publicPdfPath);
-                $fsPath = rtrim($baseFs, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'precios' . DIRECTORY_SEPARATOR . "{$key}.pdf";
-                if (file_exists($fsPath)) {
-                    $existing[$key] = $publicPdfUrl !== '' ? rtrim($publicPdfUrl, '/') . "/precios/{$key}.pdf" : null;
-                } else {
-                    // Fallback al disco 'public' si allí existe
-                    $existing[$key] = Storage::disk('public')->exists($path) ? Storage::url($path) : null;
-                }
-            } else {
-                $existing[$key] = Storage::disk('public')->exists($path) ? Storage::url($path) : null;
-            }
+            $fsPath = $baseFs . DIRECTORY_SEPARATOR . 'precios' . DIRECTORY_SEPARATOR . "{$key}.pdf";
+            $existing[$key] = file_exists($fsPath) ? rtrim($prefix, '/') . "/precios/{$key}.pdf" : null;
         }
         return $existing;
     }
@@ -88,39 +80,34 @@ class PriceController extends Controller
     public function update(Request $request)
     {
         $rules = [
-            'juan_xxiii_inicial'  => ['nullable','file','mimetypes:application/pdf','max:20480'],
-            'juan_xxiii_primario' => ['nullable','file','mimetypes:application/pdf','max:20480'],
-            'juan_xxiii_secundario' => ['nullable','file','mimetypes:application/pdf','max:20480'],
+            'juan_xxiii_inicial'  => ['nullable','file','mimetypes:application/pdf,application/x-pdf','mimes:pdf','max:10240'],
+            'juan_xxiii_primario' => ['nullable','file','mimetypes:application/pdf,application/x-pdf','mimes:pdf','max:10240'],
+            'juan_xxiii_secundario' => ['nullable','file','mimetypes:application/pdf,application/x-pdf','mimes:pdf','max:10240'],
 
-            'cba_inicial'  => ['nullable','file','mimetypes:application/pdf','max:20480'],
-            'cba_primario' => ['nullable','file','mimetypes:application/pdf','max:20480'],
-            'cba_secundario' => ['nullable','file','mimetypes:application/pdf','max:20480'],
+            'cba_inicial'  => ['nullable','file','mimetypes:application/pdf,application/x-pdf','mimes:pdf','max:10240'],
+            'cba_primario' => ['nullable','file','mimetypes:application/pdf,application/x-pdf','mimes:pdf','max:10240'],
+            'cba_secundario' => ['nullable','file','mimetypes:application/pdf,application/x-pdf','mimes:pdf','max:10240'],
 
-            'sr_inicial'  => ['nullable','file','mimetypes:application/pdf','max:20480'],
-            'sr_primario' => ['nullable','file','mimetypes:application/pdf','max:20480'],
-            'sr_secundario' => ['nullable','file','mimetypes:application/pdf','max:20480'],
+            'sr_inicial'  => ['nullable','file','mimetypes:application/pdf,application/x-pdf','mimes:pdf','max:10240'],
+            'sr_primario' => ['nullable','file','mimetypes:application/pdf,application/x-pdf','mimes:pdf','max:10240'],
+            'sr_secundario' => ['nullable','file','mimetypes:application/pdf,application/x-pdf','mimes:pdf','max:10240'],
         ];
 
         $validated = $request->validate($rules);
 
-    $publicPdfPath = trim((string) env('PUBLIC_PDF_BASE', ''));
-        if ($publicPdfPath !== '') {
-            $baseFs = Str::startsWith($publicPdfPath, ['/','\\']) ? $publicPdfPath : base_path($publicPdfPath);
-            $targetDir = rtrim($baseFs, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'precios';
-            if (!is_dir($targetDir)) {
-                @mkdir($targetDir, 0755, true);
-            }
-            foreach ($validated as $field => $file) {
-                if ($request->hasFile($field)) {
-                    $request->file($field)->move($targetDir, "{$field}.pdf");
-                }
-            }
-        } else {
-            foreach ($validated as $field => $file) {
-                if ($request->hasFile($field)) {
-                    // Guarda con nombre fijo por campo (coincide con los IDs de tu formulario)
-                    $request->file($field)->storeAs('precios', "{$field}.pdf", 'public');
-                }
+        // Base relativa a public/ y subcarpeta 'precios'
+        $docsBase = trim((string) env('PUBLIC_DOCS_PATH', 'docs'));
+        $docsBase = trim($docsBase, "\\/");
+        $targetDir = rtrim(public_path($docsBase), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'precios';
+        if (!is_dir($targetDir)) {
+            @mkdir($targetDir, 0755, true);
+        }
+
+        foreach ($validated as $field => $file) {
+            if ($request->hasFile($field)) {
+                $dest = $targetDir . DIRECTORY_SEPARATOR . "{$field}.pdf";
+                if (file_exists($dest)) { @unlink($dest); }
+                $request->file($field)->move($targetDir, "{$field}.pdf");
             }
         }
 

@@ -3,15 +3,16 @@ import { Head, usePage } from '@inertiajs/react';
 
 export default function MenuPadre() {
     const { props } = usePage();
-    const BASE = import.meta.env.VITE_PUBLIC_PDF_BASE || '/storage';
+    const DOCS_BASE = (import.meta.env.VITE_PUBLIC_DOCS_PATH || 'docs').replace(/\/+$/,'');
+    const baseHref = `/${DOCS_BASE}`;
     const generalUrl =
         props?.menus?.generalUrl ||
         props?.menus?.general ||
-        `${BASE}/menus/menu_general.pdf`;
+        `${baseHref}/menus/menu_general.pdf`;
     const economicoUrl =
         props?.menus?.economicoUrl ||
         props?.menus?.economico ||
-        `${BASE}/menus/menu_economico.pdf`;
+        `${baseHref}/menus/menu_economico.pdf`;
 
     return (
         <ParentLayout>

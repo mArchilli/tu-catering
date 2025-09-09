@@ -3,6 +3,10 @@ import { Head, useForm, Link } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
 export default function Menu({ economicoUrl = null, generalUrl = null }) {
+    const DOCS_BASE = (import.meta.env.VITE_PUBLIC_DOCS_PATH || 'docs').replace(/\/+$/,'');
+    const baseHref = `/${DOCS_BASE}`;
+    const effectiveEconomicoUrl = economicoUrl || `${baseHref}/menus/menu_economico.pdf`;
+    const effectiveGeneralUrl = generalUrl || `${baseHref}/menus/menu_general.pdf`;
     const { data, setData, post, processing, errors, reset } = useForm({
         menu_economico: null,
         menu_general: null,
@@ -69,9 +73,9 @@ export default function Menu({ economicoUrl = null, generalUrl = null }) {
                                         <a href={previewEconomico} target="_blank" rel="noreferrer" className="font-semibold text-orange-400 hover:text-orange-700">Ver PDF seleccionado →</a>
                                     </div>
                                 )}
-                                {!previewEconomico && economicoUrl && (
+                {!previewEconomico && effectiveEconomicoUrl && (
                                     <p className="mt-2 text-sm">
-                                        Actual: <a href={economicoUrl} target="_blank" className="text-orange-400 hover:text-orange-700" rel="noreferrer">Ver PDF</a>
+                    Actual: <a href={effectiveEconomicoUrl} target="_blank" className="text-orange-400 hover:text-orange-700" rel="noreferrer">Ver PDF</a>
                                     </p>
                                 )}
                             </div>
@@ -95,9 +99,9 @@ export default function Menu({ economicoUrl = null, generalUrl = null }) {
                                         <a href={previewGeneral} target="_blank" rel="noreferrer" className="font-semibold text-orange-400 hover:text-orange-700">Ver PDF seleccionado →</a>
                                     </div>
                                 )}
-                                {!previewGeneral && generalUrl && (
+                {!previewGeneral && effectiveGeneralUrl && (
                                     <p className="mt-2 text-sm">
-                                        Actual: <a href={generalUrl} target="_blank" className="text-orange-400 hover:text-orange-700" rel="noreferrer">Ver PDF</a>
+                    Actual: <a href={effectiveGeneralUrl} target="_blank" className="text-orange-400 hover:text-orange-700" rel="noreferrer">Ver PDF</a>
                                     </p>
                                 )}
                             </div>

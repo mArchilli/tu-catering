@@ -48,7 +48,11 @@ export default function Price(props) {
     const getCurrentUrl = (key) => {
         const v = currentMap?.[key];
         if (!v) return null;
-        if (typeof v === 'string') return v;
+        if (typeof v === 'string') {
+            // Si viene una ruta relativa (pdf_path) sin slash inicial, la normalizamos
+            if (!/^https?:\/\//i.test(v) && !v.startsWith('/')) return `/${v}`;
+            return v;
+        }
         if (typeof v === 'object' && v !== null) return v.url || v.href || null;
         return null;
     };

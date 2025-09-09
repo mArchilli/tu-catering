@@ -11,45 +11,22 @@ class MenuController extends Controller
 {
     public static function urls(): array
     {
-        $economicoPath = 'menus/menu_economico.pdf';
-        $generalPath = 'menus/menu_general.pdf';
+        // Base relativa a la carpeta public/ (no incluir prefijo "public/")
+        $docsBase = trim((string) env('PUBLIC_DOCS_PATH', 'docs'));
+        $docsBase = trim($docsBase, "\\/");
 
-    // Si se definió PUBLIC_PDF_BASE en .env, consideramos guardar/servir desde allí.
-    $publicPdfPath = trim((string) env('PUBLIC_PDF_BASE', ''));
-        $publicPdfUrl = trim((string) env('PUBLIC_PDF_URL', ''));
+        $economicoRel = 'menus/menu_economico.pdf';
+        $generalRel   = 'menus/menu_general.pdf';
 
-    if ($publicPdfPath !== '') {
-            // comprobar existencia en filesystem alternativo
-            $baseFs = Str::startsWith($publicPdfPath, ['/','\\']) ? $publicPdfPath : base_path($publicPdfPath);
-            $economicoFs = rtrim($baseFs, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'menus' . DIRECTORY_SEPARATOR . 'menu_economico.pdf';
-            $generalFs = rtrim($baseFs, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'menus' . DIRECTORY_SEPARATOR . 'menu_general.pdf';
+        $baseFs = rtrim(public_path($docsBase), DIRECTORY_SEPARATOR);
+        $economicoFs = $baseFs . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $economicoRel);
+        $generalFs   = $baseFs . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $generalRel);
 
-            $economicoUrl = null;
-            $generalUrl = null;
-            if (file_exists($economicoFs)) {
-                $economicoUrl = $publicPdfUrl !== '' ? rtrim($publicPdfUrl, '/') . '/menus/menu_economico.pdf' : null;
-            }
-            if (file_exists($generalFs)) {
-                $generalUrl = $publicPdfUrl !== '' ? rtrim($publicPdfUrl, '/') . '/menus/menu_general.pdf' : null;
-            }
-
-            // Fallbacks: si no hay PUBLIC_PDF_URL o el archivo no existe en base alternativa,
-            // intentar servir desde el disco 'public' estándar si estuviera disponible.
-            if ($economicoUrl === null) {
-                $economicoUrl = Storage::disk('public')->exists($economicoPath) ? Storage::url($economicoPath) : null;
-            }
-            if ($generalUrl === null) {
-                $generalUrl = Storage::disk('public')->exists($generalPath) ? Storage::url($generalPath) : null;
-            }
-            return [
-                'economicoUrl' => $economicoUrl,
-                'generalUrl' => $generalUrl,
-            ];
-        }
+        $prefix = '/' . $docsBase;
 
         return [
-            'economicoUrl' => Storage::disk('public')->exists($economicoPath) ? Storage::url($economicoPath) : null,
-            'generalUrl'   => Storage::disk('public')->exists($generalPath) ? Storage::url($generalPath) : null,
+            'economicoUrl' => file_exists($economicoFs) ? rtrim($prefix, '/') . '/' . $economicoRel : null,
+            'generalUrl'   => file_exists($generalFs) ? rtrim($prefix, '/') . '/' . $generalRel : null,
         ];
     }
 
@@ -75,31 +52,27 @@ class MenuController extends Controller
     public function update(Request $request)
     {
         $request->validate([
-            'menu_economico' => ['nullable', 'file', 'mimetypes:application/pdf', 'max:20480'], // 20MB
-            'menu_general'   => ['nullable', 'file', 'mimetypes:application/pdf', 'max:20480'],
+            'menu_economico' => ['nullable', 'file', 'mimetypes:application/pdf,application/x-pdf', 'mimes:pdf', 'max:10240'], // 10MB
+            'menu_general'   => ['nullable', 'file', 'mimetypes:application/pdf,application/x-pdf', 'mimes:pdf', 'max:10240'],
         ]);
 
-    $publicPdfPath = trim((string) env('PUBLIC_PDF_BASE', ''));
-        // Si PUBLIC_PDF_PATH está definido, guardamos en esa ubicación física + subcarpeta menus
-        if ($publicPdfPath !== '') {
-            $baseFs = Str::startsWith($publicPdfPath, ['/','\\']) ? $publicPdfPath : base_path($publicPdfPath);
-            $targetDir = rtrim($baseFs, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'menus';
-            if (!is_dir($targetDir)) {
-                @mkdir($targetDir, 0755, true);
-            }
-            if ($request->hasFile('menu_economico')) {
-                $request->file('menu_economico')->move($targetDir, 'menu_economico.pdf');
-            }
-            if ($request->hasFile('menu_general')) {
-                $request->file('menu_general')->move($targetDir, 'menu_general.pdf');
-            }
-        } else {
-            if ($request->hasFile('menu_economico')) {
-                $request->file('menu_economico')->storeAs('menus', 'menu_economico.pdf', 'public');
-            }
-            if ($request->hasFile('menu_general')) {
-                $request->file('menu_general')->storeAs('menus', 'menu_general.pdf', 'public');
-            }
+        // Base relativa a public/
+        $docsBase = trim((string) env('PUBLIC_DOCS_PATH', 'docs'));
+        $docsBase = trim($docsBase, "\\/");
+        $targetDir = rtrim(public_path($docsBase), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'menus';
+        if (!is_dir($targetDir)) {
+            @mkdir($targetDir, 0755, true);
+        }
+
+        if ($request->hasFile('menu_economico')) {
+            $dest = $targetDir . DIRECTORY_SEPARATOR . 'menu_economico.pdf';
+            if (file_exists($dest)) { @unlink($dest); }
+            $request->file('menu_economico')->move($targetDir, 'menu_economico.pdf');
+        }
+        if ($request->hasFile('menu_general')) {
+            $dest = $targetDir . DIRECTORY_SEPARATOR . 'menu_general.pdf';
+            if (file_exists($dest)) { @unlink($dest); }
+            $request->file('menu_general')->move($targetDir, 'menu_general.pdf');
         }
 
         return redirect()->route('menu.edit')->with('success', 'Menús actualizados correctamente.');

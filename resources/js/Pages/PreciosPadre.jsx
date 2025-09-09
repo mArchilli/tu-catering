@@ -34,7 +34,8 @@ const SCHOOLS = [
 
 export default function PreciosPadre() {
     const escuelas = useMemo(() => SCHOOLS, []);
-    const BASE = import.meta.env.VITE_PUBLIC_PDF_BASE || '/storage';
+    const DOCS_BASE = (import.meta.env.VITE_PUBLIC_DOCS_PATH || 'docs').replace(/\/+$/,'');
+    const BASE = `/${DOCS_BASE}`;
     const [seleccion, setSeleccion] = useState(escuelas[0].id);
     const [docs, setDocs] = useState([]); // [{ key, title, url }]
 
