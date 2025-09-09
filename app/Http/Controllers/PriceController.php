@@ -24,8 +24,9 @@ class PriceController extends Controller
             'sr_secundario',
         ];
         // Base relativa a la carpeta public/ (sin prefijo 'public/')
-        $docsBase = trim((string) env('PUBLIC_DOCS_PATH', 'docs'));
-        $docsBase = trim($docsBase, "\\/");
+    $docsBase = trim((string) env('PUBLIC_DOCS_PATH', 'docs'));
+    $docsBase = trim($docsBase, "\\/");
+    $docsBase = (string) preg_replace('#^(?:public|public_html)[\\/]+#i', '', $docsBase);
 
         $existing = [];
         $baseFs = rtrim(public_path($docsBase), DIRECTORY_SEPARATOR);
@@ -96,8 +97,9 @@ class PriceController extends Controller
         $validated = $request->validate($rules);
 
         // Base relativa a public/ y subcarpeta 'precios'
-        $docsBase = trim((string) env('PUBLIC_DOCS_PATH', 'docs'));
-        $docsBase = trim($docsBase, "\\/");
+    $docsBase = trim((string) env('PUBLIC_DOCS_PATH', 'docs'));
+    $docsBase = trim($docsBase, "\\/");
+    $docsBase = (string) preg_replace('#^(?:public|public_html)[\\/]+#i', '', $docsBase);
         $targetDir = rtrim(public_path($docsBase), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'precios';
         if (!is_dir($targetDir)) {
             @mkdir($targetDir, 0755, true);

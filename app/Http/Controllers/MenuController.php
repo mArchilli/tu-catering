@@ -12,8 +12,10 @@ class MenuController extends Controller
     public static function urls(): array
     {
         // Base relativa a la carpeta public/ (no incluir prefijo "public/")
-        $docsBase = trim((string) env('PUBLIC_DOCS_PATH', 'docs'));
-        $docsBase = trim($docsBase, "\\/");
+    $docsBase = trim((string) env('PUBLIC_DOCS_PATH', 'docs'));
+    $docsBase = trim($docsBase, "\\/");
+    // Sanea prefijos no válidos (no debe incluir 'public' ni 'public_html')
+    $docsBase = (string) preg_replace('#^(?:public|public_html)[\\/]+#i', '', $docsBase);
 
         $economicoRel = 'menus/menu_economico.pdf';
         $generalRel   = 'menus/menu_general.pdf';
@@ -57,8 +59,9 @@ class MenuController extends Controller
         ]);
 
         // Base relativa a public/
-        $docsBase = trim((string) env('PUBLIC_DOCS_PATH', 'docs'));
-        $docsBase = trim($docsBase, "\\/");
+    $docsBase = trim((string) env('PUBLIC_DOCS_PATH', 'docs'));
+    $docsBase = trim($docsBase, "\\/");
+    $docsBase = (string) preg_replace('#^(?:public|public_html)[\\/]+#i', '', $docsBase);
         $targetDir = rtrim(public_path($docsBase), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'menus';
         if (!is_dir($targetDir)) {
             @mkdir($targetDir, 0755, true);

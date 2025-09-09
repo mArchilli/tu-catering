@@ -1,9 +1,10 @@
 import ParentLayout from '@/Layouts/ParentLayout';
 import { Head, usePage } from '@inertiajs/react';
+import { useState } from 'react';
 
 export default function MenuPadre() {
     const { props } = usePage();
-    const DOCS_BASE = (import.meta.env.VITE_PUBLIC_DOCS_PATH || 'docs').replace(/\/+$/,'');
+    const DOCS_BASE = (import.meta.env.VITE_PUBLIC_DOCS_PATH || 'docs').replace(/^\/?(?:public|public_html)\/?/i,'').replace(/\/+$/,'');
     const baseHref = `/${DOCS_BASE}`;
     const generalUrl =
         props?.menus?.generalUrl ||
@@ -13,6 +14,9 @@ export default function MenuPadre() {
         props?.menus?.economicoUrl ||
         props?.menus?.economico ||
         `${baseHref}/menus/menu_economico.pdf`;
+
+    const [generalError, setGeneralError] = useState(false);
+    const [economicoError, setEconomicoError] = useState(false);
 
     return (
         <ParentLayout>
@@ -34,17 +38,24 @@ export default function MenuPadre() {
                             <p className="mt-1 text-sm text-gray-600">Propuesta completa y variada.</p>
 
                             <div className="mt-4 rounded-lg border overflow-hidden bg-gray-50">
-                                <iframe
-                                    src={`${generalUrl}#view=FitH`}
-                                    title="Menú General"
-                                    className="w-full h-[600px]"
-                                />
+                                {!generalError ? (
+                                    <iframe
+                                        src={`${generalUrl}#view=FitH`}
+                                        title="Menú General"
+                                        className="w-full h-[600px]"
+                                        onError={() => setGeneralError(true)}
+                                    />
+                                ) : (
+                                    <div className="p-4 text-sm text-gray-700">
+                                        No se pudo mostrar el PDF embebido. Podés abrirlo o descargarlo desde los enlaces debajo.
+                                    </div>
+                                )}
                             </div>
                             <div className="mt-3 flex gap-3">
                                 <a
                                     href={generalUrl}
                                     target="_blank"
-                                    rel="noopener"
+                                    rel="noopener noreferrer"
                                     className="text-sm font-semibold text-orange-400 hover:text-orange-700"
                                 >
                                     Abrir en nueva pestaña →
@@ -64,17 +75,24 @@ export default function MenuPadre() {
                             <p className="mt-1 text-sm text-gray-600">Alternativa accesible manteniendo calidad.</p>
 
                             <div className="mt-4 rounded-lg border overflow-hidden bg-gray-50">
-                                <iframe
-                                    src={`${economicoUrl}#view=FitH`}
-                                    title="Menú Económico"
-                                    className="w-full h-[600px]"
-                                />
+                                {!economicoError ? (
+                                    <iframe
+                                        src={`${economicoUrl}#view=FitH`}
+                                        title="Menú Económico"
+                                        className="w-full h-[600px]"
+                                        onError={() => setEconomicoError(true)}
+                                    />
+                                ) : (
+                                    <div className="p-4 text-sm text-gray-700">
+                                        No se pudo mostrar el PDF embebido. Podés abrirlo o descargarlo desde los enlaces debajo.
+                                    </div>
+                                )}
                             </div>
                             <div className="mt-3 flex gap-3">
                                 <a
                                     href={economicoUrl}
                                     target="_blank"
-                                    rel="noopener"
+                                    rel="noopener noreferrer"
                                     className="text-sm font-semibold text-orange-400 hover:text-orange-700"
                                 >
                                     Abrir en nueva pestaña →

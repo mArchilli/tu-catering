@@ -34,7 +34,7 @@ const SCHOOLS = [
 
 export default function PreciosPadre() {
     const escuelas = useMemo(() => SCHOOLS, []);
-    const DOCS_BASE = (import.meta.env.VITE_PUBLIC_DOCS_PATH || 'docs').replace(/\/+$/,'');
+    const DOCS_BASE = (import.meta.env.VITE_PUBLIC_DOCS_PATH || 'docs').replace(/^\/?(?:public|public_html)\/?/i,'').replace(/\/+$/,'');
     const BASE = `/${DOCS_BASE}`;
     const [seleccion, setSeleccion] = useState(escuelas[0].id);
     const [docs, setDocs] = useState([]); // [{ key, title, url }]
@@ -63,10 +63,22 @@ export default function PreciosPadre() {
 
             const exists = async (url) => {
                 try {
-                    const res = await fetch(url, { method: 'HEAD' });
-                    return res.ok;
-                } catch {
+                    const res = await fetch(url, { method: 'HEAD', cache: 'no-store' });
+                    if (res.ok) return true;
+                    // Fallback si el servidor no permite HEAD (405)
+                    if (res.status === 405) {
+                        const resGet = await fetch(url, { method: 'GET', headers: { Range: 'bytes=0-0' }, cache: 'no-store' });
+                        return resGet.ok;
+                    }
                     return false;
+                } catch {
+                    // Intento final con GET parcial
+                    try {
+                        const resGet = await fetch(url, { method: 'GET', headers: { Range: 'bytes=0-0' }, cache: 'no-store' });
+                        return resGet.ok;
+                    } catch {
+                        return false;
+                    }
                 }
             };
 
@@ -143,7 +155,7 @@ export default function PreciosPadre() {
                                     <a
                                         href={d.url}
                                         target="_blank"
-                                        rel="noopener"
+                                        rel="noopener noreferrer"
                                         className="text-sm font-semibold text-orange-400 hover:text-orange-700"
                                     >
                                         Abrir en nueva pestaña →
