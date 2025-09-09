@@ -1,11 +1,33 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, Link } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
 
 export default function Menu({ economicoUrl = null, generalUrl = null }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         menu_economico: null,
         menu_general: null,
     });
+
+    const [previewEconomico, setPreviewEconomico] = useState(null);
+    const [previewGeneral, setPreviewGeneral] = useState(null);
+
+    useEffect(() => {
+        if (data.menu_economico instanceof File) {
+            const url = URL.createObjectURL(data.menu_economico);
+            setPreviewEconomico(url);
+            return () => URL.revokeObjectURL(url);
+        }
+        setPreviewEconomico(null);
+    }, [data.menu_economico]);
+
+    useEffect(() => {
+        if (data.menu_general instanceof File) {
+            const url = URL.createObjectURL(data.menu_general);
+            setPreviewGeneral(url);
+            return () => URL.revokeObjectURL(url);
+        }
+        setPreviewGeneral(null);
+    }, [data.menu_general]);
 
     function submit(e) {
         e.preventDefault();
@@ -41,7 +63,13 @@ export default function Menu({ economicoUrl = null, generalUrl = null }) {
                                 {errors.menu_economico && (
                                     <p className="mt-1 text-xs text-orange-600">{errors.menu_economico}</p>
                                 )}
-                                {economicoUrl && (
+                                {/* Enlace: ver PDF seleccionado o actual */}
+                                {previewEconomico && (
+                                    <div className="mt-2 text-sm">
+                                        <a href={previewEconomico} target="_blank" rel="noreferrer" className="font-semibold text-orange-400 hover:text-orange-700">Ver PDF seleccionado →</a>
+                                    </div>
+                                )}
+                                {!previewEconomico && economicoUrl && (
                                     <p className="mt-2 text-sm">
                                         Actual: <a href={economicoUrl} target="_blank" className="text-orange-400 hover:text-orange-700" rel="noreferrer">Ver PDF</a>
                                     </p>
@@ -61,7 +89,13 @@ export default function Menu({ economicoUrl = null, generalUrl = null }) {
                                 {errors.menu_general && (
                                     <p className="mt-1 text-xs text-orange-600">{errors.menu_general}</p>
                                 )}
-                                {generalUrl && (
+                                {/* Enlace: ver PDF seleccionado o actual */}
+                                {previewGeneral && (
+                                    <div className="mt-2 text-sm">
+                                        <a href={previewGeneral} target="_blank" rel="noreferrer" className="font-semibold text-orange-400 hover:text-orange-700">Ver PDF seleccionado →</a>
+                                    </div>
+                                )}
+                                {!previewGeneral && generalUrl && (
                                     <p className="mt-2 text-sm">
                                         Actual: <a href={generalUrl} target="_blank" className="text-orange-400 hover:text-orange-700" rel="noreferrer">Ver PDF</a>
                                     </p>

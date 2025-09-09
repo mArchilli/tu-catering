@@ -226,7 +226,7 @@ export default function LevelsInstitutions() {
     return (
         <section id="alcance" className="bg-white">
             <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
-                <div className="mx-auto max-w-3xl text-center">
+                <div className="mx-auto max-w-3xl text-center" data-aos="fade-up" data-aos-delay="600">
                     <h2 className="text-3xl sm:text-4xl font-semibold text-gray-900">
                         Instituciones que confían en nosotros
                     </h2>
@@ -257,7 +257,7 @@ export default function LevelsInstitutions() {
                 </style>
 
                 {/* --- Sección REEMPLAZADA: Instituciones que confían en nosotros --- */}
-                <div className="mt-10">
+                <div className="mt-10" data-aos="fade-up" data-aos-delay="600">
                     <div className="rounded-2xl border-2 border-orange-300 bg-gradient-to-r from-orange-50 via-white to-orange-50 p-6 sm:p-8 shadow-md">
                         
                         <h3 className="hidden text-center text-2xl font-semibold text-orange-800">Instituciones</h3>
@@ -340,7 +340,7 @@ export default function LevelsInstitutions() {
                 {/* --- Nueva Sección: Eventos sociales y particulares --- */}
                 <div className="mt-12">
 
-                <div className="mx-auto max-w-3xl text-center">
+                <div className="mx-auto max-w-3xl text-center" data-aos="fade-up" data-aos-delay="600">
                     <h2 className="text-3xl sm:text-4xl font-semibold text-gray-900">
                         También llevamos nuestra experiencia a tus eventos
                     </h2>
@@ -349,7 +349,7 @@ export default function LevelsInstitutions() {
                     </p>
                 </div>
                     
-                        <div className="md:flex md:items-center md:justify-between md:gap-6 mt-10">
+                        <div className="md:flex md:items-center md:justify-between md:gap-6 mt-10" data-aos="fade-up" data-aos-delay="600">
 
                             {/* Carrusel nuevo */}
                             <div className="mt-6 md:mt-0 md:flex-1 ">
@@ -477,16 +477,6 @@ export default function LevelsInstitutions() {
                                 </div>
                             </div>
 
-                            {/* Botón mobile debajo */}
-                            {/* <div className="flex md:hidden mt-6 gap-3 w-full">
-                                <a
-                                    href="#contacto"
-                                    onClick={scrollToContact}
-                                    className="inline-flex items-center justify-center rounded-full bg-orange-600 px-5 py-2 text-sm font-semibold text-white shadow hover:bg-orange-700 transition w-full"
-                                >
-                                    Solicitar presupuesto
-                                </a>
-                            </div> */}
                         </div>
                     
                 </div>

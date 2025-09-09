@@ -26,6 +26,7 @@
         "vite": "^7.0.4"
     },
     "dependencies": {
+        "aos": "^2.3.4",
         "lucide-react": "^0.263.0"
     }
 }

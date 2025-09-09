@@ -32,7 +32,7 @@ export default function DashboardPadre() {
                         <div className="p-6 text-white sm:p-8">
                             <h3 className="text-lg font-semibold">¡Bienvenido!</h3>
                             <p className="mt-1 text-sm text-orange-50">
-                                Gestioná tus alumnos y mantené actualizada su información.
+                                Gestioná tus hijos y mantené actualizada su información.
                             </p>
                             
                         </div>

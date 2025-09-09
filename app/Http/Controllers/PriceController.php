@@ -32,7 +32,12 @@ class PriceController extends Controller
             if ($publicPdfPath !== '') {
                 $baseFs = Str::startsWith($publicPdfPath, ['/','\\']) ? $publicPdfPath : base_path($publicPdfPath);
                 $fsPath = rtrim($baseFs, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'precios' . DIRECTORY_SEPARATOR . "{$key}.pdf";
-                $existing[$key] = file_exists($fsPath) ? ($publicPdfUrl !== '' ? rtrim($publicPdfUrl, '/') . "/precios/{$key}.pdf" : null) : null;
+                if (file_exists($fsPath)) {
+                    $existing[$key] = $publicPdfUrl !== '' ? rtrim($publicPdfUrl, '/') . "/precios/{$key}.pdf" : null;
+                } else {
+                    // Fallback al disco 'public' si allí existe
+                    $existing[$key] = Storage::disk('public')->exists($path) ? Storage::url($path) : null;
+                }
             } else {
                 $existing[$key] = Storage::disk('public')->exists($path) ? Storage::url($path) : null;
             }

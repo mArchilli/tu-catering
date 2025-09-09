@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, Link, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Price(props) {
     // El backend envía 'existing' y 'serviceTypePrices'.
@@ -53,48 +53,69 @@ export default function Price(props) {
         return null;
     };
 
-    const PdfField = ({ id, label, value, onChange, error, currentUrl }) => (
-        <div className="mb-6">
-            <label htmlFor={id} className="block text-sm font-medium text-gray-700">
-                {label} (PDF)
-            </label>
+    const PdfField = ({ id, label, value, onChange, error, currentUrl }) => {
+        const [previewUrl, setPreviewUrl] = useState(null);
 
-            <div className="mt-2 flex items-center gap-3">
-                {/* input oculto activado por el label-actuador compacto */}
-                <input
-                    id={id}
-                    name={id}
-                    type="file"
-                    accept="application/pdf"
-                    className="sr-only"
-                    onClick={(e) => { e.target.value = null; }}
-                    onChange={(e) => onChange(e.target.files && e.target.files[0] ? e.target.files[0] : null)}
-                    aria-hidden="true"
-                />
-                <label
-                    htmlFor={id}
-                    className="inline-flex items-center rounded-md bg-orange-400 px-3 py-1.5 text-sm font-semibold text-white hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-300 transition-colors duration-150 cursor-pointer"
-                >
-                    {/* Ícono pequeño */}
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m0 0l4-4m-4 4-4-4M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    </svg>
-                    Subir
+        useEffect(() => {
+            if (value instanceof File) {
+                const url = URL.createObjectURL(value);
+                setPreviewUrl(url);
+                return () => URL.revokeObjectURL(url);
+            }
+            setPreviewUrl(null);
+        }, [value]);
+
+        return (
+            <div className="mb-6">
+                <label htmlFor={id} className="block text-sm font-medium text-gray-700">
+                    {label} (PDF)
                 </label>
 
-                <div className="text-xs text-gray-500 truncate">
-                    {value ? `${value.name}` : 'Ningún archivo seleccionado'}
-                </div>
-            </div>
+                <div className="mt-2 flex items-center gap-3">
+                    {/* input oculto activado por el label-actuador compacto */}
+                    <input
+                        id={id}
+                        name={id}
+                        type="file"
+                        accept="application/pdf"
+                        className="sr-only"
+                        onClick={(e) => { e.target.value = null; }}
+                        onChange={(e) => onChange(e.target.files && e.target.files[0] ? e.target.files[0] : null)}
+                        aria-hidden="true"
+                    />
+                    <label
+                        htmlFor={id}
+                        className="inline-flex items-center rounded-md bg-orange-400 px-3 py-1.5 text-sm font-semibold text-white hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-300 transition-colors duration-150 cursor-pointer"
+                    >
+                        {/* Ícono pequeño */}
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m0 0l4-4m-4 4-4-4M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        </svg>
+                        Subir
+                    </label>
 
-            {currentUrl && (
-                <p className="mt-2 text-sm">
-                    Actual: <a href={currentUrl} target="_blank" className="text-orange-400 hover:text-orange-700" rel="noreferrer">Ver PDF</a>
-                </p>
-            )}
-            {error && <p className="mt-1 text-xs text-orange-600">{error}</p>}
-        </div>
-    );
+                    <div className="text-xs text-gray-500 truncate">
+                        {value ? `${value.name}` : 'Ningún archivo seleccionado'}
+                    </div>
+                </div>
+
+                {/* Enlace para ver el archivo seleccionado (sin iframe) */}
+                {previewUrl && (
+                    <div className="mt-2 text-sm">
+                        <a href={previewUrl} target="_blank" rel="noreferrer" className="font-semibold text-orange-400 hover:text-orange-700">Ver PDF seleccionado →</a>
+                    </div>
+                )}
+
+                {/* Enlace al archivo actual si no hay selección */}
+                {!previewUrl && currentUrl && (
+                    <p className="mt-2 text-sm">
+                        Actual: <a href={currentUrl} target="_blank" className="text-orange-400 hover:text-orange-700" rel="noreferrer">Ver PDF</a>
+                    </p>
+                )}
+                {error && <p className="mt-1 text-xs text-orange-600">{error}</p>}
+            </div>
+        );
+    };
 
     return (
         <AuthenticatedLayout >

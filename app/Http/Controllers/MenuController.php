@@ -18,7 +18,7 @@ class MenuController extends Controller
     $publicPdfPath = trim((string) env('PUBLIC_PDF_BASE', ''));
         $publicPdfUrl = trim((string) env('PUBLIC_PDF_URL', ''));
 
-        if ($publicPdfPath !== '') {
+    if ($publicPdfPath !== '') {
             // comprobar existencia en filesystem alternativo
             $baseFs = Str::startsWith($publicPdfPath, ['/','\\']) ? $publicPdfPath : base_path($publicPdfPath);
             $economicoFs = rtrim($baseFs, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'menus' . DIRECTORY_SEPARATOR . 'menu_economico.pdf';
@@ -33,7 +33,14 @@ class MenuController extends Controller
                 $generalUrl = $publicPdfUrl !== '' ? rtrim($publicPdfUrl, '/') . '/menus/menu_general.pdf' : null;
             }
 
-            // Fallback: si PUBLIC_PDF_URL no está definido pero los archivos existen en la ruta, devolver null
+            // Fallbacks: si no hay PUBLIC_PDF_URL o el archivo no existe en base alternativa,
+            // intentar servir desde el disco 'public' estándar si estuviera disponible.
+            if ($economicoUrl === null) {
+                $economicoUrl = Storage::disk('public')->exists($economicoPath) ? Storage::url($economicoPath) : null;
+            }
+            if ($generalUrl === null) {
+                $generalUrl = Storage::disk('public')->exists($generalPath) ? Storage::url($generalPath) : null;
+            }
             return [
                 'economicoUrl' => $economicoUrl,
                 'generalUrl' => $generalUrl,

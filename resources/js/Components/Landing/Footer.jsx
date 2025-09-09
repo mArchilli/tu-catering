@@ -3,7 +3,7 @@ export default function Footer() {
 
     return (
         <footer className="border-t border-orange-100 bg-orange-50/50">
-            <div className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
+            <div className="mx-auto max-w-7xl px-6 py-12 lg:px-8" data-aos="fade-up" data-aos-delay="600">
                 {/* Top: grid content */}
                 <div className="grid grid-cols-1 gap-10 sm:gap-12 md:grid-cols-2 lg:grid-cols-3">
                     {/* Brand */}

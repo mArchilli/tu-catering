@@ -19,9 +19,9 @@ export default function Hero() {
     })();
 
     return (
-        <header className="relative isolate overflow-hidden bg-gradient-to-b from-orange-500 via-orange-500/80 to-white text-white">
+        <header className="relative isolate overflow-hidden bg-gradient-to-b from-orange-500 via-orange-500/80 to-white text-white" >
             {/* Barra superior con logo y acciones */}
-            <div className="absolute inset-x-0 top-0 z-10">
+            <div className="absolute inset-x-0 top-0 z-10" data-aos="fade-up" data-aos-delay="600">
                 <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8 backdrop-blur-sm">
                     {/* Logo de la marca en blanco mediante filtro (usa tu archivo en /public) */}
                     <Link href="/" className="inline-flex items-center gap-3 text-white">
@@ -63,7 +63,7 @@ export default function Hero() {
             <div className="pointer-events-none absolute -top-12 -left-10 h-72 w-72 rounded-full bg-white/10 blur-3xl"></div>
             <div className="pointer-events-none absolute top-20 -right-10 h-80 w-80 rounded-full bg-orange-300/20 blur-3xl"></div>
 
-            <div className="relative mx-auto max-w-7xl px-6 pt-40 pb-40 sm:pt-50 sm:pb-50 lg:px-8">
+            <div className="relative mx-auto max-w-7xl px-6 pt-40 pb-40 sm:pt-50 sm:pb-50 lg:px-8" data-aos="fade-up" data-aos-delay="600">
                 <div className="grid lg:grid-cols-2 items-center gap-10 mx-auto">
                     <div className="text-center lg:text-left">
                         {/* Badge superior con el servicio */}
