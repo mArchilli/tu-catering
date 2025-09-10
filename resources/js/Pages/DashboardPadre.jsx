@@ -38,6 +38,24 @@ export default function DashboardPadre() {
                         </div>
                     </div>
 
+                    {/* Sección de ayuda */}
+                    <div className="mt-4 sm:mt-6">
+                        <div className="rounded-xl bg-white border border-orange-100/60 p-4 sm:p-5 text-center">
+                            <p className="text-sm text-gray-600">
+                                ¿Estás perdido? Hace click en
+                                {' '}
+                                <a
+                                    href="/docs/tutorial.pdf"
+                                    download
+                                    className="font-semibold text-orange-500 hover:text-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500/30 rounded"
+                                >
+                                    Tutorial
+                                </a>
+                                {' '}para bajar el PDF con las instrucciones.
+                            </p>
+                        </div>
+                    </div>
+
                     {/* Accesos rápidos */}
                     <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
                         { /* Mis alumnos - aplicado cardClasses */ }
