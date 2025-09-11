@@ -1,7 +1,7 @@
 export default function About() {
     return (
         <section id="about" className="bg-white">
-            <div className="mx-auto max-w-7xl px-6 py-5 sm:py-12" data-aos="fade-up" data-aos-delay="600">
+            <div className="mx-auto max-w-7xl px-6 py-5 sm:py-12" data-aos="fade-up" data-aos-delay="400">
                 <div className="grid items-center gap-12 lg:grid-cols-2">
                     {/* Izquierda: Imagen dentro de círculo blanco */}
                     <div className="hidden lg:flex justify-center order-first lg:order-none">

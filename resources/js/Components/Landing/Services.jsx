@@ -108,7 +108,7 @@ export default function Services() {
                 `}
             </style>
 
-            <div className="relative z-20 mx-auto max-w-7xl px-6 py-20" data-aos="fade-up" data-aos-delay="600">
+            <div className="relative z-20 mx-auto max-w-7xl px-6 py-20" data-aos="fade-up" data-aos-delay="400">
                 <div className="max-w-7xl">
                     <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900 text-center lg:text-left">Nuestros servicios</h2>
                 </div>
@@ -156,7 +156,7 @@ export default function Services() {
                     </div>
 
                     {/* Derecha: selector tipo chips en lista sticky */}
-                    <div className="order-1 lg:order-2 lg:col-span-4 lg:sticky lg:top-24 self-stretch" data-aos="fade-left" data-aos-delay="600">
+                    <div className="order-1 lg:order-2 lg:col-span-4 lg:sticky lg:top-24 self-stretch" data-aos="fade-left" data-aos-delay="400">
                         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-1 h-full lg:h-full content-center
                             lg:flex lg:flex-col lg:justify-center lg:gap-6">
                             {services.map((s) => {

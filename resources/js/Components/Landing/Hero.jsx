@@ -63,7 +63,7 @@ export default function Hero() {
             <div className="pointer-events-none absolute -top-12 -left-10 h-72 w-72 rounded-full bg-white/10 blur-3xl"></div>
             <div className="pointer-events-none absolute top-20 -right-10 h-80 w-80 rounded-full bg-orange-300/20 blur-3xl"></div>
 
-            <div className="relative mx-auto max-w-7xl px-6 pt-40 pb-40 sm:pt-50 sm:pb-50 lg:px-8" data-aos="fade-up" data-aos-delay="600">
+            <div className="relative mx-auto max-w-7xl px-6 pt-40 pb-40 sm:pt-50 sm:pb-50 lg:px-8" data-aos="fade-up" data-aos-delay="400">
                 <div className="grid lg:grid-cols-2 items-center gap-10 mx-auto">
                     <div className="text-center lg:text-left">
                         {/* Badge superior con el servicio */}

@@ -61,7 +61,7 @@ export default function CTA() {
                         <div className="grid grid-cols-2 gap-4 lg:grid-cols-1 h-full lg:grid-rows-3">
                             {/* Teléfono */}
                             <div
-                                className="group relative overflow-hidden rounded-2xl border border-orange-100 bg-white p-6 shadow-sm lg:h-full transition-colors duration-200 hover:border-orange-200 hover:shadow-md" data-aos="fade-right" data-aos-delay="600"
+                                className="group relative overflow-hidden rounded-2xl border border-orange-100 bg-white p-6 shadow-sm lg:h-full transition-colors duration-200 hover:border-orange-200 hover:shadow-md" data-aos="fade-right" data-aos-delay="400"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 text-orange-600">
                                     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.12.86.31 1.7.57 2.5a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.58-1.09a2 2 0 0 1 2.11-.45c.8.26 1.64.45 2.5.57A2 2 0 0 1 22 16.92z" />
@@ -71,7 +71,7 @@ export default function CTA() {
                             </div>
                             {/* Email */}
                             <div
-                                className="group relative overflow-hidden rounded-2xl border border-orange-100 bg-white p-6 shadow-sm lg:h-full transition-colors duration-200 hover:border-orange-200 hover:shadow-md" data-aos="fade-right" data-aos-delay="600"
+                                className="group relative overflow-hidden rounded-2xl border border-orange-100 bg-white p-6 shadow-sm lg:h-full transition-colors duration-200 hover:border-orange-200 hover:shadow-md" data-aos="fade-right" data-aos-delay="400"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 text-orange-600">
                                     <path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" />
@@ -82,7 +82,7 @@ export default function CTA() {
                             </div>
                             {/* Ubicación */}
                             <div
-                                className="group relative overflow-hidden rounded-2xl border border-orange-100 bg-white p-6 shadow-sm col-span-2 lg:col-span-1 lg:h-full transition-colors duration-200 hover:border-orange-200 hover:shadow-md" data-aos="fade-right" data-aos-delay="600"
+                                className="group relative overflow-hidden rounded-2xl border border-orange-100 bg-white p-6 shadow-sm col-span-2 lg:col-span-1 lg:h-full transition-colors duration-200 hover:border-orange-200 hover:shadow-md" data-aos="fade-right" data-aos-delay="400"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 text-orange-600">
                                     <path d="M21 10c0 7-9 12-9 12S3 17 3 10a9 9 0 1 1 18 0Z" />
@@ -95,7 +95,7 @@ export default function CTA() {
                     </div>
                     {/* Derecha (desktop) / Arriba (mobile): mismo formulario */}
                     <div
-                        className="group relative overflow-hidden order-1 lg:order-2 rounded-2xl h-full border border-orange-100 bg-white p-8 shadow-sm transition-colors duration-200 hover:border-orange-200 hover:shadow-md focus-within:border-orange-200 focus-within:shadow-md" data-aos="fade-left" data-aos-delay="600"
+                        className="group relative overflow-hidden order-1 lg:order-2 rounded-2xl h-full border border-orange-100 bg-white p-8 shadow-sm transition-colors duration-200 hover:border-orange-200 hover:shadow-md focus-within:border-orange-200 focus-within:shadow-md" data-aos="fade-left" data-aos-delay="400"
                     >
                         <h3 className="text-2xl sm:text-3xl font-semibold text-gray-900 text-center lg:text-left">Contactanos</h3>
                         <p className="mt-1 text-sm text-gray-600">Dejanos tu consulta y te respondemos a la brevedad.</p>

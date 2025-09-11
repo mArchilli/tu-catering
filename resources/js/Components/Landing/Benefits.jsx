@@ -113,7 +113,7 @@ export default function Benefits() {
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white to-transparent z-10"></div>
 
             <div className="relative z-20 mx-auto max-w-7xl px-6 py-16 lg:px-8">
-                <div className="mx-auto max-w-7xl text-center lg:text-left" data-aos="fade-up" data-aos-delay="600">
+                <div className="mx-auto max-w-7xl text-center lg:text-left" data-aos="fade-up" data-aos-delay="400">
                     <h2 className="text-3xl sm:text-4xl font-semibold text-gray-900">¿Por qué elegirnos?</h2>
                 </div>
 
@@ -172,9 +172,9 @@ export default function Benefits() {
                 </div>
 
                 {/* Vista desktop: 2 columnas */}
-                <div className="mt-12 hidden lg:grid lg:grid-cols-2 gap-6" data-aos="fade-up" data-aos-delay="600">
+                <div className="mt-12 hidden lg:grid lg:grid-cols-2 gap-6" data-aos="fade-up" data-aos-delay="400">
                     {benefits.map((b) => (
-                        <div key={b.title} className="rounded-2xl p-[1.5px] bg-gradient-to-r from-orange-500 to-amber-400 shadow-sm transition-transform hover:scale-[1.02]" data-aos="fade-up" data-aos-delay="600">
+                        <div key={b.title} className="rounded-2xl p-[1.5px] bg-gradient-to-r from-orange-500 to-amber-400 shadow-sm transition-transform hover:scale-[1.02]" data-aos="fade-up" data-aos-delay="400">
                             <div className="rounded-2xl bg-white p-6">
                                 <div className="mb-3 inline-flex rounded-xl bg-gradient-to-br from-orange-500 to-amber-400 p-2 text-white shadow">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
