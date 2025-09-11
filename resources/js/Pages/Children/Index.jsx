@@ -1,5 +1,5 @@
 import ParentLayout from '@/Layouts/ParentLayout';
-import { Link, usePage } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 
 export default function ChildrenIndex({ children: items = [] }) {
     const { auth } = usePage().props;
@@ -7,7 +7,7 @@ export default function ChildrenIndex({ children: items = [] }) {
     return (
         <ParentLayout    
         >
-            
+            <Head title="Hijos" />
             <div className="mx-auto max-w-7xl p-6">
                 <div className="overflow-hidden rounded-2xl bg-gradient-to-tr from-orange-400 to-orange-400 shadow-sm my-6">
                         <div className="p-6 text-white sm:p-8">

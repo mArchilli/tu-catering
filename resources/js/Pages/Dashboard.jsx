@@ -31,7 +31,7 @@ export default function Dashboard({ viandaToday = [], comedorEconomicoToday = []
 
     return (
         <AuthenticatedLayout>
-            <Head title="Dashboard" />
+            <Head title="Panel Administrador" />
             {/* Contenedor: fondo más sutil y menos padding vertical */}
             <div className="bg-gradient-to-b from-orange-50 to-white py-10">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

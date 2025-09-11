@@ -21,7 +21,7 @@ export default function Hero() {
     return (
         <header className="relative isolate overflow-hidden bg-gradient-to-b from-orange-500 via-orange-500/80 to-white text-white" >
             {/* Barra superior con logo y acciones */}
-            <div className="absolute inset-x-0 top-0 z-10" data-aos="fade-up" data-aos-delay="600">
+            <div className="absolute inset-x-0 top-0 z-10" data-aos="fade-up" data-aos-delay="400">
                 <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8 backdrop-blur-sm">
                     {/* Logo de la marca en blanco mediante filtro (usa tu archivo en /public) */}
                     <Link href="/" className="inline-flex items-center gap-3 text-white">

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+const API_BASE = (import.meta.env.VITE_API_BASE || '').replace(/\/$/, '');
+
 export default function CTA() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -7,21 +9,46 @@ export default function CTA() {
     const [touched, setTouched] = useState({ name: false, email: false, message: false });
     const [submitted, setSubmitted] = useState(false);
 
+    // Nuevos estados
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+
     const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     const nameValid = name.trim().length >= 2;
     const messageValid = message.trim().length >= 5;
     const formValid = emailValid && nameValid && messageValid;
 
-    const onSubmit = (e) => {
+    const onSubmit = async (e) => {
         e.preventDefault();
         setTouched({ name: true, email: true, message: true });
         if (!formValid) return;
-        // Acá podrías integrar con tu backend o un servicio de email.
-        setSubmitted(true);
-        setTimeout(() => setSubmitted(false), 3000);
-        setName('');
-        setEmail('');
-        setMessage('');
+        setLoading(true);
+        setError('');
+        try {
+            const res = await fetch(`${API_BASE}/api/contact`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ name, email, message })
+            });
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                throw new Error(data.message || 'Error al enviar. Intentalo nuevamente.');
+            }
+            setSubmitted(true);
+            setTimeout(() => setSubmitted(false), 3000);
+            setName('');
+            setEmail('');
+            setMessage('');
+            setTouched({ name: false, email: false, message: false });
+        } catch (err) {
+            setError(err.message || 'Ocurrió un error.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -40,7 +67,7 @@ export default function CTA() {
                                     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.12.86.31 1.7.57 2.5a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.58-1.09a2 2 0 0 1 2.11-.45c.8.26 1.64.45 2.5.57A2 2 0 0 1 22 16.92z" />
                                 </svg>
                                 <p className="mt-2 text-lg font-semibold text-gray-900">Teléfono</p>
-                                <p className="mt-1 text-sm sm:text-lg text-gray-700">+54 11 1234-5678</p>
+                                <p className="mt-1 text-sm sm:text-lg text-gray-700">+54 11 7006-2628</p>
                             </div>
                             {/* Email */}
                             <div
@@ -51,7 +78,7 @@ export default function CTA() {
                                     <path d="m22 6-10 7L2 6" />
                                 </svg>
                                 <p className="mt-2 text-lg font-semibold text-gray-900">Email</p>
-                                <p className="mt-1 text-sm sm:text-lg text-gray-700">info@tucatering.com</p>
+                                <p className="mt-1 text-sm sm:text-lg text-gray-700">info@tucatering.com.ar</p>
                             </div>
                             {/* Ubicación */}
                             <div
@@ -126,11 +153,14 @@ export default function CTA() {
                             </div>
                             <button
                                 type="submit"
-                                disabled={!formValid}
-                                className={`inline-flex w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold shadow-sm transition ${formValid ? 'bg-orange-600 text-white hover:bg-orange-500' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
+                                disabled={!formValid || loading}
+                                className={`inline-flex w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold shadow-sm transition ${formValid && !loading ? 'bg-orange-600 text-white hover:bg-orange-500' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
                             >
-                                Enviar
+                                {loading ? 'Enviando...' : 'Enviar'}
                             </button>
+                            {error && (
+                                <p className="text-center text-sm text-red-600">{error}</p>
+                            )}
                             {submitted && (
                                 <p className="text-center text-sm text-green-600">¡Gracias! Recibimos tu mensaje.</p>
                             )}

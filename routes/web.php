@@ -163,5 +163,8 @@ require __DIR__.'/auth.php';
 
 // Fallback 404 para rutas no existentes (después de todas las definiciones anteriores)
 Route::fallback(function () {
+    if (request()->is('api/*')) {
+        return response()->json(['message' => 'Not Found'], 404);
+    }
     return Inertia::render('Errors/NotFound')->toResponse(request())->setStatusCode(404);
 });

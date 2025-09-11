@@ -17,49 +17,7 @@ export default function Footer() {
                             frescos, servicio atento y experiencias memorables.
                         </p>
 
-                        <div className="mt-5 flex items-center gap-3">
-                            {/* Instagram icon simple */}
-                            <a
-                                href="https://instagram.com"
-                                target="_blank"
-                                rel="noreferrer"
-                                aria-label="Instagram"
-                                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-orange-200 text-orange-600 transition-colors hover:bg-orange-100/60 hover:text-orange-700"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
-                                    <rect x="3" y="3" width="18" height="18" rx="5" />
-                                    <circle cx="12" cy="12" r="4" />
-                                    <circle cx="17" cy="7" r="1.2" />
-                                </svg>
-                            </a>
-                            {/* WhatsApp icon simple */}
-                            <a
-                                href="https://wa.me/541112345678"
-                                target="_blank"
-                                rel="noreferrer"
-                                aria-label="WhatsApp"
-                                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-orange-200 text-orange-600 transition-colors hover:bg-orange-100/60 hover:text-orange-700"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
-                                    <path d="M12 22a9.9 9.9 0 0 1-4.24-.95L3 21l.98-4.67A9.95 9.95 0 1 1 12 22Z" />
-                                    <path d="M8.5 10.5c.3 1.8 2.2 3.6 4 4 .3.1.6 0 .8-.2l1.1-1.1c.2-.2.2-.5 0-.7l-1.1-1.1c-.2-.2-.5-.2-.7 0l-.5.5c-.3.3-.7.3-1 .1-.7-.4-1.3-1-1.7-1.7-.2-.3-.2-.7.1-1l.5-.5c.2-.2.2-.5 0-.7L9.7 6.9c-.2-.2-.5-.2-.7 0l-1.1 1.1c-.2.2-.3.5-.2.8Z" />
-                                </svg>
-                            </a>
-                            {/* Facebook as generic link icon */}
-                            <a
-                                href="https://facebook.com"
-                                target="_blank"
-                                rel="noreferrer"
-                                aria-label="Facebook"
-                                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-orange-200 text-orange-600 transition-colors hover:bg-orange-100/60 hover:text-orange-700"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
-                                    <path d="M15 3H9a6 6 0 0 0-6 6v6a6 6 0 0 0 6 6h6a6 6 0 0 0 6-6V9a6 6 0 0 0-6-6Z" />
-                                    <path d="M12 17v-6a2 2 0 0 1 2-2h2" />
-                                    <path d="M12 11h4" />
-                                </svg>
-                            </a>
-                        </div>
+                        
                     </div>
 
                     {/* Navegación */}
@@ -67,9 +25,9 @@ export default function Footer() {
                         <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-900">Navegación</h3>
                         <ul className="mt-4 space-y-3 text-sm text-gray-600">
                             <li><a href="#inicio" className="hover:text-gray-900">Inicio</a></li>
-                            <li><a href="#servicios" className="hover:text-gray-900">Servicios</a></li>
-                            <li><a href="#menu" className="hover:text-gray-900">Menú</a></li>
-                            <li><a href="#about" className="hover:text-gray-900">Sobre nosotros</a></li>
+                            <li><a href="#about" className="hover:text-gray-900">Nuestra esencia</a></li>
+                            <li><a href="#services" className="hover:text-gray-900">Servicios</a></li>
+                            <li><a href="#instituciones" className="hover:text-gray-900">Instituciones</a></li>
                             <li><a href="#contacto" className="hover:text-gray-900">Contacto</a></li>
                         </ul>
                     </div>
@@ -82,7 +40,7 @@ export default function Footer() {
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 h-5 w-5 text-orange-600">
                                     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.12.86.31 1.7.57 2.5a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.58-1.09a2 2 0 0 1 2.11-.45c.8.26 1.64.45 2.5.57A2 2 0 0 1 22 16.92z" />
                                 </svg>
-                                <a href="tel:+541112345678" className="hover:text-gray-900">+54 11 1234-5678</a>
+                                <a href="tel:+541112345678" className="hover:text-gray-900">+54 11 7006-2628</a>
                             </li>
                             <li className="flex items-start gap-3">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 h-5 w-5 text-orange-600">
@@ -98,13 +56,6 @@ export default function Footer() {
                                 </svg>
                                 <span>Buenos Aires, Argentina</span>
                             </li>
-                            <li className="flex items-start gap-3">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 h-5 w-5 text-orange-600">
-                                    <path d="M3 12h18" />
-                                    <path d="M12 3v18" />
-                                </svg>
-                                <span>Lun a Vie: 9:00 - 18:00</span>
-                            </li>
                         </ul>
                     </div>
                 </div>
@@ -114,9 +65,7 @@ export default function Footer() {
                     <div className="mx-auto flex flex-col items-center justify-between gap-3 text-sm text-gray-600 sm:flex-row">
                         <p>© {year} Tu Catering. Todos los derechos reservados.</p>
                         <div className="flex items-center gap-4">
-                            <a href="#privacidad" className="hover:text-gray-900">Privacidad</a>
-                            <span className="text-gray-300">|</span>
-                            <a href="#terminos" className="hover:text-gray-900">Términos</a>
+                            <p>Desarrollado por <a href="https://archillimatias.dev" className="hover:text-orange-300 text-orange-500" target="_blank">Archilli Matias</a> y Leon Comolli.</p>
                         </div>
                     </div>
                 </div>

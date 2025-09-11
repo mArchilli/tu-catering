@@ -24,7 +24,7 @@ export default function DashboardPadre() {
     return (
         <ParentLayout
         >
-            <Head title="Menu" />
+            <Head title="Inicio" />
             <div className="bg-orange-50 py-12">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     {/* Banner de bienvenida */}

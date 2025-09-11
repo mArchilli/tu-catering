@@ -224,7 +224,7 @@ export default function LevelsInstitutions() {
     }, [institutions.length]);
 
     return (
-        <section id="alcance" className="bg-white">
+        <section id='instituciones' ref={instRef} className="bg-white">
             <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
                 <div className="mx-auto max-w-3xl text-center" data-aos="fade-up" data-aos-delay="600">
                     <h2 className="text-3xl sm:text-4xl font-semibold text-gray-900">
@@ -257,7 +257,7 @@ export default function LevelsInstitutions() {
                 </style>
 
                 {/* --- Sección REEMPLAZADA: Instituciones que confían en nosotros --- */}
-                <div className="mt-10" data-aos="fade-up" data-aos-delay="600">
+                <div className="mt-10" data-aos="fade-up" data-aos-delay="600" >
                     <div className="rounded-2xl border-2 border-orange-300 bg-gradient-to-r from-orange-50 via-white to-orange-50 p-6 sm:p-8 shadow-md">
                         
                         <h3 className="hidden text-center text-2xl font-semibold text-orange-800">Instituciones</h3>
