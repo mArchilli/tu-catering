@@ -63,11 +63,11 @@ export default function LevelsInstitutions() {
         if (attempt < fallbacks.length) {
             const next = fallbacks[attempt];
             img.dataset.attempt = attempt + 1;
-            console.warn(`Evento: intento ${attempt + 1} para ${filename} -> ${next}`);
+            // console.warn(`Evento: intento ${attempt + 1} para ${filename} -> ${next}`);
             img.src = next;
             img.onerror = (ev) => handleEventImgError(ev, filename);
         } else {
-            console.error(`No se encontró la imagen de evento: ${filename}`);
+            // console.error(`No se encontró la imagen de evento: ${filename}`);
             img.src = eventPlaceholder;
             img.alt = 'Imagen no disponible';
         }
@@ -75,12 +75,12 @@ export default function LevelsInstitutions() {
 
     // (Opcional) fetch HEAD para diagnosticar rutas iniciales
     useEffect(() => {
-        eventImages.forEach((fn) => {
-            const url = `/images/events/${fn}`;
-            fetch(url, { method: 'HEAD' })
-                .then((res) => console.log(`HEAD ${url} → ${res.status}`))
-                .catch(() => console.warn(`HEAD fallo ${url}`));
-        });
+        // eventImages.forEach((fn) => {
+        //     const url = `/images/events/${fn}`;
+        //     fetch(url, { method: 'HEAD' })
+        //         .then((res) => console.log(`HEAD ${url} → ${res.status}`))
+        //         .catch(() => console.warn(`HEAD fallo ${url}`));
+        // });
     }, []);
 
     // Refs para scroll controlado
