@@ -65,7 +65,12 @@ export default function Footer() {
                     <div className="mx-auto flex flex-col items-center justify-between gap-3 text-sm text-gray-600 sm:flex-row">
                         <p>© {year} Tu Catering. Todos los derechos reservados.</p>
                         <div className="flex items-center gap-4">
-                            <p>Desarrollado por <a href="https://archillimatias.dev" className="hover:text-orange-300 text-orange-500" target="_blank">Archilli Matias</a> y Leon Comolli.</p>
+                            <p>
+                                Desarrollado por 
+                                <a href="https://archillimatias.dev" className="hover:text-orange-300 text-orange-500" target="_blank"> Archilli Matias</a>
+                                {' '}y{' '}
+                                <a href="https://comollileon.dev" className="hover:text-orange-300 text-orange-500" target="_blank">Leon Comolli</a>.
+                            </p>
                         </div>
                     </div>
                 </div>
