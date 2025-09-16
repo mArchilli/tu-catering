@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\User;
+use App\Models\DailyOrder; // <-- agregar
 
 class Children extends Model
 {
@@ -27,10 +28,15 @@ class Children extends Model
         'user_id' => 'integer',
     ];
 
-    
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    // <-- nueva relación
+    public function dailyOrders()
+    {
+        return $this->hasMany(DailyOrder::class, 'child_id');
     }
 
     public function getFullNameAttribute(): string

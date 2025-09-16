@@ -8,6 +8,8 @@ use App\Http\Controllers\OrderController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\WarningMailable;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -168,3 +170,34 @@ Route::fallback(function () {
     }
     return Inertia::render('Errors/NotFound')->toResponse(request())->setStatusCode(404);
 });
+
+// Aviso para padres con hijos sin días cargados   
+Route::get('warning', function () {
+    $monthStart = now()->startOfMonth()->toDateString();
+    $monthEnd = now()->endOfMonth()->toDateString();
+
+    $childrenNoDays = \App\Models\Children::query()
+        ->leftJoin('daily_orders', function ($join) use ($monthStart, $monthEnd) {
+            $join->on('children.id', '=', 'daily_orders.child_id')
+                 ->whereBetween('daily_orders.date', [$monthStart, $monthEnd]);
+        })
+        // Ajusta la FK si fuera distinta a children.user_id
+        ->join('users', 'users.id', '=', 'children.user_id')
+        ->selectRaw('children.id, children.name, children.lastname, users.email, COUNT(daily_orders.id) as total_days')
+        ->groupBy('children.id', 'children.name', 'children.lastname', 'users.email')
+        ->havingRaw('COUNT(daily_orders.id) = 0')
+        ->whereNotNull('users.email')
+        ->get();
+
+    $sent = 0;
+    foreach ($childrenNoDays as $child) {
+        Mail::to($child->email)->send(new WarningMailable($child));
+        $sent++;
+    }
+
+    return response()->json([
+        'month' => now()->format('Y-m'),
+        'children_without_days' => $childrenNoDays->count(),
+        'emails_sent' => $sent,
+    ]);
+})->name('warning');
