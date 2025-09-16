@@ -33,8 +33,8 @@ const paymentDataBySchool = (school) => {
             title: 'Billetera Virtual',
             entidad: 'UALA',
             titular: 'Aguilera Oscar Daniel',
-            cvu: '0000007900201132190502',
-            alias: 'aguileraod.uala',
+            cvu: '3840200500000024955852',
+            alias: 'grueso.valgan.salina',
           },
         ],
       };
@@ -49,11 +49,11 @@ const paymentDataBySchool = (school) => {
             alias: 'MARCA.PIANO.MARCHA',
           },
           {
-            title: 'Billetera Virtual',
-            entidad: 'Naranja X',
+            title: 'Transferencia',
+            entidad: 'Mercado Pago',
             titular: 'Aguilera Oscar Daniel',
-            cvu: '4530000800013868658887',
-            alias: 'OAGUILERA4764.NX.ARS',
+            alias: 'tu.catering',
+            cvu: '0000003100011260104456',
           },
         ],
       };
