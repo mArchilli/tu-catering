@@ -149,6 +149,7 @@ Route::middleware('auth')->group(function () {
     Route::get('children/{child}/orders', [OrderController::class, 'create'])->name('children.orders.create');
     Route::get('children/{child}/orders/summary', [OrderController::class, 'summaryExisting'])->name('children.orders.summary.get');
     Route::post('children/{child}/orders/summary', [OrderController::class, 'summary'])->name('children.orders.summary');
+    Route::post('children/{child}/payment/preview', [OrderController::class, 'paymentPreview'])->name('children.payment.preview');
     Route::post('children/{child}/orders', [OrderController::class, 'store'])->name('children.orders.store');
     Route::post('children/{child}/orders/clear', [OrderController::class, 'clearPending'])->name('children.orders.clear');
     Route::get('children/{child}/payment', [OrderController::class, 'payment'])->name('children.payment');

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 import { format } from 'date-fns';
@@ -6,20 +6,56 @@ import { es } from 'date-fns/locale';
 import Modal from '@/Components/Modal';
 import SecondaryButton from '@/Components/SecondaryButton';
 import DangerButton from '@/Components/DangerButton';
+import Spinner from '@/Components/Spinner';
+import Toast from '@/Components/Toast';
 
 // Utilidad para formatear ARS desde centavos
 const money = (cents) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(cents / 100);
 
-export default function OrderCalendar({ serviceTypes = [], initialSelections = {}, year, month, onSubmit, onClearAll }) {
+export default function OrderCalendar({ serviceTypes = [], initialSelections = {}, year, month, onSubmit, onClearAll, childId }) {
   // selectedService: id del tipo actual a asignar
   const [selectedService, setSelectedService] = useState(null);
   // selections: mapa 'yyyy-MM-dd' => service_type_id
   const [selections, setSelections] = useState(initialSelections);
   // Modal: confirmar vaciar todo
   const [confirmingClear, setConfirmingClear] = useState(false);
+  const [submittingConfirm, setSubmittingConfirm] = useState(false);
+  const [submittingClear, setSubmittingClear] = useState(false);
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
   const priceById = useMemo(() => Object.fromEntries(serviceTypes.map(s => [s.id, s.price_cents])), [serviceTypes]);
   const serviceById = useMemo(() => Object.fromEntries(serviceTypes.map(s => [s.id, s])), [serviceTypes]);
+
+  // Clave de almacenamiento local por niño y período
+  const storageKey = useMemo(() => {
+    const ym = `${String(year)}-${String(month).padStart(2,'0')}`;
+    return `orderSelections:${childId ?? 'unknown'}:${ym}`;
+  }, [childId, year, month]);
+
+  // Rehidratar desde localStorage si existe (tiene prioridad sobre initialSelections)
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (raw) {
+        const obj = JSON.parse(raw);
+        if (obj && typeof obj === 'object') {
+          setSelections(obj);
+        }
+      }
+    } catch (e) {
+      // no-op
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storageKey]);
+
+  // Guardar automáticamente cada cambio
+  useEffect(() => {
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(selections));
+    } catch (e) {
+      // no-op
+    }
+  }, [storageKey, selections]);
 
   const totalCents = useMemo(() => Object.values(selections).reduce((acc, sid) => acc + (priceById[sid] || 0), 0), [selections, priceById]);
   const totalDays = useMemo(() => Object.keys(selections).length, [selections]);
@@ -84,18 +120,22 @@ export default function OrderCalendar({ serviceTypes = [], initialSelections = {
     setConfirmingClear(true);
   };
 
-  const doClearAll = () => {
+  const doClearAll = async () => {
+    if (submittingClear) return;
+    setSubmittingClear(true);
     // Limpiar estado local
     setSelections({});
     setConfirmingClear(false);
-    // Notificar al consumidor para que borre en backend
     try {
+      try { localStorage.removeItem(storageKey); } catch (e) {}
       if (typeof onClearAll === 'function') {
-        onClearAll({ year, month });
+        await Promise.resolve(onClearAll({ year, month }));
       }
+      setToast({ show: true, message: 'Se vació el pedido del mes.', type: 'success' });
     } catch (e) {
-      // Silencio: la UI ya limpió. Podrías conectar un toast aquí si tenés uno disponible.
-      // console.error(e);
+      setToast({ show: true, message: 'No pudimos vaciar el pedido. Intentá nuevamente.', type: 'error' });
+    } finally {
+      setSubmittingClear(false);
     }
   };
 
@@ -110,6 +150,20 @@ export default function OrderCalendar({ serviceTypes = [], initialSelections = {
   );
 
   const monthDate = new Date(year, month - 1, 1);
+
+  const handleConfirmClick = async () => {
+    if (submittingConfirm) return;
+    setSubmittingConfirm(true);
+    try {
+      if (typeof onSubmit === 'function') {
+        await Promise.resolve(onSubmit(selections));
+      }
+    } catch (e) {
+      setToast({ show: true, message: 'No se pudo guardar la selección.', type: 'error' });
+    } finally {
+      setSubmittingConfirm(false);
+    }
+  };
 
   // Custom DayContent para pintar el servicio elegido
   const DayContent = (props) => {
@@ -267,10 +321,14 @@ export default function OrderCalendar({ serviceTypes = [], initialSelections = {
 
           <div className="mt-4">
             <button
-              onClick={() => onSubmit(selections)}
-              className="w-full rounded-md bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-500 text-center"
+              onClick={handleConfirmClick}
+              disabled={submittingConfirm}
+              className={`w-full rounded-md px-4 py-2 text-sm font-semibold text-white text-center ${submittingConfirm ? 'bg-orange-400 cursor-not-allowed' : 'bg-orange-600 hover:bg-orange-500'}`}
             >
-              Confirmar
+              <span className="inline-flex items-center gap-2 justify-center">
+                {submittingConfirm && <Spinner />}
+                <span>Confirmar</span>
+              </span>
             </button>
           </div>
       </aside>
@@ -282,10 +340,16 @@ export default function OrderCalendar({ serviceTypes = [], initialSelections = {
           <p className="mt-2 text-sm text-gray-600">Se quitarán todas las selecciones de días y servicios asignados para este mes.</p>
           <div className="mt-6 flex justify-end gap-2">
             <SecondaryButton onClick={closeClearModal}>Cancelar</SecondaryButton>
-            <DangerButton onClick={doClearAll}>Vaciar todo</DangerButton>
+            <DangerButton onClick={doClearAll} disabled={submittingClear}>
+              <span className="inline-flex items-center gap-2 justify-center">
+                {submittingClear && <Spinner />}
+                <span>Vaciar todo</span>
+              </span>
+            </DangerButton>
           </div>
         </div>
       </Modal>
+      <Toast show={toast.show} message={toast.message} type={toast.type} onClose={() => setToast({ ...toast, show: false })} />
     </div>
   );
 }

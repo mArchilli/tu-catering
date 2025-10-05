@@ -1,6 +1,9 @@
 import ParentLayout from '@/Layouts/ParentLayout';
 import { Head, router } from '@inertiajs/react';
 import SecondaryButton from '@/Components/SecondaryButton';
+import Spinner from '@/Components/Spinner';
+import Toast from '@/Components/Toast';
+import { useState } from 'react';
 
 const money = (cents) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format((cents || 0) / 100);
 
@@ -62,7 +65,9 @@ const paymentDataBySchool = (school) => {
   }
 };
 
-export default function Payment({ child, childId, totalCents = 0, payment, month, year, totalsByService = [], daysCount = 0, surcharge = null, totalWithSurchargeCents = null, businessDayIndex = null }) {
+export default function Payment({ child, childId, totalCents = 0, payment, month, year, totalsByService = [], daysCount = 0, surcharge = null, totalWithSurchargeCents = null, businessDayIndex = null, summary = [] }) {
+  const [submitting, setSubmitting] = useState(false);
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
   const specific = paymentDataBySchool(child?.school);
   const { bank, cbu, alias, holder, cuil } = payment || {};
   const handleBack = () => {
@@ -79,7 +84,29 @@ export default function Payment({ child, childId, totalCents = 0, payment, month
     } catch (e) {
       // no-op
     }
-    router.post(route('children.payment.confirm', childId), { month, year });
+    const items = Array.isArray(summary) && summary.length > 0
+      ? summary.map(({ date, service_type_id }) => ({ date, service_type_id }))
+      : undefined;
+    const payload = { month, year };
+    if (items) payload.items = items;
+
+    setSubmitting(true);
+    router.post(route('children.payment.confirm', childId), payload, {
+      preserveScroll: true,
+      onSuccess: () => {
+        // Limpiar selecciones del mes en localStorage si existiera
+        try {
+          const ym = `${String(year)}-${String(month).padStart(2,'0')}`;
+          const key = `orderSelections:${childId}:${ym}`;
+          localStorage.removeItem(key);
+        } catch (e) {}
+        setToast({ show: true, message: 'Pedido enviado. Te contactaremos al confirmar el pago.', type: 'success' });
+      },
+      onError: () => {
+        setToast({ show: true, message: 'No pudimos enviar tu pedido. Intentá nuevamente.', type: 'error' });
+      },
+      onFinish: () => setSubmitting(false),
+    });
   };
 
   return (
@@ -190,12 +217,18 @@ export default function Payment({ child, childId, totalCents = 0, payment, month
           <button
             type="button"
             onClick={handleConfirmSent}
-            className="w-full rounded-md bg-green-500 px-4 py-2 text-sm font-semibold text-white hover:bg-green-500"
+            disabled={submitting}
+            className={`w-full rounded-md px-4 py-2 text-sm font-semibold text-white ${submitting ? 'bg-green-400 cursor-not-allowed' : 'bg-green-500 hover:bg-green-500'}`}
           >
-            Ya envié el comprobante
+            <span className="inline-flex items-center gap-2 justify-center">
+              {submitting && <Spinner />}
+              <span>Ya envié el comprobante</span>
+            </span>
           </button>
         </div>
         <SecondaryButton className="w-full sm:hidden sm:w-auto justify-center text-center" onClick={handleBack}>Volver</SecondaryButton>
+
+        <Toast show={toast.show} message={toast.message} type={toast.type} onClose={() => setToast({ ...toast, show: false })} />
       </div>
     </ParentLayout>
   );

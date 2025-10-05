@@ -6,30 +6,9 @@ const money = (cents) => new Intl.NumberFormat('es-AR', { style: 'currency', cur
 
 export default function OrderSummary({ child, summary = [], totalsByService = [], totalCents = 0, month, year, businessDayIndex = null }) {
   const handleConfirm = () => {
-    // Confirmación final: reusar payload a store
+    // Ir a pago SIN crear órdenes aún: mandamos items a un preview
     const items = summary.map(({ date, service_type_id }) => ({ date, service_type_id }));
-    // Intentar inferir mes/año del primer ítem del resumen
-    const firstDate = summary[0]?.date;
-    let query = '';
-    if (firstDate) {
-      const d = new Date(firstDate);
-      if (!isNaN(d)) {
-        const month = d.getMonth() + 1;
-        const year = d.getFullYear();
-        query = `?month=${month}&year=${year}`;
-      }
-    }
-
-  router.post(
-      route('children.orders.store', child.id),
-      { items },
-      {
-        preserveScroll: true,
-        onSuccess: () => {
-          router.visit(route('children.payment', child.id) + query);
-        },
-      },
-    );
+    router.post(route('children.payment.preview', child.id), { items }, { preserveScroll: true });
   };
 
   const handleBack = () => {

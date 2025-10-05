@@ -41,6 +41,7 @@ export default function OrderCalendarPage({ child, serviceTypes, existing, year,
           month={month}
           onSubmit={handleSubmit}
           onClearAll={handleClearAll}
+          childId={child.id}
         />
         <div>
           <SecondaryButton className="w-full md:hidden sm:w-auto justify-center text-center" onClick={() => router.visit(route('children.view', child.id))}>

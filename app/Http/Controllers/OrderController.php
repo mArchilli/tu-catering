@@ -161,6 +161,96 @@ class OrderController extends Controller
         ]);
     }
 
+    /**
+     * Muestra la página de pago como vista previa sin persistir daily_orders.
+     * Recibe los items seleccionados y calcula los totales.
+     */
+    public function paymentPreview(Request $request, Children $child)
+    {
+        $this->authorizeChild($child);
+
+        $validated = $request->validate([
+            'items' => ['required','array','min:1'],
+            'items.*.date' => ['required','date'],
+            'items.*.service_type_id' => ['required','exists:service_types,id'],
+        ]);
+
+        $items = collect($validated['items']);
+        $serviceTypes = ServiceType::select('id','name','price_cents')->get()->keyBy('id');
+
+        $summary = $items
+            ->map(function ($i) use ($serviceTypes) {
+                $s = $serviceTypes[$i['service_type_id']] ?? null;
+                return [
+                    'date' => $i['date'],
+                    'service_type_id' => $i['service_type_id'],
+                    'service' => $s?->name,
+                    'price_cents' => $s?->price_cents ?? 0,
+                ];
+            })
+            ->sortBy('date')
+            ->values();
+
+        $totalsByService = $summary->groupBy('service_type_id')->map(function ($rows) {
+            $service = $rows->first();
+            return [
+                'service_type_id' => $service['service_type_id'],
+                'service' => $service['service'],
+                'days' => $rows->count(),
+                'subtotal_cents' => $rows->sum('price_cents'),
+            ];
+        })->values();
+
+        $totalCents = $summary->sum('price_cents');
+
+        // Mes/año inferidos desde el primer ítem
+        $firstDate = $summary->first()['date'] ?? null;
+        $month = $firstDate ? (int) \Illuminate\Support\Carbon::parse($firstDate)->month : now()->month;
+        $year = $firstDate ? (int) \Illuminate\Support\Carbon::parse($firstDate)->year : now()->year;
+        $today = $this->resolveToday($request);
+        $businessDayIndex = \App\Support\ArBusinessDays::businessDayIndexInMonth($today, $month, $year);
+
+        // Recargo como en payment()
+        $surchargePercent = ArBusinessDays::surchargePercentForMonth($month, $year, $today);
+        $surchargeCents = ArBusinessDays::applySurchargeCents($totalCents, $surchargePercent);
+        $totalWithSurchargeCents = $totalCents + $surchargeCents;
+
+        // Datos de pago genéricos, igual que payment()
+        $payment = [
+            'bank' => 'Naranja X',
+            'cbu' => env('PAYMENT_CBU', ''),
+            'alias' => env('PAYMENT_ALIAS', ''),
+            'holder' => 'Oscar Daniel Aguilera',
+            'cuil' => '20-11321905-0',
+        ];
+
+        return Inertia::render('Children/Payment', [
+            'child' => [
+                'name' => $child->name,
+                'lastname' => $child->lastname,
+                'dni' => $child->dni,
+                'school' => $child->school,
+                'grado' => $child->grado,
+                'condition' => $child->condition,
+            ],
+            'childId' => $child->id,
+            'totalCents' => $totalCents,
+            'surcharge' => [
+                'percent' => $surchargePercent,
+                'cents' => $surchargeCents,
+                'label' => $surchargePercent > 0 ? ("Recargo por pago fuera de término ({$surchargePercent}% )") : null,
+            ],
+            'totalWithSurchargeCents' => $totalWithSurchargeCents,
+            'payment' => $payment,
+            'totalsByService' => $totalsByService,
+            'daysCount' => $summary->count(),
+            'summary' => $summary,
+            'year' => $year,
+            'month' => $month,
+            'businessDayIndex' => $businessDayIndex,
+        ]);
+    }
+
     // Permite acceder por GET para ver el resumen del mes a partir de órdenes guardadas
     public function summaryExisting(Request $request, Children $child)
     {
@@ -303,11 +393,31 @@ class OrderController extends Controller
     public function paymentConfirm(Request $request, Children $child)
     {
         $this->authorizeChild($child);
+        // Si llegan items, creamos aquí las daily_orders (no antes)
+        $items = collect($request->input('items', []));
+        if ($items->count() > 0) {
+            $validated = $request->validate([
+                'items' => ['required','array','min:1'],
+                'items.*.date' => ['required','date'],
+                'items.*.service_type_id' => ['required','exists:service_types,id'],
+            ]);
+            $items = collect($validated['items']);
+            $payload = $items->map(fn($i) => [
+                'child_id' => $child->id,
+                'service_type_id' => $i['service_type_id'],
+                'date' => $i['date'],
+                'status' => 'pending',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ])->all();
+            DailyOrder::upsert($payload, ['child_id','date'], ['service_type_id','status','updated_at']);
+        }
+
         // Determinar mes/año (por query o actual)
         $month = (int)($request->get('month', now()->month));
         $year = (int)($request->get('year', now()->year));
 
-        // Calcular total del período
+        // Calcular total del período desde lo que esté almacenado
         $start = now()->setDate($year, $month, 1)->startOfMonth()->toDateString();
         $end = now()->setDate($year, $month, 1)->endOfMonth()->toDateString();
         $orders = DailyOrder::where('child_id', $child->id)
