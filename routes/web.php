@@ -150,6 +150,7 @@ Route::middleware('auth')->group(function () {
     Route::get('children/{child}/orders/summary', [OrderController::class, 'summaryExisting'])->name('children.orders.summary.get');
     Route::post('children/{child}/orders/summary', [OrderController::class, 'summary'])->name('children.orders.summary');
     Route::post('children/{child}/orders', [OrderController::class, 'store'])->name('children.orders.store');
+    Route::post('children/{child}/orders/clear', [OrderController::class, 'clearPending'])->name('children.orders.clear');
     Route::get('children/{child}/payment', [OrderController::class, 'payment'])->name('children.payment');
     Route::post('children/{child}/payment/confirm', [OrderController::class, 'paymentConfirm'])->name('children.payment.confirm');
     // Admin: órdenes mensuales (protegidas por middleware de admin)

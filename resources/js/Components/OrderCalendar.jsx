@@ -10,7 +10,7 @@ import DangerButton from '@/Components/DangerButton';
 // Utilidad para formatear ARS desde centavos
 const money = (cents) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(cents / 100);
 
-export default function OrderCalendar({ serviceTypes = [], initialSelections = {}, year, month, onSubmit }) {
+export default function OrderCalendar({ serviceTypes = [], initialSelections = {}, year, month, onSubmit, onClearAll }) {
   // selectedService: id del tipo actual a asignar
   const [selectedService, setSelectedService] = useState(null);
   // selections: mapa 'yyyy-MM-dd' => service_type_id
@@ -85,8 +85,18 @@ export default function OrderCalendar({ serviceTypes = [], initialSelections = {
   };
 
   const doClearAll = () => {
+    // Limpiar estado local
     setSelections({});
     setConfirmingClear(false);
+    // Notificar al consumidor para que borre en backend
+    try {
+      if (typeof onClearAll === 'function') {
+        onClearAll({ year, month });
+      }
+    } catch (e) {
+      // Silencio: la UI ya limpió. Podrías conectar un toast aquí si tenés uno disponible.
+      // console.error(e);
+    }
   };
 
   const closeClearModal = () => setConfirmingClear(false);

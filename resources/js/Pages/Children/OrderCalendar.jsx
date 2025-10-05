@@ -11,6 +11,14 @@ export default function OrderCalendarPage({ child, serviceTypes, existing, year,
     router.post(route('children.orders.summary', child.id), { items }, { preserveScroll: true });
   };
 
+  const handleClearAll = ({ year: y, month: m }) => {
+    // Invocar endpoint para eliminar órdenes pendientes del mes
+    router.post(route('children.orders.clear', child.id), { year: y, month: m }, {
+      preserveScroll: true,
+      onSuccess: () => {},
+    });
+  };
+
   return (
     <ParentLayout
       header={<h2 className="text-xl font-semibold text-gray-800">Calendario de servicios - {child.name} {child.lastname}</h2>}
@@ -32,6 +40,7 @@ export default function OrderCalendarPage({ child, serviceTypes, existing, year,
           year={year}
           month={month}
           onSubmit={handleSubmit}
+          onClearAll={handleClearAll}
         />
         <div>
           <SecondaryButton className="w-full md:hidden sm:w-auto justify-center text-center" onClick={() => router.visit(route('children.view', child.id))}>

@@ -340,6 +340,33 @@ class OrderController extends Controller
     }
 
     /**
+     * Elimina todas las órdenes diarias en estado 'pending' para el niño y período indicado (mes/año).
+     */
+    public function clearPending(Request $request, Children $child)
+    {
+        $this->authorizeChild($child);
+
+        $validated = $request->validate([
+            'month' => ['required','integer','min:1','max:12'],
+            'year' => ['required','integer','min:2000'],
+        ]);
+
+        $start = Carbon::create($validated['year'], $validated['month'], 1)->startOfMonth()->toDateString();
+        $end = Carbon::create($validated['year'], $validated['month'], 1)->endOfMonth()->toDateString();
+
+        $deleted = DailyOrder::where('child_id', $child->id)
+            ->whereBetween('date', [$start, $end])
+            ->where('status', 'pending')
+            ->delete();
+
+        if ($request->wantsJson()) {
+            return response()->json(['ok' => true, 'deleted' => $deleted]);
+        }
+
+        return back()->with('success', "Pedidos pendientes eliminados: $deleted");
+    }
+
+    /**
      * Permite simular la fecha "de hoy" cuando config('app.debug') es true o ALLOW_AS_OF_OVERRIDE=true.
      * Usar query ?as_of=YYYY-MM-DD.
      */
