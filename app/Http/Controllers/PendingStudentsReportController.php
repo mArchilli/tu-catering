@@ -12,6 +12,17 @@ class PendingStudentsReportController extends Controller
         $monthStart = now()->startOfMonth()->toDateString();
         $monthEnd = now()->endOfMonth()->toDateString();
 
+        // Orden y categorías de grados
+        $gradesOrdered = [
+            'Maternal','Sala de 2','Sala de 3','Sala de 4','Sala de 5',
+            '1° Primaria','2° Primaria','3° Primaria','4° Primaria','5° Primaria','6° Primaria','7° Primaria',
+            '1° Secundaria','2° Secundaria','3° Secundaria','4° Secundaria','5° Secundaria','6° Secundaria','7° Secundaria',
+        ];
+        $gradeIndex = array_flip($gradesOrdered);
+        $gradesMJ = ['Maternal','Sala de 2','Sala de 3','Sala de 4','Sala de 5'];
+        $gradesPrim = ['1° Primaria','2° Primaria','3° Primaria','4° Primaria','5° Primaria','6° Primaria','7° Primaria'];
+        $gradesSec = ['1° Secundaria','2° Secundaria','3° Secundaria','4° Secundaria','5° Secundaria','6° Secundaria','7° Secundaria'];
+
         $rows = \App\Models\Children::query()
             ->leftJoin('daily_orders', function($join) use ($monthStart, $monthEnd) {
                 $join->on('children.id','=','daily_orders.child_id')
@@ -42,11 +53,21 @@ class PendingStudentsReportController extends Controller
                 ];
             })
             ->filter(fn($row) => in_array($row['status'], ['pending','none']))
-            ->groupBy('status');
+            ->groupBy('status')
+            ->map(function ($byStatus) {
+                // Dentro de cada estado, agrupar por escuela (institución)
+                return $byStatus->groupBy(function ($row) {
+                    return $row['school'] ?: 'Sin especificar';
+                })->sortKeys();
+            });
 
         $pdf = Pdf::loadView('reports.pending-students', [
             'dateLabel' => now()->format('d/m/Y'),
             'groups' => $rows,
+            'gradeIndex' => $gradeIndex,
+            'gradesMJ' => $gradesMJ,
+            'gradesPrim' => $gradesPrim,
+            'gradesSec' => $gradesSec,
         ])->setPaper('a4','portrait');
 
         $filename = 'alumnos-pendientes-'.now()->format('Ymd').'.pdf';

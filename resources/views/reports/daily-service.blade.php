@@ -27,6 +27,7 @@
                     <th>DNI</th>
                     <th>Grado</th>
                     <th>Condición</th>
+                    <th>Estado</th>
                 </tr>
             </thead>
             <tbody>
@@ -37,6 +38,7 @@
                         <td>{{ $st['dni'] }}</td>
                         <td>{{ $st['grado'] }}</td>
                         <td>{{ $st['condition'] }}</td>
+                        <td>{{ $st['status'] }}</td>
                     </tr>
                 @endforeach
             </tbody>

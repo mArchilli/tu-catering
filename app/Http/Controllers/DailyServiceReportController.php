@@ -37,7 +37,8 @@ class DailyServiceReportController extends Controller
                 'children.dni',
                 'children.school',
                 'children.grado',
-                'children.condition'
+                'children.condition',
+                'daily_orders.status'
             )
             ->orderBy('children.school')
             ->orderBy('children.lastname')
@@ -51,6 +52,7 @@ class DailyServiceReportController extends Controller
                         'dni' => $r->dni,
                         'grado' => $r->grado,
                         'condition' => $r->condition,
+                        'status' => $r->status,
                     ];
                 });
             });
