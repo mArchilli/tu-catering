@@ -27,6 +27,7 @@
     },
     "dependencies": {
         "aos": "^2.3.4",
-        "lucide-react": "^0.263.0"
+        "lucide-react": "^0.263.0",
+        "xlsx": "^0.18.5"
     }
 }

@@ -1,6 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 import { useMemo, useState, useEffect } from 'react';
+import * as XLSX from 'xlsx';
 
 export default function Dashboard({ viandaToday = [], comedorEconomicoToday = [], comedorPremiumToday = [], dateLabel = '', pendingStudents = [], pendingStudentsPagination = { page:1, per_page:10, total:0, last_page:1 }, pendingStudentsSchools = [], pendingStudentsFilters = { school: 'all' } }) {
     // Estados de filtro por escuela
@@ -81,6 +82,49 @@ export default function Dashboard({ viandaToday = [], comedorEconomicoToday = []
     const downloadPdf = (serviceKey) => {
         const url = route('admin.reports.daily-service', serviceKey) + '?date=' + (dateLabel.split('/').reverse().join('-')); // dd/mm/YYYY -> YYYY-mm-dd
         window.open(url, '_blank');
+    };
+
+    // Exportar a Excel (servicios del día)
+    const exportServiceExcel = (serviceKey, rows) => {
+        try {
+            const data = rows.map(r => ({
+                Alumno: r.full_name,
+                DNI: r.dni || '',
+                Escuela: r.school || '',
+                Grado: r.grado || '',
+                Observacion: r.condition || ''
+            }));
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Datos');
+            const ymd = dateLabel ? dateLabel.split('/').reverse().join('-') : '';
+            const filename = `${serviceKey}_${ymd || 'export'}.xlsx`;
+            XLSX.writeFile(wb, filename);
+        } catch (e) {
+            console.error('Error exportando Excel', e);
+            alert('No se pudo generar el Excel.');
+        }
+    };
+
+    // Exportar a Excel (alumnos pendientes)
+    const exportPendingExcel = () => {
+        try {
+            const data = pendingStudents.map(r => ({
+                Alumno: `${r.name} ${r.lastname}`,
+                DNI: r.dni || '',
+                Escuela: r.school || '',
+                Grado: r.grado || '',
+                Observacion: r.condition || '',
+                Estado: r.status === 'pending' ? 'Pendiente' : 'Sin días'
+            }));
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Pendientes');
+            XLSX.writeFile(wb, 'alumnos_pendientes.xlsx');
+        } catch (e) {
+            console.error('Error exportando Excel', e);
+            alert('No se pudo generar el Excel.');
+        }
     };
     const goToPendingPage = (p) => {
         const base = route('dashboard');
@@ -226,8 +270,9 @@ export default function Dashboard({ viandaToday = [], comedorEconomicoToday = []
                                                         {schoolsVianda.map(s => <option key={s} value={s}>{s}</option>)}
                                                     </select>
                                                 </div>
-                                                {/* Botón +PDF: indica acción de subir/añadir */}
+                                                {/* Botones PDF / Excel */}
                                                 <button onClick={()=>downloadPdf('vianda')} className="rounded-md bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-300 transition">+PDF</button>
+                                                <button onClick={()=>exportServiceExcel('vianda', viandaFiltered)} className="rounded-md bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300 transition">Excel</button>
                                             </div>
                                         </div>
                                         {/* Tabla: hacer scroll horizontal si es necesario y encabezado sticky */}
@@ -299,6 +344,7 @@ export default function Dashboard({ viandaToday = [], comedorEconomicoToday = []
                                                     </select>
                                                 </div>
                                                 <button onClick={()=>downloadPdf('economico')} className="rounded-md bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-300 transition">+PDF</button>
+                                                <button onClick={()=>exportServiceExcel('economico', ecoFiltered)} className="rounded-md bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300 transition">Excel</button>
                                             </div>
                                         </div>
                                         <div className="overflow-x-auto rounded-xl border border-orange-100 bg-white shadow-sm">
@@ -370,6 +416,7 @@ export default function Dashboard({ viandaToday = [], comedorEconomicoToday = []
                                                     </select>
                                                 </div>
                                                 <button onClick={()=>downloadPdf('premium')} className="rounded-md bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-300 transition">+PDF</button>
+                                                <button onClick={()=>exportServiceExcel('premium', premFiltered)} className="rounded-md bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300 transition">Excel</button>
                                             </div>
                                         </div>
                                         <div className="overflow-x-auto rounded-xl border border-orange-100 bg-white shadow-sm">
@@ -451,6 +498,7 @@ export default function Dashboard({ viandaToday = [], comedorEconomicoToday = []
                                             {pendingStudentsSchools.map(s => <option key={s} value={s}>{s}</option>)}
                                         </select>
                                         <button onClick={downloadPendingPdf} className="rounded-md bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-300 transition">+PDF</button>
+                                        <button onClick={exportPendingExcel} className="rounded-md bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300 transition">Excel</button>
                                     </div>
                                 </div>
                                 <div className="overflow-x-auto rounded-xl border border-orange-100 bg-white shadow-sm">
