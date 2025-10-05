@@ -21,9 +21,10 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    $today = today();
+    $dateParam = request()->get('date');
+    $targetDate = $dateParam ? \Carbon\Carbon::parse($dateParam) : today();
     $todayOrders = \App\Models\DailyOrder::query()
-        ->whereDate('date', $today)
+        ->whereDate('date', $targetDate)
         ->where('daily_orders.status', 'paid')
         ->join('service_types', 'daily_orders.service_type_id', '=', 'service_types.id')
         ->join('children', 'daily_orders.child_id', '=', 'children.id')
@@ -116,7 +117,7 @@ Route::get('/dashboard', function () {
         'viandaToday' => $viandaToday,
         'comedorEconomicoToday' => $comedorEconomicoToday,
         'comedorPremiumToday' => $comedorPremiumToday,
-        'dateLabel' => $today->format('d/m/Y'),
+        'dateLabel' => $targetDate->format('d/m/Y'),
         'pendingStudents' => $paged,
         'pendingStudentsPagination' => $pagination,
         'pendingStudentsSchools' => $schools,
