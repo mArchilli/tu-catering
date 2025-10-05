@@ -17,7 +17,7 @@ class ChildrenController extends Controller
             ->orderBy('name')
             ->get(['id','name','lastname','dni','school','grado','condition']);
 
-        // Calcular estado (pending|paid|null) y total desde daily_orders del mes actual
+    // Calcular estado (pending|paid|rejected|null) y total desde daily_orders del mes actual
         $start = now()->startOfMonth()->toDateString();
         $end = now()->endOfMonth()->toDateString();
         $ids = $children->pluck('id');
@@ -26,6 +26,7 @@ class ChildrenController extends Controller
             ->selectRaw('child_id, '
                 .'SUM(service_types.price_cents) as total_cents, '
                 .'SUM(CASE WHEN daily_orders.status = "paid" THEN 1 ELSE 0 END) as paid_days, '
+                .'SUM(CASE WHEN daily_orders.status = "rejected" THEN 1 ELSE 0 END) as rejected_days, '
                 .'COUNT(*) as total_days, '
                 .'MAX(daily_orders.date) as last_date')
             ->join('service_types','service_types.id','=','daily_orders.service_type_id')
@@ -44,7 +45,10 @@ class ChildrenController extends Controller
                     $c->payment_status = null; // expirado -> requiere nueva contratación
                     $c->payment_total_cents = 0;
                 } else {
-                    $status = ($agg->paid_days == $agg->total_days) ? 'paid' : 'pending';
+                    // Priorizar rechazado sobre pendiente/pagado
+                    $status = ($agg->rejected_days ?? 0) > 0
+                        ? 'rejected'
+                        : (($agg->paid_days == $agg->total_days) ? 'paid' : 'pending');
                     $c->payment_status = $status; // paid | pending
                     $c->payment_total_cents = (int) $agg->total_cents;
                 }
@@ -123,7 +127,8 @@ class ChildrenController extends Controller
 
         $totalDays = $dailyOrders->count();
         $paidDays = $dailyOrders->where('status','paid')->count();
-        $pendingDays = $totalDays - $paidDays;
+    $rejectedDays = $dailyOrders->where('status','rejected')->count();
+    $pendingDays = $totalDays - $paidDays - $rejectedDays;
         $totalCents = $dailyOrders->sum('price_cents');
 
         return Inertia::render('Children/View', [
@@ -133,6 +138,7 @@ class ChildrenController extends Controller
                 'total_days' => $totalDays,
                 'paid_days' => $paidDays,
                 'pending_days' => $pendingDays,
+                'rejected_days' => $rejectedDays,
                 'total_cents' => $totalCents,
             ],
             'month' => $month,

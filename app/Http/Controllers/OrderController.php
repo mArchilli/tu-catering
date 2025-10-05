@@ -500,8 +500,8 @@ class OrderController extends Controller
         // Nuevo listado: agrupar información desde daily_orders por alumno para un período (mes/año)
         $month = (int) $request->get('month', now()->month);
         $year = (int) $request->get('year', now()->year);
-        $statusParam = $request->get('status'); // all|pending|paid
-        $status = in_array($statusParam, ['pending','paid','all'], true) ? $statusParam : 'all';
+    $statusParam = $request->get('status'); // all|pending|paid|rejected
+    $status = in_array($statusParam, ['pending','paid','rejected','all'], true) ? $statusParam : 'all';
         $search = trim((string) $request->get('q', ''));
 
         $start = now()->setDate($year, $month, 1)->startOfMonth();
@@ -509,12 +509,19 @@ class OrderController extends Controller
 
         $rows = DailyOrder::query()
             ->selectRaw('children.id as child_id, children.name, children.lastname, children.dni, '
+                .'MAX(children.school) as school, MAX(children.grado) as grado, '
                 .'SUM(service_types.price_cents) as total_cents, '
                 .'GROUP_CONCAT(DISTINCT daily_orders.date ORDER BY daily_orders.date) as days, '
                 .'SUM(CASE WHEN daily_orders.status = "paid" THEN 1 ELSE 0 END) as paid_days, '
-                .'COUNT(*) as total_days')
+                .'COUNT(*) as total_days, '
+                .'MAX(monthly_orders.status) as monthly_status')
             ->join('children', 'children.id', '=', 'daily_orders.child_id')
             ->join('service_types', 'service_types.id', '=', 'daily_orders.service_type_id')
+            ->leftJoin('monthly_orders', function($join) use ($month, $year) {
+                $join->on('monthly_orders.child_id', '=', 'daily_orders.child_id')
+                     ->where('monthly_orders.month', '=', $month)
+                     ->where('monthly_orders.year', '=', $year);
+            })
             ->whereBetween('daily_orders.date', [$start->toDateString(), $end->toDateString()])
             ->when($search !== '', function ($q) use ($search) {
                 $q->where(function ($qq) use ($search) {
@@ -528,8 +535,30 @@ class OrderController extends Controller
             ->orderBy('children.name')
             ->get();
 
-        $aggregated = $rows->map(function ($r) use ($status) {
-            $computedStatus = ($r->paid_days == $r->total_days) ? 'paid' : 'pending';
+        // Cargar detalles día/servicio para los niños del período
+        $childIds = $rows->pluck('child_id')->unique()->values();
+        $details = DailyOrder::query()
+            ->select('daily_orders.child_id','daily_orders.date','service_types.name as service')
+            ->join('service_types', 'service_types.id', '=', 'daily_orders.service_type_id')
+            ->whereBetween('daily_orders.date', [$start->toDateString(), $end->toDateString()])
+            ->whereIn('daily_orders.child_id', $childIds)
+            ->orderBy('daily_orders.date')
+            ->get()
+            ->groupBy('child_id');
+
+        // Traer monthly_orders para detectar recargo aplicado
+        $monthlyByChild = \App\Models\MonthlyOrder::query()
+            ->whereIn('child_id', $childIds)
+            ->where('month', $month)
+            ->where('year', $year)
+            ->get()
+            ->keyBy('child_id');
+
+        $aggregated = $rows->map(function ($r) use ($status, $details, $monthlyByChild) {
+            $monthlyStatus = $r->monthly_status;
+            $computedStatus = $monthlyStatus === 'rejected'
+                ? 'rejected'
+                : (($r->paid_days == $r->total_days && $r->total_days > 0) ? 'paid' : 'pending');
             if ($status !== 'all' && $computedStatus !== $status) {
                 return null;
             }
@@ -537,14 +566,40 @@ class OrderController extends Controller
                 ->filter()
                 ->values()
                 ->all();
+            $byDay = collect($details->get($r->child_id, collect()))
+                ->map(fn($d) => [
+                    'date' => \Illuminate\Support\Carbon::parse($d->date)->toDateString(),
+                    'service' => (string) $d->service,
+                ])->values()->all();
+
+            // Calcular recargo aplicado si existe monthly_orders (comparar total mensual vs base)
+            $monthly = $monthlyByChild->get($r->child_id);
+            $baseTotal = (int) $r->total_cents;
+            $surcharge = [ 'applied' => false, 'percent' => 0, 'cents' => 0 ];
+            if ($monthly) {
+                $monthlyTotal = (int) $monthly->total_cents;
+                $diff = $monthlyTotal - $baseTotal;
+                if ($diff > 0 && $baseTotal > 0) {
+                    $pct = round(($diff / $baseTotal) * 100);
+                    // Aproximar a 5 o 10 si corresponde
+                    $mapped = 0;
+                    if ($pct >= 8) { $mapped = 10; }
+                    elseif ($pct >= 3) { $mapped = 5; }
+                    $surcharge = [ 'applied' => $mapped > 0, 'percent' => $mapped, 'cents' => $diff ];
+                }
+            }
             return [
                 'child_id' => $r->child_id,
                 'dni' => $r->dni,
                 'child' => trim($r->name . ' ' . $r->lastname),
+                'school' => $r->school,
+                'grado' => $r->grado,
                 'days' => $days,
                 'days_count' => count($days),
                 'total_cents' => (int) $r->total_cents,
                 'status' => $computedStatus,
+                'days_with_service' => $byDay,
+                'surcharge' => $surcharge,
             ];
         })->filter()->values();
 
@@ -579,7 +634,141 @@ class OrderController extends Controller
                 'updated_at' => now(),
             ]);
 
+        // Actualizar/crear monthly_orders como pagada
+        MonthlyOrder::updateOrCreate(
+            [
+                'child_id' => $validated['child_id'],
+                'month' => (int) $validated['month'],
+                'year' => (int) $validated['year'],
+            ],
+            [
+                'status' => 'paid',
+                'decision_at' => now(),
+            ]
+        );
+
         return back()->with('success', "Pago confirmado. Días actualizados: $updated");
+    }
+
+    // ADMIN: detalle de una orden mensual por alumno (por mes/año)
+    public function adminMonthlyShow(Request $request, Children $child, int $month, int $year)
+    {
+        $start = Carbon::create($year, $month, 1)->startOfMonth();
+        $end = (clone $start)->endOfMonth();
+
+        $orders = DailyOrder::query()
+            ->where('child_id', $child->id)
+            ->whereBetween('date', [$start->toDateString(), $end->toDateString()])
+            ->with('serviceType:id,name,price_cents')
+            ->orderBy('date')
+            ->get();
+
+        $summary = $orders->map(function ($o) {
+            return [
+                'date' => \Illuminate\Support\Carbon::parse($o->date)->toDateString(),
+                'service' => optional($o->serviceType)->name,
+                'price_cents' => optional($o->serviceType)->price_cents ?? 0,
+                'status' => $o->status,
+            ];
+        });
+
+        $baseTotal = $summary->sum('price_cents');
+
+        $monthly = MonthlyOrder::where('child_id', $child->id)
+            ->where('month', $month)
+            ->where('year', $year)
+            ->first();
+
+        $surcharge = [ 'applied' => false, 'percent' => 0, 'cents' => 0 ];
+        if ($monthly) {
+            $diff = (int) $monthly->total_cents - (int) $baseTotal;
+            if ($diff > 0 && $baseTotal > 0) {
+                $pct = round(($diff / $baseTotal) * 100);
+                $mapped = 0;
+                if ($pct >= 8) { $mapped = 10; }
+                elseif ($pct >= 3) { $mapped = 5; }
+                $surcharge = [ 'applied' => $mapped > 0, 'percent' => $mapped, 'cents' => $diff ];
+            }
+        }
+
+    return Inertia::render('Admin/MonthlyOrderDetail', [
+            'child' => [
+                'id' => $child->id,
+                'name' => $child->name,
+                'lastname' => $child->lastname,
+                'dni' => $child->dni,
+                'school' => $child->school,
+                'grado' => $child->grado,
+            ],
+            'month' => $month,
+            'year' => $year,
+            'summary' => $summary->values(),
+            'baseTotalCents' => (int) $baseTotal,
+            'monthlyTotalCents' => (int) optional($monthly)->total_cents ?? (int) $baseTotal,
+            'surcharge' => $surcharge,
+            // Si monthly existe y está rechazado, priorizar ese estado
+            'status' => ($monthly && $monthly->status === 'rejected')
+                ? 'rejected'
+                : ($orders->count() > 0 && $orders->every(fn($o) => $o->status === 'paid') ? 'paid' : 'pending'),
+        ]);
+    }
+
+    // ADMIN: rechazo de orden mensual (marca daily_orders del período como pending y opcionalmente registra decision)
+    public function adminMonthlyReject(Request $request)
+    {
+        $validated = $request->validate([
+            'child_id' => ['required','exists:children,id'],
+            'month' => ['required','integer','min:1','max:12'],
+            'year' => ['required','integer','min:2000'],
+            'reason' => ['nullable','string','max:500'],
+        ]);
+
+        $start = Carbon::create($validated['year'], $validated['month'], 1)->startOfMonth();
+        $end = (clone $start)->endOfMonth();
+
+        // Colocar todas las órdenes en rejected (si estaban paid, se revierte y deja constancia de rechazo)
+        DailyOrder::where('child_id', $validated['child_id'])
+            ->whereBetween('date', [$start->toDateString(), $end->toDateString()])
+            ->update([
+                'status' => 'rejected',
+                'updated_at' => now(),
+            ]);
+
+        // Registrar decisión a nivel monthly_orders si existe (y marcar rechazado)
+        MonthlyOrder::where('child_id', $validated['child_id'])
+            ->where('month', $validated['month'])
+            ->where('year', $validated['year'])
+            ->update([
+                'status' => 'rejected',
+                'decision_at' => now(),
+            ]);
+
+        return back()->with('success', 'Orden rechazada y días marcados como pendientes.');
+    }
+
+    // ADMIN: eliminar registros del período (todas las daily_orders del mes/año para un alumno)
+    public function adminMonthlyDelete(Request $request)
+    {
+        $validated = $request->validate([
+            'child_id' => ['required','exists:children,id'],
+            'month' => ['required','integer','min:1','max:12'],
+            'year' => ['required','integer','min:2000'],
+        ]);
+
+        $start = Carbon::create($validated['year'], $validated['month'], 1)->startOfMonth();
+        $end = (clone $start)->endOfMonth();
+
+        $deleted = DailyOrder::where('child_id', $validated['child_id'])
+            ->whereBetween('date', [$start->toDateString(), $end->toDateString()])
+            ->delete();
+
+        // También remover monthly_orders del período si existe
+        MonthlyOrder::where('child_id', $validated['child_id'])
+            ->where('month', $validated['month'])
+            ->where('year', $validated['year'])
+            ->delete();
+
+        return back()->with('success', "Registros eliminados: $deleted");
     }
 
     private function authorizeChild(Children $child): void

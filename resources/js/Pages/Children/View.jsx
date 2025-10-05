@@ -98,6 +98,7 @@ export default function View({ child, dailyOrders = [], summary = { total_days:0
                             <div className="flex flex-wrap gap-3 text-xs">
                                 <span className="rounded-full bg-gray-100 px-2 py-0.5 font-medium text-gray-700">Total días: {summary.total_days}</span>
                                 <span className="rounded-full bg-green-100 px-2 py-0.5 font-medium text-green-700">Pagados: {summary.paid_days}</span>
+                                <span className="rounded-full bg-red-100 px-2 py-0.5 font-medium text-red-700">Rechazados: {summary.rejected_days || 0}</span>
                                 <span className="rounded-full bg-yellow-100 px-2 py-0.5 font-medium text-yellow-800">Pendientes: {summary.pending_days}</span>
                                 <span className="rounded-full bg-orange-100 px-2 py-0.5 font-medium text-orange-700">Total: {money(summary.total_cents)}</span>
                             </div>
@@ -119,9 +120,15 @@ export default function View({ child, dailyOrders = [], summary = { total_days:0
                                             <td className="px-3 py-2">{d.service || '-'}</td>
                                             <td className="px-3 py-2 font-medium">{money(d.price_cents)}</td>
                                             <td className="px-3 py-2">
-                                                <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${d.status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-800'}`}>
-                                                    {d.status === 'paid' ? 'Pagado' : 'Pendiente'}
-                                                </span>
+                                                {d.status === 'paid' && (
+                                                    <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-[11px] font-medium text-green-700">Pagado</span>
+                                                )}
+                                                {d.status === 'rejected' && (
+                                                    <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-700">Rechazado</span>
+                                                )}
+                                                {d.status === 'pending' && (
+                                                    <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-[11px] font-medium text-yellow-800">Pendiente</span>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}

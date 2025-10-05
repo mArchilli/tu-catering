@@ -71,6 +71,9 @@ export default function ChildrenIndex({ children: items = [] }) {
                                     {child.payment_status === 'pending' && (
                                         <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800">Pago pendiente</span>
                                     )}
+                                    {child.payment_status === 'rejected' && (
+                                        <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">Pago rechazado</span>
+                                    )}
                                     {child.payment_status === null && (
                                         <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">Sin días cargados</span>
                                     )}

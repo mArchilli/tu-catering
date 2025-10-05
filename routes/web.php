@@ -158,7 +158,10 @@ Route::middleware('auth')->group(function () {
     // Admin: órdenes mensuales (protegidas por middleware de admin)
     Route::middleware([\App\Http\Middleware\AdminOnly::class])->group(function () {
     Route::get('/admin/monthly-orders', [OrderController::class, 'adminMonthlyIndex'])->name('admin.monthly-orders.index');
+    Route::get('/admin/monthly-orders/{child}/{month}/{year}', [OrderController::class, 'adminMonthlyShow'])->name('admin.monthly-orders.show');
     Route::post('/admin/daily-orders/confirm', [OrderController::class, 'adminDailyConfirm'])->name('admin.daily-orders.confirm');
+    Route::post('/admin/monthly-orders/reject', [OrderController::class, 'adminMonthlyReject'])->name('admin.monthly-orders.reject');
+    Route::post('/admin/monthly-orders/delete', [OrderController::class, 'adminMonthlyDelete'])->name('admin.monthly-orders.delete');
     Route::get('/admin/reports/daily-service/{service}', [\App\Http\Controllers\DailyServiceReportController::class, 'servicePdf'])->name('admin.reports.daily-service');
     Route::get('/admin/reports/pending-students', [\App\Http\Controllers\PendingStudentsReportController::class, 'pdf'])->name('admin.reports.pending-students');
     });
