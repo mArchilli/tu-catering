@@ -165,6 +165,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/monthly-orders/delete', [OrderController::class, 'adminMonthlyDelete'])->name('admin.monthly-orders.delete');
     Route::get('/admin/reports/daily-service/{service}', [\App\Http\Controllers\DailyServiceReportController::class, 'servicePdf'])->name('admin.reports.daily-service');
     Route::get('/admin/reports/pending-students', [\App\Http\Controllers\PendingStudentsReportController::class, 'pdf'])->name('admin.reports.pending-students');
+    Route::get('/admin/reports/monthly-paid/{child}/{month}/{year}', [\App\Http\Controllers\MonthlyPaidReportController::class, 'pdf'])->name('admin.reports.monthly-paid');
     });
 });
 

@@ -1,5 +1,5 @@
 import ParentLayout from '@/Layouts/ParentLayout';
-import { Link, router } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { useEffect, useMemo, useState } from 'react';
 
 const money = (cents) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format((cents || 0) / 100);
@@ -47,6 +47,8 @@ export default function View({ child, dailyOrders = [], summary = { total_days:0
                 </div>
             }
         >
+            <Head title="Detalle de Alumno" />
+            
             <div className="mx-auto max-w-7xl p-6 space-y-8">
                 {/* Contenedor: Datos del alumno */}
                 <div className="relative rounded-xl border border-orange-100 bg-white p-6 shadow-sm">

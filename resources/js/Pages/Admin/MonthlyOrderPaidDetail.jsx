@@ -1,6 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
 import { useMemo, useState, useEffect } from 'react';
+import * as XLSX from 'xlsx';
 
 const money = (cents) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format((cents || 0) / 100);
 
@@ -25,6 +26,50 @@ export default function MonthlyOrderPaidDetail({ child, month, year, summary = [
     return Math.round(paidBaseTotalCents * percent / 100);
   }, [paidBaseTotalCents, surcharge?.applied, surcharge?.percent]);
   const paidMonthlyTotalCents = useMemo(() => paidBaseTotalCents + computedSurchargeCents, [paidBaseTotalCents, computedSurchargeCents]);
+
+  // Helpers y exportación
+  const pad2 = (n) => String(n).padStart(2,'0');
+  const fileBase = `${(child?.lastname || '').toLowerCase().replace(/\s+/g,'-')}-${(child?.name || '').toLowerCase().replace(/\s+/g,'-')}-${pad2(m)}-${y}`;
+
+  const downloadPdf = () => {
+    if (!child?.id) return;
+    const url = route('admin.reports.monthly-paid', { child: child.id, month: m, year: y });
+    window.open(url, '_blank');
+  };
+
+  const exportExcel = () => {
+    try {
+      const alumno = {
+        Nombre: `${child?.name || ''} ${child?.lastname || ''}`.trim(),
+        DNI: child?.dni || '',
+        Escuela: child?.school || '',
+        Grado: child?.grado || '',
+        Mes: pad2(m),
+        Año: y,
+      };
+      const detalle = paidSummary.map(d => ({
+        Fecha: d.date,
+        Servicio: d.service,
+        Precio: money(d.price_cents),
+        Estado: 'Pagado',
+      }));
+      const wb = XLSX.utils.book_new();
+      const wsAlumno = XLSX.utils.json_to_sheet([alumno]);
+      XLSX.utils.book_append_sheet(wb, wsAlumno, 'Alumno');
+      const wsDetalle = XLSX.utils.json_to_sheet(detalle);
+      XLSX.utils.book_append_sheet(wb, wsDetalle, 'Pagos');
+      const wsTotales = XLSX.utils.json_to_sheet([
+        { Concepto: 'Subtotal', Monto: money(paidBaseTotalCents) },
+        { Concepto: 'Recargo', Monto: surcharge?.applied ? `${surcharge?.percent || 0}% (${money(computedSurchargeCents)})` : '-' },
+        { Concepto: 'Total', Monto: money(paidMonthlyTotalCents) },
+      ]);
+      XLSX.utils.book_append_sheet(wb, wsTotales, 'Totales');
+      XLSX.writeFile(wb, `historial-pagos-${fileBase}.xlsx`);
+    } catch (e) {
+      console.error('Error exportando Excel', e);
+      alert('No se pudo generar el Excel.');
+    }
+  };
 
   return (
     <AuthenticatedLayout header={<h2 className="text-xl font-semibold text-gray-800">Historial de pagos</h2>}>
@@ -58,6 +103,10 @@ export default function MonthlyOrderPaidDetail({ child, month, year, summary = [
               onClick={applyPeriod}
               className="rounded-md bg-orange-400 px-3 py-2 text-xs font-semibold text-white hover:bg-orange-500"
             >Ver</button>
+            <div className="flex gap-2 sm:ml-3">
+              <button onClick={downloadPdf} className="rounded-md bg-orange-500 px-3 py-2 text-xs font-semibold text-white hover:bg-orange-600">+PDF</button>
+              <button onClick={exportExcel} className="rounded-md bg-green-600 px-3 py-2 text-xs font-semibold text-white hover:bg-green-700">Excel</button>
+            </div>
           </div>
         </div>
 
