@@ -12,11 +12,35 @@ import Toast from '@/Components/Toast';
 // Utilidad para formatear ARS desde centavos
 const money = (cents) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(cents / 100);
 
-export default function OrderCalendar({ serviceTypes = [], initialSelections = {}, year, month, onSubmit, onClearAll, childId }) {
+export default function OrderCalendar({ serviceTypes = [], initialSelections = {}, paidDates = [], year, month, onSubmit, onClearAll, childId }) {
   // selectedService: id del tipo actual a asignar
   const [selectedService, setSelectedService] = useState(null);
-  // selections: mapa 'yyyy-MM-dd' => service_type_id
-  const [selections, setSelections] = useState(initialSelections);
+  // Precalcular claves para inicialización perezosa desde localStorage
+  const ymConst = `${String(year)}-${String(month).padStart(2,'0')}`;
+  const initialStorageKey = `orderSelections:${childId ?? 'unknown'}:${ymConst}`;
+  const paidSetInit = new Set((paidDates || []).map(String));
+  // selections: mapa 'yyyy-MM-dd' => service_type_id (inicializado con merge de servidor + localStorage filtrado)
+  const [selections, setSelections] = useState(() => {
+    const base = { ...initialSelections };
+    try {
+      const raw = localStorage.getItem(initialStorageKey);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') {
+          const ymPrefix = `${ymConst}-`;
+          for (const [date, sid] of Object.entries(parsed)) {
+            if (typeof date !== 'string') continue;
+            if (!date.startsWith(ymPrefix)) continue; // solo mes actual
+            if (paidSetInit.has(String(date))) continue; // excluir pagados
+            base[date] = sid;
+          }
+        }
+      }
+    } catch (e) {
+      // no-op
+    }
+    return base;
+  });
   // Modal: confirmar vaciar todo
   const [confirmingClear, setConfirmingClear] = useState(false);
   const [submittingConfirm, setSubmittingConfirm] = useState(false);
@@ -32,21 +56,6 @@ export default function OrderCalendar({ serviceTypes = [], initialSelections = {
     return `orderSelections:${childId ?? 'unknown'}:${ym}`;
   }, [childId, year, month]);
 
-  // Rehidratar desde localStorage si existe (tiene prioridad sobre initialSelections)
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(storageKey);
-      if (raw) {
-        const obj = JSON.parse(raw);
-        if (obj && typeof obj === 'object') {
-          setSelections(obj);
-        }
-      }
-    } catch (e) {
-      // no-op
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [storageKey]);
 
   // Guardar automáticamente cada cambio
   useEffect(() => {
@@ -60,8 +69,13 @@ export default function OrderCalendar({ serviceTypes = [], initialSelections = {
   const totalCents = useMemo(() => Object.values(selections).reduce((acc, sid) => acc + (priceById[sid] || 0), 0), [selections, priceById]);
   const totalDays = useMemo(() => Object.keys(selections).length, [selections]);
 
+  const paidSet = useMemo(() => new Set((paidDates || []).map(String)), [paidDates]);
+
+
   const handleDayClick = (day) => {
     const key = format(day, 'yyyy-MM-dd');
+    // Bloquear selección si el día está pagado
+    if (paidSet.has(key)) return;
     setSelections(prev => {
       const current = prev[key];
       if (!selectedService) {
@@ -221,6 +235,8 @@ export default function OrderCalendar({ serviceTypes = [], initialSelections = {
           disabled={[
             // Solo fines de semana
             { dayOfWeek: [0, 6] },
+            // Días ya pagados (predicado por fecha, evita issues de tz)
+            (date) => paidSet.has(format(date, 'yyyy-MM-dd')),
           ]}
           components={{ DayContent, HeadRow: WeekdaysHeadRow, IconLeft: EmptyIcon, IconRight: EmptyIcon, Nav: EmptyNav }}
           locale={es}

@@ -34,8 +34,10 @@ class OrderController extends Controller
         $start = now()->setDate($year, $month, 1)->startOfMonth()->toDateString();
         $end = now()->setDate($year, $month, 1)->endOfMonth()->toDateString();
 
+        // Solo pre-cargar selecciones PENDIENTES para que no se completen días ya pagados
         $existing = DailyOrder::where('child_id', $child->id)
             ->whereBetween('date', [$start, $end])
+            ->where('status', 'pending')
             ->with('serviceType:id,name,price_cents')
             ->get()
             ->map(fn($o) => [
@@ -44,6 +46,15 @@ class OrderController extends Controller
                 'service' => $o->serviceType->name,
                 'price_cents' => $o->serviceType->price_cents,
             ]);
+
+        // Fechas ya pagadas en el período (para bloquear selección en el calendario)
+        $paidDates = DailyOrder::where('child_id', $child->id)
+            ->whereBetween('date', [$start, $end])
+            ->where('status', 'paid')
+            ->orderBy('date')
+            ->pluck('date')
+            ->map(fn($d) => \Illuminate\Support\Carbon::parse($d)->toDateString())
+            ->values();
 
     // Día hábil actual del mes para mostrar en UI (permitir override en debug)
     $today = $this->resolveToday($request);
@@ -57,6 +68,7 @@ class OrderController extends Controller
             ],
             'serviceTypes' => $serviceTypes,
             'existing' => $existing,
+            'paidDates' => $paidDates,
             'year' => $year,
             'month' => $month,
             'businessDayIndex' => $businessDayIndex,

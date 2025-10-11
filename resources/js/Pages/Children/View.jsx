@@ -1,11 +1,29 @@
 import ParentLayout from '@/Layouts/ParentLayout';
-import { Link } from '@inertiajs/react';
-import { useState } from 'react';
+import { Link, router } from '@inertiajs/react';
+import { useEffect, useMemo, useState } from 'react';
 
 const money = (cents) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format((cents || 0) / 100);
 
 export default function View({ child, dailyOrders = [], summary = { total_days:0, paid_days:0, pending_days:0, total_cents:0 }, month, year }) {
     const [showDelete, setShowDelete] = useState(false);
+    // Controles de período (para sección Pagadas)
+    const [m, setM] = useState(month);
+    const [y, setY] = useState(year);
+    useEffect(() => { setM(month); }, [month]);
+    useEffect(() => { setY(year); }, [year]);
+    const applyPeriod = () => router.get(route('children.view', child.id), { month: m, year: y }, { preserveScroll: true, replace: true });
+
+    // Separar pendientes y pagadas
+    const pendingOrders = useMemo(() => dailyOrders.filter(d => d.status === 'pending'), [dailyOrders]);
+    const paidOrders = useMemo(() => dailyOrders.filter(d => d.status === 'paid'), [dailyOrders]);
+    const pendingTotalCents = useMemo(() => pendingOrders.reduce((acc, d) => acc + (d.price_cents || 0), 0), [pendingOrders]);
+    const paidTotalCents = useMemo(() => paidOrders.reduce((acc, d) => acc + (d.price_cents || 0), 0), [paidOrders]);
+    // Paginación para pagadas (10 elementos por página)
+    const pageSize = 10;
+    const [paidPage, setPaidPage] = useState(1);
+    useEffect(() => { setPaidPage(1); }, [m, y, paidOrders.length]);
+    const paidTotalPages = useMemo(() => Math.max(1, Math.ceil(paidOrders.length / pageSize)), [paidOrders.length]);
+    const paidPageItems = useMemo(() => paidOrders.slice((paidPage - 1) * pageSize, paidPage * pageSize), [paidOrders, paidPage]);
 
     return (
         <ParentLayout
@@ -29,7 +47,8 @@ export default function View({ child, dailyOrders = [], summary = { total_days:0
                 </div>
             }
         >
-            <div className="mx-auto max-w-7xl p-6">
+            <div className="mx-auto max-w-7xl p-6 space-y-8">
+                {/* Contenedor: Datos del alumno */}
                 <div className="relative rounded-xl border border-orange-100 bg-white p-6 shadow-sm">
                     {/* Acciones dentro de la card: Editar (lápiz) + Eliminar (papelera) */}
                     <div className="absolute right-4 top-4 flex items-center gap-2">
@@ -83,64 +102,141 @@ export default function View({ child, dailyOrders = [], summary = { total_days:0
                             <dd className="text-base font-medium text-gray-900">{child.grado || '-'}</dd>
                         </div>
                         <div>
-                            <dt className="text-sm text-gray-500">Condición</dt>
+                            <dt className="text-sm text-gray-500">Observacion</dt>
                             <dd className="text-base font-medium text-gray-900">{child.condition || '-'}</dd>
                         </div>
                     </dl>
 
-                    {/* Tabla de días contratados */}
-                    <div className="mt-8">
-                        <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                            <div>
-                                <h3 className="text-base font-semibold text-gray-800">Servicios del mes</h3>
-                                <p className="text-xs text-gray-500">Período: {String(month).padStart(2,'0')}/{year}</p>
-                            </div>
-                            <div className="flex flex-wrap gap-3 text-xs">
-                                <span className="rounded-full bg-gray-100 px-2 py-0.5 font-medium text-gray-700">Total días: {summary.total_days}</span>
-                                <span className="rounded-full bg-green-100 px-2 py-0.5 font-medium text-green-700">Pagados: {summary.paid_days}</span>
-                                <span className="rounded-full bg-red-100 px-2 py-0.5 font-medium text-red-700">Rechazados: {summary.rejected_days || 0}</span>
-                                <span className="rounded-full bg-yellow-100 px-2 py-0.5 font-medium text-yellow-800">Pendientes: {summary.pending_days}</span>
-                                <span className="rounded-full bg-orange-100 px-2 py-0.5 font-medium text-orange-700">Total: {money(summary.total_cents)}</span>
-                            </div>
+                </div>
+
+                {/* Contenedor: Pendientes */}
+                <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                    <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                            <h3 className="text-base font-semibold text-gray-800">Pendientes</h3>
+                            <p className="text-xs text-gray-500">Período: {String(month).padStart(2,'0')}/{year}</p>
                         </div>
-                        <div className="overflow-x-auto rounded-xl border border-gray-200">
-                            <table className="min-w-full table-auto text-sm">
-                                <thead className="bg-gray-50 text-left text-gray-600">
-                                    <tr>
-                                        <th className="px-3 py-2 font-medium">Fecha</th>
-                                        <th className="px-3 py-2 font-medium">Servicio</th>
-                                        <th className="px-3 py-2 font-medium">Precio</th>
-                                        <th className="px-3 py-2 font-medium">Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-100">
-                                    {dailyOrders.map(d => (
-                                        <tr key={d.date + d.service} className="text-gray-800">
-                                            <td className="px-3 py-2 whitespace-nowrap">{d.date}</td>
-                                            <td className="px-3 py-2">{d.service || '-'}</td>
-                                            <td className="px-3 py-2 font-medium">{money(d.price_cents)}</td>
-                                            <td className="px-3 py-2">
-                                                {d.status === 'paid' && (
-                                                    <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-[11px] font-medium text-green-700">Pagado</span>
-                                                )}
-                                                {d.status === 'rejected' && (
-                                                    <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-700">Rechazado</span>
-                                                )}
-                                                {d.status === 'pending' && (
-                                                    <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-[11px] font-medium text-yellow-800">Pendiente</span>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                    {dailyOrders.length === 0 && (
-                                        <tr>
-                                            <td colSpan={4} className="px-3 py-4 text-center text-gray-600">No hay días cargados para este mes.</td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
+                        <div className="flex flex-wrap gap-3 text-xs">
+                            <span className="rounded-full bg-yellow-100 px-2 py-0.5 font-medium text-yellow-800">Días: {pendingOrders.length}</span>
+                            <span className="rounded-full bg-orange-100 px-2 py-0.5 font-medium text-orange-700">Total: {money(pendingTotalCents)}</span>
                         </div>
                     </div>
+                    <div className="overflow-x-auto rounded-xl border border-gray-200">
+                        <table className="min-w-full table-auto text-sm">
+                            <thead className="bg-gray-50 text-left text-gray-600">
+                                <tr>
+                                    <th className="px-3 py-2 font-medium">Fecha</th>
+                                    <th className="px-3 py-2 font-medium">Servicio</th>
+                                    <th className="px-3 py-2 font-medium">Precio</th>
+                                    <th className="px-3 py-2 font-medium">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100">
+                                {pendingOrders.map(d => (
+                                    <tr key={d.date + d.service} className="text-gray-800">
+                                        <td className="px-3 py-2 whitespace-nowrap">{d.date}</td>
+                                        <td className="px-3 py-2">{d.service || '-'}</td>
+                                        <td className="px-3 py-2 font-medium">{money(d.price_cents)}</td>
+                                        <td className="px-3 py-2">
+                                            <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-[11px] font-medium text-yellow-800">Pendiente</span>
+                                        </td>
+                                    </tr>
+                                ))}
+                                {pendingOrders.length === 0 && (
+                                    <tr>
+                                        <td colSpan={4} className="px-3 py-4 text-center text-gray-600">No hay días pendientes para este mes.</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {/* Contenedor: Pagadas con selector de período y paginación */}
+                <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                    <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                            <h3 className="text-base font-semibold text-gray-800">Pagadas</h3>
+                            <p className="text-xs text-gray-500">Período: {String(month).padStart(2,'0')}/{year}</p>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2">
+                            <label className="text-xs text-gray-600">Periodo</label>
+                            <select
+                                className="rounded-md border-gray-300 text-sm focus:border-orange-400 focus:ring-orange-400 w-20"
+                                value={m}
+                                onChange={(e) => setM(Number(e.target.value))}
+                            >
+                                {Array.from({ length: 12 }).map((_, i) => (
+                                    <option key={i+1} value={i+1}>{String(i+1).padStart(2,'0')}</option>
+                                ))}
+                            </select>
+                            <select
+                                className="rounded-md border-gray-300 text-sm focus:border-orange-400 focus:ring-orange-400 w-24"
+                                value={y}
+                                onChange={(e) => setY(Number(e.target.value))}
+                            >
+                                {Array.from({ length: 5 }).map((_, idx) => {
+                                    const yr = new Date().getFullYear() - 2 + idx; // desde hace 2 hasta el próximo 2
+                                    return <option key={yr} value={yr}>{yr}</option>;
+                                })}
+                            </select>
+                            <button
+                                onClick={applyPeriod}
+                                className="rounded-md bg-orange-400 px-3 py-2 text-xs font-semibold text-white hover:bg-orange-500"
+                            >Ver</button>
+                            <div className="ml-2 hidden sm:block text-xs text-gray-500">Días: {paidOrders.length} · Total: {money(paidTotalCents)}</div>
+                        </div>
+                    </div>
+                    <div className="overflow-x-auto rounded-xl border border-gray-200">
+                        <table className="min-w-full table-auto text-sm">
+                            <thead className="bg-gray-50 text-left text-gray-600">
+                                <tr>
+                                    <th className="px-3 py-2 font-medium">Fecha</th>
+                                    <th className="px-3 py-2 font-medium">Servicio</th>
+                                    <th className="px-3 py-2 font-medium">Precio</th>
+                                    <th className="px-3 py-2 font-medium">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100">
+                                {paidPageItems.map(d => (
+                                    <tr key={d.date + d.service} className="text-gray-800">
+                                        <td className="px-3 py-2 whitespace-nowrap">{d.date}</td>
+                                        <td className="px-3 py-2">{d.service || '-'}</td>
+                                        <td className="px-3 py-2 font-medium">{money(d.price_cents)}</td>
+                                        <td className="px-3 py-2">
+                                            <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-[11px] font-medium text-green-700">Pagado</span>
+                                        </td>
+                                    </tr>
+                                ))}
+                                {paidOrders.length === 0 && (
+                                    <tr>
+                                        <td colSpan={4} className="px-3 py-4 text-center text-gray-600">No hay días pagados para este mes.</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                    {/* Paginación */}
+                    {paidOrders.length > 0 && (
+                      <div className="mt-3 flex items-center justify-between text-xs text-gray-600">
+                        <div>
+                          Página {paidPage} de {paidTotalPages}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => setPaidPage(p => Math.max(1, p - 1))}
+                            disabled={paidPage <= 1}
+                            className="rounded-md bg-white px-3 py-1.5 font-medium ring-1 ring-gray-300 hover:bg-gray-50 disabled:opacity-50"
+                          >Anterior</button>
+                          <button
+                            onClick={() => setPaidPage(p => Math.min(paidTotalPages, p + 1))}
+                            disabled={paidPage >= paidTotalPages}
+                            className="rounded-md bg-white px-3 py-1.5 font-medium ring-1 ring-gray-300 hover:bg-gray-50 disabled:opacity-50"
+                          >Siguiente</button>
+                        </div>
+                      </div>
+                    )}
+                </div>
 
                     {/* Modal de confirmación de eliminación */}
                     {showDelete && (
@@ -181,7 +277,6 @@ export default function View({ child, dailyOrders = [], summary = { total_days:0
                             </div>
                         </div>
                     )}
-                </div>
             </div>
         </ParentLayout>
     );

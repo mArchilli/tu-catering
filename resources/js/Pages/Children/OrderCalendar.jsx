@@ -3,7 +3,7 @@ import { Head, router } from '@inertiajs/react';
 import SecondaryButton from '@/Components/SecondaryButton';
 import OrderCalendar from '@/Components/OrderCalendar';
 
-export default function OrderCalendarPage({ child, serviceTypes, existing, year, month, businessDayIndex = null }) {
+export default function OrderCalendarPage({ child, serviceTypes, existing, paidDates = [], year, month, businessDayIndex = null }) {
   const initialSelections = Object.fromEntries((existing || []).map(e => [e.date, e.service_type_id]));
 
   const handleSubmit = (selections) => {
@@ -37,6 +37,7 @@ export default function OrderCalendarPage({ child, serviceTypes, existing, year,
         <OrderCalendar
           serviceTypes={serviceTypes}
           initialSelections={initialSelections}
+          paidDates={paidDates}
           year={year}
           month={month}
           onSubmit={handleSubmit}
