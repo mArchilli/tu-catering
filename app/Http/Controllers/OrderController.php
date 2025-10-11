@@ -713,6 +713,66 @@ class OrderController extends Controller
         ]);
     }
 
+    // ADMIN: historial de pagos (solo días en estado 'paid') para un alumno en un período
+    public function adminMonthlyPaidShow(Request $request, Children $child, int $month, int $year)
+    {
+        $start = Carbon::create($year, $month, 1)->startOfMonth();
+        $end = (clone $start)->endOfMonth();
+
+        $orders = DailyOrder::query()
+            ->where('child_id', $child->id)
+            ->whereBetween('date', [$start->toDateString(), $end->toDateString()])
+            ->where('status', 'paid')
+            ->with('serviceType:id,name,price_cents')
+            ->orderBy('date')
+            ->get();
+
+        $summary = $orders->map(function ($o) {
+            return [
+                'date' => \Illuminate\Support\Carbon::parse($o->date)->toDateString(),
+                'service' => optional($o->serviceType)->name,
+                'price_cents' => optional($o->serviceType)->price_cents ?? 0,
+                'status' => $o->status,
+            ];
+        })->values();
+
+        $baseTotal = $summary->sum('price_cents');
+
+        $monthly = MonthlyOrder::where('child_id', $child->id)
+            ->where('month', $month)
+            ->where('year', $year)
+            ->first();
+
+        $surcharge = [ 'applied' => false, 'percent' => 0, 'cents' => 0 ];
+        if ($monthly) {
+            $diff = (int) $monthly->total_cents - (int) $baseTotal;
+            if ($diff > 0 && $baseTotal > 0) {
+                $pct = round(($diff / $baseTotal) * 100);
+                $mapped = 0;
+                if ($pct >= 8) { $mapped = 10; }
+                elseif ($pct >= 3) { $mapped = 5; }
+                $surcharge = [ 'applied' => $mapped > 0, 'percent' => $mapped, 'cents' => $diff ];
+            }
+        }
+
+        return Inertia::render('Admin/MonthlyOrderPaidDetail', [
+            'child' => [
+                'id' => $child->id,
+                'name' => $child->name,
+                'lastname' => $child->lastname,
+                'dni' => $child->dni,
+                'school' => $child->school,
+                'grado' => $child->grado,
+            ],
+            'month' => $month,
+            'year' => $year,
+            'summary' => $summary,
+            'baseTotalCents' => (int) $baseTotal,
+            'monthlyTotalCents' => (int) optional($monthly)->total_cents ?? (int) $baseTotal,
+            'surcharge' => $surcharge,
+        ]);
+    }
+
     // ADMIN: rechazo de orden mensual (marca daily_orders del período como pending y opcionalmente registra decision)
     public function adminMonthlyReject(Request $request)
     {

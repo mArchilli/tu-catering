@@ -248,8 +248,7 @@ export default function MonthlyOrders({ orders = [], filters = { status: 'all', 
                   <th className="px-3 py-2 font-medium">Institución</th>
                   <th className="px-3 py-2 font-medium">Grado</th>
                   <th className="px-3 py-2 font-medium">Periodo</th>
-                  <th className="px-3 py-2 font-medium">Días contratados</th>
-                  <th className="px-3 py-2 font-medium">Total</th>
+                  
                   <th className="px-3 py-2 font-medium">Acciones</th>
                 </tr>
               </thead>
@@ -261,13 +260,7 @@ export default function MonthlyOrders({ orders = [], filters = { status: 'all', 
                     <td className="px-3 py-2">{o.school || '-'}</td>
                     <td className="px-3 py-2">{o.grado || '-'}</td>
                     <td className="px-3 py-2">{String(month).padStart(2,'0')}/{year}</td>
-                    <td className="px-3 py-2">
-                      <div className="flex flex-col">
-                        <span className="font-medium">{o.days?.length || 0} días</span>
-                        
-                      </div>
-                    </td>
-                    <td className="px-3 py-2 font-semibold">{money(o.total_cents)}</td>
+                    
                    
                     <td className="px-3 py-2">
                       <div className="flex items-center gap-2">
@@ -313,8 +306,6 @@ export default function MonthlyOrders({ orders = [], filters = { status: 'all', 
                   <th className="px-3 py-2 font-medium">Institución</th>
                   <th className="px-3 py-2 font-medium">Grado</th>
                   <th className="px-3 py-2 font-medium">Periodo</th>
-                  <th className="px-3 py-2 font-medium">Días contratados</th>
-                  <th className="px-3 py-2 font-medium">Total</th>
                   <th className="px-3 py-2 font-medium">Estado</th>
                   <th className="px-3 py-2 font-medium">Acciones</th>
                 </tr>
@@ -328,24 +319,23 @@ export default function MonthlyOrders({ orders = [], filters = { status: 'all', 
                     <td className="px-3 py-2">{o.grado || '-'}</td>
                     <td className="px-3 py-2">{String(month).padStart(2,'0')}/{year}</td>
                     <td className="px-3 py-2">
-                      <div className="flex flex-col">
-                        <span className="font-medium">{o.days?.length || 0} días</span>
-                        
-                      </div>
-                    </td>
-                    <td className="px-3 py-2 font-semibold">{money(o.total_cents)}</td>
-                    <td className="px-3 py-2">
                       <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">Pagado</span>
                     </td>
                     <td className="px-3 py-2">
-                      <button
-                        onClick={() => openDelete(o)}
-                        className="inline-flex items-center justify-center rounded-md bg-red-600 p-2 text-white hover:bg-red-500"
-                        title="Eliminar"
-                        aria-label="Eliminar"
-                      >
-                        <TrashIcon />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => router.get(route('admin.monthly-orders.paid.show', { child: o.child_id, month, year }))}
+                          className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-500"
+                        >Ver historial</button>
+                        <button
+                          onClick={() => openDelete(o)}
+                          className="inline-flex items-center justify-center rounded-md bg-red-600 p-2 text-white hover:bg-red-500"
+                          title="Eliminar"
+                          aria-label="Eliminar"
+                        >
+                          <TrashIcon />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -383,8 +373,6 @@ export default function MonthlyOrders({ orders = [], filters = { status: 'all', 
                   <th className="px-3 py-2 font-medium">Institución</th>
                   <th className="px-3 py-2 font-medium">Grado</th>
                   <th className="px-3 py-2 font-medium">Periodo</th>
-                  <th className="px-3 py-2 font-medium">Días contratados</th>
-                  <th className="px-3 py-2 font-medium">Total</th>
                   <th className="px-3 py-2 font-medium">Estado</th>
                   <th className="px-3 py-2 font-medium">Acciones</th>
                 </tr>
@@ -397,12 +385,8 @@ export default function MonthlyOrders({ orders = [], filters = { status: 'all', 
                     <td className="px-3 py-2">{o.school || '-'}</td>
                     <td className="px-3 py-2">{o.grado || '-'}</td>
                     <td className="px-3 py-2">{String(month).padStart(2,'0')}/{year}</td>
-                    <td className="px-3 py-2">
-                      <div className="flex flex-col">
-                        <span className="font-medium">{o.days?.length || 0} días</span>
-                      </div>
-                    </td>
-                    <td className="px-3 py-2 font-semibold">{money(o.total_cents)}</td>
+                    
+                    
                     <td className="px-3 py-2">
                       <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">Rechazado</span>
                     </td>

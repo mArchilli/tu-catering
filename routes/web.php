@@ -159,6 +159,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware([\App\Http\Middleware\AdminOnly::class])->group(function () {
     Route::get('/admin/monthly-orders', [OrderController::class, 'adminMonthlyIndex'])->name('admin.monthly-orders.index');
     Route::get('/admin/monthly-orders/{child}/{month}/{year}', [OrderController::class, 'adminMonthlyShow'])->name('admin.monthly-orders.show');
+    Route::get('/admin/monthly-orders/paid/{child}/{month}/{year}', [OrderController::class, 'adminMonthlyPaidShow'])->name('admin.monthly-orders.paid.show');
     Route::post('/admin/daily-orders/confirm', [OrderController::class, 'adminDailyConfirm'])->name('admin.daily-orders.confirm');
     Route::post('/admin/monthly-orders/reject', [OrderController::class, 'adminMonthlyReject'])->name('admin.monthly-orders.reject');
     Route::post('/admin/monthly-orders/delete', [OrderController::class, 'adminMonthlyDelete'])->name('admin.monthly-orders.delete');

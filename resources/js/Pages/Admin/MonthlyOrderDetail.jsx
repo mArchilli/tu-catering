@@ -10,6 +10,18 @@ export default function MonthlyOrderDetail({ child, month, year, summary = [], b
   const [confirmError, setConfirmError] = useState('');
   const [rejectError, setRejectError] = useState('');
 
+  // Filtrar para mostrar únicamente los días en estado "pending"
+  const pendingSummary = useMemo(() => (summary || []).filter(d => d?.status === 'pending'), [summary]);
+
+  // Totales calculados solo sobre pendientes
+  const pendingBaseTotalCents = useMemo(() => pendingSummary.reduce((acc, d) => acc + (d?.price_cents || 0), 0), [pendingSummary]);
+  const computedSurchargeCents = useMemo(() => {
+    if (!surcharge?.applied) return 0;
+    const percent = Number(surcharge?.percent) || 0;
+    return Math.round(pendingBaseTotalCents * percent / 100);
+  }, [pendingBaseTotalCents, surcharge?.applied, surcharge?.percent]);
+  const pendingMonthlyTotalCents = useMemo(() => pendingBaseTotalCents + computedSurchargeCents, [pendingBaseTotalCents, computedSurchargeCents]);
+
   const handleConfirm = () => {
     setConfirmError('');
     setConfirmModal(m => ({ ...m, loading: true }));
@@ -72,25 +84,11 @@ export default function MonthlyOrderDetail({ child, month, year, summary = [], b
               <div className="text-xs text-gray-500">Período</div>
               <div className="font-medium text-gray-900">{String(month).padStart(2,'0')}/{year}</div>
             </div>
-            <div>
-              <div className="text-xs text-gray-500">Estado</div>
-              <div className="mt-0.5">
-                {status === 'paid' && (
-                  <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-[11px] font-medium text-green-800">Pagado</span>
-                )}
-                {status === 'pending' && (
-                  <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-[11px] font-medium text-yellow-800">Pendiente</span>
-                )}
-                {status === 'rejected' && (
-                  <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-800">Rechazado</span>
-                )}
-              </div>
-            </div>
           </div>
         </div>
 
-        {/* Resumen por servicio (conteo de días) */}
-        <ServiceCounts summary={summary} />
+  {/* Resumen por servicio (conteo de días) - solo pendientes */}
+  <ServiceCounts summary={pendingSummary} />
 
         <div className="rounded-xl border border-gray-200 bg-white p-4 overflow-x-auto">
           <table className="min-w-full table-auto text-sm">
@@ -103,7 +101,7 @@ export default function MonthlyOrderDetail({ child, month, year, summary = [], b
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {summary.map((d, idx) => (
+              {pendingSummary.map((d, idx) => (
                 <tr key={idx}>
                   <td className="px-3 py-2">{d.date}</td>
                   <td className="px-3 py-2">{d.service}</td>
@@ -121,31 +119,53 @@ export default function MonthlyOrderDetail({ child, month, year, summary = [], b
                   </td>
                 </tr>
               ))}
-              {summary.length === 0 && (
+              {pendingSummary.length === 0 && (
                 <tr><td colSpan={4} className="px-3 py-3 text-gray-600">Sin días en el período.</td></tr>
               )}
             </tbody>
           </table>
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white p-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div className="space-y-1 text-sm text-gray-700">
-              <div><span className="font-medium">Total base:</span> {money(baseTotalCents)}</div>
-              <div className="flex items-center gap-2">
-                <span className="font-medium">Recargo:</span>
-                {surcharge.applied ? (
-                  <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-800" title={`Recargo aplicado (${surcharge.percent}%)`}>{surcharge.percent}%</span>
-                ) : (
-                  <span className="text-xs text-gray-500">No</span>
-                )}
+        <div className="rounded-2xl border border-gray-200 bg-white p-0 overflow-hidden">
+          <div className="bg-gray-50/60 px-5 py-3 border-b border-gray-200 flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-orange-100 text-orange-700 text-xs font-bold">$</span>
+              Resumen del período
+            </h3>
+            {surcharge.applied && (
+              <span className="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-[11px] font-medium text-red-700 ring-1 ring-red-200" title={`Recargo aplicado (${surcharge.percent}%)`}>
+                Recargo {surcharge.percent}%
+              </span>
+            )}
+          </div>
+          <div className="px-5 py-4 grid grid-cols-1 gap-5 sm:grid-cols-3">
+            <div className="col-span-2 order-2 sm:order-1 grid grid-cols-2 gap-4">
+              <div className="rounded-xl border border-gray-100 p-3">
+                <div className="text-xs text-gray-500">Total base</div>
+                <div className="mt-1 text-lg font-semibold text-gray-900">{money(pendingBaseTotalCents)}</div>
               </div>
-              <div><span className="font-medium">Total final:</span> {money(monthlyTotalCents)}</div>
+              <div className="rounded-xl border border-gray-100 p-3">
+                <div className="flex items-center justify-between">
+                  <div className="text-xs text-gray-500">Recargo</div>
+                  {surcharge.applied ? (
+                    <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-medium text-red-800">{surcharge.percent}%</span>
+                  ) : (
+                    <span className="text-[10px] text-gray-400">No aplica</span>
+                  )}
+                </div>
+                <div className="mt-1 text-lg font-semibold text-gray-900">{surcharge.applied ? money(pendingMonthlyTotalCents - pendingBaseTotalCents) : money(0)}</div>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <button onClick={() => window.history.back()} className="rounded-md bg-white px-3 py-2 text-xs font-semibold text-gray-700 ring-1 ring-gray-300 hover:bg-gray-50">Volver</button>
-              <button onClick={() => setRejectModal({ open: true, loading: false })} className="rounded-md bg-red-600 px-3 py-2 text-xs font-semibold text-white hover:bg-red-500">Rechazar</button>
-              <button onClick={() => setConfirmModal({ open: true, loading: false })} className="rounded-md bg-green-600 px-3 py-2 text-xs font-semibold text-white hover:bg-green-500">Confirmar pago</button>
+            <div className="order-1 sm:order-2 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 text-white p-4 flex flex-col justify-between">
+              <div>
+                <div className="text-xs/5 opacity-90">Total a cobrar</div>
+                <div className="mt-1 text-2xl font-extrabold tracking-tight">{money(pendingMonthlyTotalCents)}</div>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button onClick={() => setConfirmModal({ open: true, loading: false })} className="inline-flex items-center justify-center rounded-md bg-white/95 px-3 py-2 text-xs font-semibold text-orange-700 hover:bg-white focus:outline-none focus:ring-2 focus:ring-white/50">Confirmar pago</button>
+                <button onClick={() => setRejectModal({ open: true, loading: false })} className="inline-flex items-center justify-center rounded-md bg-red-700/95 px-3 py-2 text-xs font-semibold text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-white/50">Rechazar</button>
+                <button onClick={() => window.history.back()} className="inline-flex items-center justify-center rounded-md bg-orange-500/30 px-3 py-2 text-xs font-semibold text-white hover:bg-orange-500/40 focus:outline-none focus:ring-2 focus:ring-white/50">Volver</button>
+              </div>
             </div>
           </div>
         </div>
@@ -162,7 +182,7 @@ export default function MonthlyOrderDetail({ child, month, year, summary = [], b
               <p>Se confirmará el pago de <span className="font-medium">todos los días</span> del período {String(month).padStart(2,'0')}/{year} para:</p>
               <ul className="list-disc pl-5 text-gray-800">
                 <li><span className="font-medium">Alumno:</span> {child.name} {child.lastname}</li>
-                <li><span className="font-medium">Total a confirmar:</span> {money(monthlyTotalCents || baseTotalCents)}</li>
+                <li><span className="font-medium">Total a confirmar:</span> {money(pendingMonthlyTotalCents || pendingBaseTotalCents)}</li>
               </ul>
               <div className="rounded-md bg-orange-50 px-3 py-2 text-xs text-orange-700 border border-orange-200">Esta acción marcará TODOS los días del período como pagados.</div>
               {confirmError && <div className="rounded-md bg-red-50 px-3 py-2 text-xs text-red-700 border border-red-200">{confirmError}</div>}
