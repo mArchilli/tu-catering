@@ -64,24 +64,24 @@ export default function Hero() {
             <div className="pointer-events-none absolute top-20 -right-10 h-80 w-80 rounded-full bg-orange-300/20 blur-3xl"></div>
 
             <div className="relative mx-auto max-w-7xl px-6 lg:px-8 flex-1 flex items-center w-full" data-aos="fade-up" data-aos-delay="400">
-                <div className="grid lg:grid-cols-2 items-center gap-10 mx-auto">
+                <div className="grid lg:grid-cols-2 items-center gap-20 mx-auto w-full">
                     <div className="text-center lg:text-left">
                         {/* Badge superior con el servicio */}
                         
-                        <h1 className="mt-4 text-7xl sm:text-10xl md:text-7xl font-bold tracking-tight ">Tu Catering</h1>
-                        <div className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-white shadow-sm backdrop-blur mt-3">
+                        <h1 className="mt-4 text-7xl sm:text-10xl md:text-7xl lg:text-8xl xl:text-9xl font-bold tracking-tight">Tu Catering</h1>
+                        <div className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-5 py-1.5 text-sm font-semibold uppercase tracking-wide text-white shadow-sm backdrop-blur mt-4">
                             Soluciones alimentarias a medida
                         </div>
-                        <div className="mt-4 flex flex-wrap items-center gap-3 justify-center lg:justify-start">
+                        <div className="mt-6 flex flex-wrap items-center gap-4 justify-center lg:justify-start">
                             <a
                                 href="#services"
-                                className="inline-flex items-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-orange-600 shadow-sm transition hover:bg-orange-50 btn-zoom"
+                                className="inline-flex items-center rounded-full bg-white px-8 py-3.5 text-base font-semibold text-orange-600 shadow-sm transition hover:bg-orange-50 btn-zoom"
                             >
                                 Conocer servicios
                             </a>
                             <a
                                 href="#contacto"
-                                className="inline-flex items-center rounded-full border border-white/30 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10 btn-zoom"
+                                className="inline-flex items-center rounded-full border border-white/30 px-8 py-3.5 text-base font-semibold text-white transition hover:bg-white/10 btn-zoom"
                             >
                                 Contactanos
                             </a>
@@ -89,19 +89,19 @@ export default function Hero() {
                     </div>
                     <div className="hidden lg:block w-full">
                         {/* Rotor de 3 contenedores visibles con superposición */}
-                        <div className="mx-auto max-w-lg hero-rotor" style={{ ['--gap']: '0.5rem' }}>
-                            <div className="hero-card hero-card--a border border-white/20 bg-white/10 text-orange-50 shadow-lg p-4">
-                                <p className="text-base leading-7">
+                        <div className="mx-auto max-w-lg hero-rotor" style={{ ['--gap']: '0.75rem' }}>
+                            <div className="hero-card hero-card--a border border-white/20 bg-white/10 text-orange-50 shadow-lg p-6 rounded-2xl">
+                                <p className="text-lg leading-8">
                                     Nos dedicamos a brindar un servicio de calidad desde hace 5 años.
                                 </p>
                             </div>
-                            <div className="hero-card hero-card--b border border-white/20 bg-white/10 text-orange-50 shadow-lg p-4">
-                                <p className="text-base leading-7">
+                            <div className="hero-card hero-card--b border border-white/20 bg-white/10 text-orange-50 shadow-lg p-6 rounded-2xl">
+                                <p className="text-lg leading-8">
                                     Productos frescos, menús equilibrados y pensados para la comunidad escolar.
                                 </p>
                             </div>
-                            <div className="hero-card hero-card--c border border-white/20 bg-white/10 text-orange-50 shadow-lg p-4">
-                                <p className="text-base leading-7">
+                            <div className="hero-card hero-card--c border border-white/20 bg-white/10 text-orange-50 shadow-lg p-6 rounded-2xl">
+                                <p className="text-lg leading-8">
                                     Compromiso, higiene y cumplimiento: tres pilares de nuestro servicio diario.
                                 </p>
                             </div>
