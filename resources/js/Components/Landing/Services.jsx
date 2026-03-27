@@ -75,7 +75,7 @@ export default function Services() {
     const [selected, setSelected] = useState(services[0].key);
     const active = services.find((s) => s.key === selected) || services[0];
     return (
-        <section id="services" className="relative isolate overflow-hidden bg-orange-100">
+        <section id="services" className="relative isolate overflow-hidden bg-orange-100 h-screen flex flex-col justify-center">
             {/* blobs decorativos */}
             <div className="pointer-events-none absolute -top-16 -left-10 h-80 w-80 rounded-full bg-amber-300/30 blur-3xl z-0"></div>
             <div className="pointer-events-none absolute -bottom-20 -right-10 h-96 w-96 rounded-full bg-orange-400/20 blur-3xl z-0"></div>
@@ -108,9 +108,9 @@ export default function Services() {
                 `}
             </style>
 
-            <div className="relative z-20 mx-auto max-w-7xl px-6 py-20" data-aos="fade-up" data-aos-delay="400">
+            <div className="relative z-20 mx-auto max-w-7xl px-6 py-10 w-full" data-aos="fade-up" data-aos-delay="400">
                 <div className="max-w-7xl">
-                    <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900 text-center lg:text-left">Nuestros servicios</h2>
+                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-gray-900 text-center lg:text-left">Nuestros servicios</h2>
                 </div>
 
                 {/* Layout 2 columnas: izquierda panel, derecha selector disruptivo */}
@@ -122,15 +122,15 @@ export default function Services() {
                             <div className={`h-1.5 w-full bg-gradient-to-r ${active.gradient}`}></div>
                             <div className="p-6 sm:p-8">
                                 <div className="flex items-start gap-4">
-                                    <div className={`inline-flex h-12 w-12 flex-none items-center justify-center rounded-2xl bg-gradient-to-br ${active.gradient} text-white shadow-md`}>
-                                        <span className="text-lg">{active.emoji}</span>
+                                    <div className={`inline-flex h-14 w-14 flex-none items-center justify-center rounded-2xl bg-gradient-to-br ${active.gradient} text-white shadow-md`}>
+                                        <span className="text-2xl">{active.emoji}</span>
                                     </div>
                                     <div className="grow">
-                                        <h3 className="text-xl font-semibold text-gray-900">{active.title}</h3>
-                                        <p className="mt-2 text-sm leading-6 text-gray-700">{active.intro}</p>
+                                        <h3 className="text-xl lg:text-2xl font-semibold text-gray-900">{active.title}</h3>
+                                        <p className="mt-2 text-sm lg:text-base leading-6 lg:leading-7 text-gray-700">{active.intro}</p>
                                     </div>
                                 </div>
-                                <ul className="mt-6 grid grid-cols-1 gap-3 text-sm text-gray-700 sm:grid-cols-2">
+                                <ul className="mt-6 grid grid-cols-1 gap-3 text-sm lg:text-base text-gray-700 sm:grid-cols-2">
                                     {active.points.map((p) => (
                                         <li key={p} className="flex items-start gap-2">
                                             <span className={`mt-2 inline-block h-2 w-2 rounded-full bg-gradient-to-r ${active.gradient}`}></span>
@@ -176,7 +176,7 @@ export default function Services() {
                                                         <span className="text-base">{s.emoji}</span>
                                                     </span>
                                                     {/* Título: usar label corto para SAE */}
-                                                    <span className={`flex-1 min-w-0 font-semibold ${selected ? 'text-gray-900' : 'text-gray-700'} text-[10px] sm:text-xs leading-snug`}>
+                                                    <span className={`flex-1 min-w-0 font-semibold ${selected ? 'text-gray-900' : 'text-gray-700'} text-xs sm:text-sm leading-snug`}>
                                                         <span className="chip-title block">
                                                             {s.key === 'sae' ? 'S.A.E' : s.title}
                                                         </span>

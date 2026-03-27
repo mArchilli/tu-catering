@@ -12,7 +12,7 @@ export default function Benefits() {
         },
         {
             title: 'Higiene y seguridad',
-            desc: 'Trazabilidad, controles y buenas prácticas en toda la cadena.',
+            desc: 'Trazabilidad, controles periódicos y buenas prácticas en cada etapa de la cadena alimentaria.',
             icon: (
                 // shield
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
@@ -105,16 +105,16 @@ export default function Benefits() {
     };
 
     return (
-        <section className="relative isolate overflow-hidden bg-orange-100">
+        <section className="relative isolate overflow-hidden bg-orange-100 h-screen flex flex-col justify-center">
             {/* blobs decorativos y overlays como en Services */}
             <div className="pointer-events-none absolute -top-16 -left-10 h-80 w-80 rounded-full bg-amber-300/30 blur-3xl z-0"></div>
             <div className="pointer-events-none absolute -bottom-20 -right-10 h-96 w-96 rounded-full bg-orange-400/20 blur-3xl z-0"></div>
             <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white to-transparent z-10"></div>
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white to-transparent z-10"></div>
 
-            <div className="relative z-20 mx-auto max-w-7xl px-6 py-16 lg:px-8">
+            <div className="relative z-20 mx-auto max-w-7xl px-6 py-10 lg:px-8 w-full">
                 <div className="mx-auto max-w-7xl text-center lg:text-left" data-aos="fade-up" data-aos-delay="400">
-                    <h2 className="text-3xl sm:text-4xl font-semibold text-gray-900">¿Por qué elegirnos?</h2>
+                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-gray-900">¿Por qué elegirnos?</h2>
                 </div>
 
                 {/* Rotor horizontal en mobile */}
@@ -175,14 +175,14 @@ export default function Benefits() {
                 <div className="mt-12 hidden lg:grid lg:grid-cols-2 gap-6" data-aos="fade-up" data-aos-delay="400">
                     {benefits.map((b) => (
                         <div key={b.title} className="rounded-2xl p-[1.5px] bg-gradient-to-r from-orange-500 to-amber-400 shadow-sm transition-transform hover:scale-[1.02]" data-aos="fade-up" data-aos-delay="400">
-                            <div className="rounded-2xl bg-white p-6">
-                                <div className="mb-3 inline-flex rounded-xl bg-gradient-to-br from-orange-500 to-amber-400 p-2 text-white shadow">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                            <div className="rounded-2xl bg-white p-8">
+                                <div className="mb-3 inline-flex rounded-xl bg-gradient-to-br from-orange-500 to-amber-400 p-3 text-white shadow">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                                         {b.icon}
                                     </svg>
                                 </div>
-                                <h3 className="text-base font-semibold text-gray-900">{b.title}</h3>
-                                <p className="mt-2 text-sm text-gray-600">{b.desc}</p>
+                                <h3 className="text-base lg:text-lg font-semibold text-gray-900">{b.title}</h3>
+                                <p className="mt-2 text-sm lg:text-base text-gray-600">{b.desc}</p>
                             </div>
                         </div>
                     ))}

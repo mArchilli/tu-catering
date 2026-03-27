@@ -1,11 +1,11 @@
 export default function About() {
     return (
-        <section id="about" className="bg-white">
-            <div className="mx-auto max-w-7xl px-6 py-5 sm:py-12" data-aos="fade-up" data-aos-delay="400">
+        <section id="about" className="bg-white h-screen flex flex-col justify-center">
+            <div className="mx-auto max-w-7xl px-6 py-5 sm:py-12 w-full" data-aos="fade-up" data-aos-delay="400">
                 <div className="grid items-center gap-12 lg:grid-cols-2">
                     {/* Izquierda: Imagen dentro de círculo blanco */}
                     <div className="hidden lg:flex justify-center order-first lg:order-none">
-                        <div className="relative h-64 w-64 sm:h-72 sm:w-72 lg:h-96 lg:w-96 rounded-full bg-white shadow-xl border-4 border-orange-500 p-1 overflow-hidden">
+                        <div className="relative h-64 w-64 sm:h-72 sm:w-72 lg:h-[28rem] lg:w-[28rem] rounded-full bg-white shadow-xl border-4 border-orange-500 p-1 overflow-hidden">
                             <img
                                 src="/images/about-chef.png"
                                 alt="Equipo de cocina de Tu Catering"
@@ -17,7 +17,7 @@ export default function About() {
 
                     {/* Derecha: Diseño alternativo con bloque destacado, badges y cita */}
                     <div className="mx-auto w-full max-w-2xl">
-                        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900 text-center lg:text-left">Nuestra esencia</h2>
+                        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-gray-900 text-center lg:text-left">Nuestra esencia</h2>
 
                         <div className="flex lg:hidden justify-center order-first lg:order-none pt-5">
                             <div className="relative h-64 w-64 sm:h-72 sm:w-72 lg:h-96 lg:w-96 rounded-full bg-white shadow-xl border-4 border-orange-500 p-1 overflow-hidden">
@@ -32,7 +32,7 @@ export default function About() {
 
                         {/* Bloque destacado */}
                         <div className="mt-6 bg-orange-50/70 p-6 ring-1 ring-orange-100 rounded-md">
-                            <p className="text-base leading-7 text-gray-700 lg:pl-0">
+                            <p className="text-base lg:text-lg leading-7 lg:leading-8 text-gray-700 lg:pl-0">
                                 Creemos en acompañar a cada institución con una alimentación cuidada y cercana.
                                 Combinamos nutrición, higiene y calidad para crear menús equilibrados, procesos claros
                                 y una atención que escucha las necesidades del espacio.

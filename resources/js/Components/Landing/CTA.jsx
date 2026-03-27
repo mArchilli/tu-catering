@@ -52,8 +52,8 @@ export default function CTA() {
     };
 
     return (
-        <section id="contacto" className="bg-white">
-            <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
+        <section id="contacto" className="bg-white h-screen flex flex-col justify-center">
+            <div className="mx-auto max-w-7xl px-6 py-10 lg:px-8 w-full">
                 {/* Layout unificado: una sola grilla responsive; mismo formulario para ambas vistas */}
                 <div className="grid gap-8 lg:grid-cols-2 lg:items-stretch">
                     {/* Izquierda: info de contacto (en mobile aparece debajo, en 2 columnas) */}
@@ -97,7 +97,7 @@ export default function CTA() {
                     <div
                         className="group relative overflow-hidden order-1 lg:order-2 rounded-2xl h-full border border-orange-100 bg-white p-8 shadow-sm transition-colors duration-200 hover:border-orange-200 hover:shadow-md focus-within:border-orange-200 focus-within:shadow-md" data-aos="fade-left" data-aos-delay="400"
                     >
-                        <h3 className="text-2xl sm:text-3xl font-semibold text-gray-900 text-center lg:text-left">Contactanos</h3>
+                        <h3 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-gray-900 text-center lg:text-left">Contactanos</h3>
                         <p className="mt-1 text-sm text-gray-600">Dejanos tu consulta y te respondemos a la brevedad.</p>
                         <form onSubmit={onSubmit} className="mt-6 space-y-4">
                             {/* Nombre */}
