@@ -55,10 +55,10 @@ const paymentDataBySchool = (school) => {
         sections: [
           {
             title: 'Transferencia',
-            entidad: 'Banco Santander',
+            entidad: 'Banco Galicia',
             titular: 'Aguilera Oscar Daniel',
-            cbu: '0720057188000037150336',
-            alias: 'MARCA.PIANO.MARCHA',
+            cbu: '0070042930004079878954',
+            alias: 'TUCATERING.2024',
           },
           {
             title: 'Transferencia',
